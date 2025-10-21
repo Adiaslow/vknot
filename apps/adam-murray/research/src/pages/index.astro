@@ -152,43 +152,9 @@ try {
     ];
   }
 } catch (error) {
-  console.warn("Failed to fetch ORCID publications:", error);
-  // Fallback to research focus areas if ORCID fetch fails
-  publications = [
-    {
-      title: "Research Focus: Macrocyclic Peptide Drug Discovery",
-      abstract:
-        "Developing computational approaches for designing cyclic peptides with improved pharmacological properties through collaboration with the Lokey Lab.",
-      venue: "Lokey Lab, UCSC",
-      year: 2024,
-      date: "2024",
-      doi: "",
-      url: "https://lokey.chemistry.ucsc.edu/",
-      type: "research-focus",
-    },
-    {
-      title: "Research Focus: Cortical Circuit Development",
-      abstract:
-        "Investigating neural circuit connectivity and development using computational methods in neuroscience research.",
-      venue: "Kim Neuroscience Lab, UCSC",
-      year: 2024,
-      date: "2024",
-      doi: "",
-      url: "https://www.ejkimlab.com/",
-      type: "research-focus",
-    },
-    {
-      title: "Research Focus: Electrophysiological Signaling",
-      abstract:
-        "Novel computational methods for observing and controlling electrophysiological signaling in neural systems.",
-      venue: "Sack & Yarov-Yarovoy Labs, UC Davis",
-      year: 2024,
-      date: "2024",
-      doi: "",
-      url: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
-      type: "research-focus",
-    },
-  ];
+  console.error("Failed to fetch ORCID publications:", error);
+  // Publications will remain empty if ORCID fetch fails
+  // The page will still display the lab cards at the bottom
 }
 ---
 
@@ -198,7 +164,7 @@ try {
 >
   <ResearchHero
     title="Computational Peptide Drug Design & Neuroscience"
-    lead="Research in computational peptide drug design and developmental neuroscience through collaborative work at UC Santa Cruz and UC Davis."
+    lead="Research in computational peptide drug design and developmental neuroscience using machine learning, evolutionary and stochastic optimization, and statistical and graph-based methods research at UC Santa Cruz and UC Davis."
     accent="Research Focus Areas"
   />
 
@@ -271,10 +237,6 @@ try {
       <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
         Research Focus
       </h2>
-      <p class="text-slate-600 leading-relaxed">
-        Computational research through collaborative work at UC Santa Cruz and
-        UC Davis.
-      </p>
     </div>
     <div class="grid gap-6 md:grid-cols-3">
       <a

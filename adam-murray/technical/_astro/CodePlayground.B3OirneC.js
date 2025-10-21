@@ -1,0 +1,9 @@
+import{r as a}from"./index.CVf8TyFT.js";var p={exports:{}},l={};/**
+ * @license React
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var m=a,u=Symbol.for("react.element"),f=Symbol.for("react.fragment"),b=Object.prototype.hasOwnProperty,v=m.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,h={key:!0,ref:!0,__self:!0,__source:!0};function x(r,e,o){var t,n={},i=null,d=null;o!==void 0&&(i=""+o),e.key!==void 0&&(i=""+e.key),e.ref!==void 0&&(d=e.ref);for(t in e)b.call(e,t)&&!h.hasOwnProperty(t)&&(n[t]=e[t]);if(r&&r.defaultProps)for(t in e=r.defaultProps,e)n[t]===void 0&&(n[t]=e[t]);return{$$typeof:u,type:r,key:i,ref:d,props:n,_owner:v.current}}l.Fragment=f;l.jsx=x;l.jsxs=x;p.exports=l;var s=p.exports;const y=({code:r,children:e})=>{const[o,t]=a.useState("preview"),n=a.useMemo(()=>r.trim(),[r]);return s.jsxs("section",{className:"flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",children:[s.jsx("header",{className:"flex w-full items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium",children:s.jsxs("div",{className:"flex items-center gap-2",children:[s.jsx("button",{type:"button",className:c(o==="preview"),onClick:()=>t("preview"),children:"Preview"}),s.jsx("button",{type:"button",className:c(o==="code"),onClick:()=>t("code"),children:"Code"})]})}),s.jsx("div",{className:"flex flex-col gap-0",children:o==="preview"?s.jsx("div",{className:"min-h-[200px] bg-white p-6",children:e}):s.jsx("pre",{className:"overflow-auto bg-slate-900 p-6 text-sm text-slate-50",children:s.jsx("code",{children:n})})})]})};function c(r){return r?"rounded-md bg-white px-3 py-1 text-slate-900 shadow-sm":"rounded-md px-3 py-1 text-slate-500 transition hover:text-slate-900"}export{y as CodePlayground};

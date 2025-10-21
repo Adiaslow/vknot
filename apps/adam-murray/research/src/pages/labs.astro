@@ -1,14 +1,14 @@
 ---
 import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
-import { VectorSquare, Route, BrainCircuit } from "lucide-react";
+import LabIcon from "../components/LabIcon";
 
 const labs = [
   {
     id: "lokey-lab",
     name: "Lokey Lab",
     institution: "UC Santa Cruz",
-    icon: VectorSquare,
+    icon: "VectorSquare",
     iconRotation: "-45deg",
     iconColor: "blue",
     website: "https://lokey.chemistry.ucsc.edu/",
@@ -21,7 +21,7 @@ const labs = [
     id: "kim-lab",
     name: "Kim Lab",
     institution: "UC Santa Cruz",
-    icon: BrainCircuit,
+    icon: "BrainCircuit",
     iconRotation: "0deg",
     iconColor: "emerald",
     website: "https://www.ejkimlab.com/",
@@ -34,7 +34,7 @@ const labs = [
     id: "yarov-yarovoy-lab",
     name: "Yarov-Yarovoy Lab",
     institution: "UC Davis",
-    icon: Route,
+    icon: "Route",
     iconRotation: "-45deg",
     iconColor: "purple",
     website:
@@ -66,9 +66,10 @@ const labs = [
               <div
                 class={`w-16 h-16 rounded-full bg-${lab.iconColor}-100 flex items-center justify-center flex-shrink-0`}
               >
-                <lab.icon
-                  className={`w-8 h-8 text-${lab.iconColor}-600`}
-                  style={`transform: rotate(${lab.iconRotation})`}
+                <LabIcon
+                  icon={lab.icon}
+                  rotation={lab.iconRotation}
+                  color={lab.iconColor}
                   client:load
                 />
               </div>

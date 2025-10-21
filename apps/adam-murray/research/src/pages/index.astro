@@ -2,7 +2,7 @@
 import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
 import PublicationCard from "../components/PublicationCard";
-import { VectorSquare, Route, BrainCircuit } from "lucide-react";
+import LabIconSmall from "../components/LabIconSmall";
 
 // Fetch publications from ORCID API
 const ORCID_ID = "0009-0006-1673-9485";
@@ -246,9 +246,10 @@ try {
           <div
             class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"
           >
-            <VectorSquare
-              className="w-6 h-6 text-blue-600"
-              style="transform: rotate(-45deg)"
+            <LabIconSmall
+              icon="VectorSquare"
+              rotation="-45deg"
+              color="blue"
               client:load
             />
           </div>
@@ -268,7 +269,11 @@ try {
           <div
             class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center"
           >
-            <BrainCircuit className="w-6 h-6 text-emerald-600" client:load />
+            <LabIconSmall
+              icon="BrainCircuit"
+              color="emerald"
+              client:load
+            />
           </div>
           <h3 class="font-bold text-slate-900">Kim Lab</h3>
           <p class="text-sm text-slate-600 leading-relaxed">
@@ -286,9 +291,10 @@ try {
           <div
             class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center"
           >
-            <Route
-              className="w-6 h-6 text-purple-600"
-              style="transform: rotate(-45deg)"
+            <LabIconSmall
+              icon="Route"
+              rotation="-45deg"
+              color="purple"
               client:load
             />
           </div>

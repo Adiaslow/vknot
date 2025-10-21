@@ -1,0 +1,117 @@
+---
+import ResearchHero from "../components/ResearchHero.astro";
+import ResearchLayout from "../layouts/ResearchLayout.astro";
+
+const labs = [
+  {
+    id: "lokey-lab",
+    name: "Lokey Lab",
+    institution: "UC Santa Cruz",
+    icon: "beaker",
+    iconColor: "blue",
+    website: "https://lokey.chemistry.ucsc.edu/",
+    labFocus: "The structural complexity of many natural products sets them apart from common synthetic drugs, allowing them to access a biological target space that lies beyond the enzyme active sites and receptors targeted by conventional small molecule drugs. Naturally occurring cyclic peptides, in particular, exhibit a range of biological activities whose diversity is reflected in their rich structural variety. Many of these compounds penetrate cells by passive diffusion and some, like cyclosporine A, are clinically used, orally bioavailable drugs. These natural products tend to have molecular weights and polar group counts that put them outside the norm based on classic predictors of \"drug-likeness\". Because of their size and complexity, cyclic peptides can show greater specificity and potency for biological targets compared to smaller acyclic compounds, and they may provide useful scaffolds for modulating more challenging biological targets such as protein-protein interactions and allosteric binding sites. The lab's research focuses on cyclic peptide natural products from a structural perspective, in the hope of uncovering trends that might account for their unexpected pharmacokinetic behavior. Additionally, the lab develops DNA-encoded cyclic peptide libraries using combinatorial strategies for high-throughput reaction profiling and physicochemical assessment of DNA-peptide conjugates to target protein-protein interactions related to uncontrolled cell proliferation. The lab has also expanded interests into targeted protein degradation, providing tools to assess and optimize the ADME profile of degraders such as molecular glues and PROTACs.",
+    myWork: "Development of computational approaches for designing permeable cyclic peptides with improved pharmacological properties through structure-activity relationship modeling at UC Santa Cruz.",
+  },
+  {
+    id: "kim-lab",
+    name: "Kim Lab",
+    institution: "UC Santa Cruz",
+    icon: "brain",
+    iconColor: "emerald",
+    website: "https://www.ejkimlab.com/",
+    labFocus: "The mammalian cortex is composed of numerous functionally specialized areas. Interactions between these areas, mediated by widespread yet precise cell type specific circuits, are central to the neural computations that generate perception, cognition, and behavior. The laboratory focuses on understanding the organizational logic of long-distance cortical circuits and the molecular mechanisms of their development using mouse visual cortex as a model. In the mature brain, the lab investigates the identities of brain-wide input and output neurons and their functional contributions to information processing using novel trans-synaptic tracers and in vivo imaging. In the developing brain, the lab examines how genetic programs and neuronal activity interact to construct connectivity, addressing how a population of neural progenitors in a single cortical area develops into diverse subtypes each projecting to particular brain areas and receiving specific brain-wide inputs. These fundamental questions are addressed using novel neural circuit tracing systems with next-generation trans-synaptic viral tracers, mouse genetics, single-cell genome-wide sequencing, and in vivo imaging to understand how specific long-distance neural circuits are developed and organized at the single cell level, ultimately providing insights into neurodevelopmental disorders such as autism and schizophrenia.",
+    myWork: "Mapping of the neural circuitry of the developing visual cortex through the analysis of experimental anterograde viral tracing data at UC Santa Cruz.",
+  },
+  {
+    id: "yarov-yarovoy-lab",
+    name: "Yarov-Yarovoy Lab",
+    institution: "UC Davis",
+    icon: "network",
+    iconColor: "purple",
+    website: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
+    labFocus: "The laboratory's research interests and expertise encompass neuroscience, protein structure, computational biology, and evolution. The main focus is on structure and function studies of voltage-gated ion channels, computational design and chemical synthesis of subtype-specific modulators of voltage-gated ion channels, development of computational methods for membrane protein structure prediction and design, and analysis of evolution of human voltage-gated ion channels. Function and modulation of neuronal sodium channels are critical for the neuromodulation of electrical excitability and synaptic transmission in neurons. The laboratory focuses on studying neuronal voltage-gated sodium channels structure, function, and modulation in order to design new therapeutically useful drugs for treatment of pain and epilepsy. The lab uses an innovative approach to design novel subtype selective Nav channel blocking drugs with high efficacy and minimum side effects, which are tested using methods of electrophysiology, biochemistry, and molecular biology. This research provides key structural information on the molecular basis of neuronal voltage-gated sodium channels function and its interaction with therapeutically useful subtype-specific modulators, giving profound insights into the fundamental mechanisms underlying neuromodulation and signal transduction.",
+    myWork: "Development and application of deep learning-based protein design, optimization, and validation pipelines for binders targeting ion channels at UC Davis.",
+  },
+];
+
+const icons = {
+  beaker: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+  brain: "M13 10V3L4 14h7v7l9-11h-7z",
+  network: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+};
+---
+
+<ResearchLayout
+  title="Labs — Adam Murray Research"
+  description="Research laboratory collaborations at UC Santa Cruz and UC Davis."
+>
+  <ResearchHero
+    title="Laboratory Collaborations"
+    lead="Research collaborations across computational peptide drug design and developmental neuroscience at UC Santa Cruz and UC Davis."
+    accent="Labs"
+  />
+
+  <section class="flex flex-col gap-16">
+    {labs.map((lab) => (
+      <article id={lab.id} class="flex flex-col gap-6 scroll-mt-20">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div class="flex items-center gap-4">
+            <div class={`w-16 h-16 rounded-full bg-${lab.iconColor}-100 flex items-center justify-center flex-shrink-0`}>
+              <svg
+                class={`w-8 h-8 text-${lab.iconColor}-600`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d={icons[lab.icon]}
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
+                {lab.name}
+              </h2>
+              <p class="text-slate-600 mt-1">{lab.institution}</p>
+            </div>
+          </div>
+          <a
+            href={lab.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors duration-200 text-sm font-medium"
+          >
+            Visit Lab Website
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div class="rounded-lg border border-slate-200 bg-white p-6">
+            <h3 class="text-xl font-bold text-slate-900 mb-3">Lab Focus</h3>
+            <p class="text-slate-600 leading-relaxed">
+              {lab.labFocus || "Lab focus description to be added."}
+            </p>
+          </div>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-6">
+            <h3 class="text-xl font-bold text-slate-900 mb-3">My Work</h3>
+            <p class="text-slate-600 leading-relaxed">
+              {lab.myWork}
+            </p>
+          </div>
+        </div>
+
+        {lab.id !== labs[labs.length - 1].id && (
+          <hr class="border-slate-200 mt-10" />
+        )}
+      </article>
+    ))}
+  </section>
+</ResearchLayout>

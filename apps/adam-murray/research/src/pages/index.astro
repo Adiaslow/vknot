@@ -4,6 +4,7 @@ import ResearchLayout from "../layouts/ResearchLayout.astro";
 import PublicationCard from "../components/PublicationCard";
 import LabIconSmall from "../components/LabIconSmall";
 import { fetchAbstractFromCrossRef } from "../utils/fetchAbstract";
+import { fetchPublicationMetrics } from "../utils/fetchMetrics";
 
 // Fetch publications from ORCID API
 const ORCID_ID = "0009-0006-1673-9485";
@@ -52,8 +53,11 @@ try {
           }
         }
 
-        // Fetch real abstract from CrossRef using DOI
-        const abstract = doi ? await fetchAbstractFromCrossRef(doi) : "";
+        // Fetch real abstract and metrics from CrossRef and other sources using DOI
+        const [abstract, metrics] = await Promise.all([
+          doi ? fetchAbstractFromCrossRef(doi) : Promise.resolve(""),
+          doi ? fetchPublicationMetrics(doi) : Promise.resolve({})
+        ]);
 
         // Get URL to publication
         if (workSummary.url?.value) {
@@ -104,6 +108,7 @@ try {
           type: workSummary.type || "journal-article",
           doi: doi,
           url: url,
+          metrics: metrics,
         };
 
         publications.push(publication);
@@ -201,6 +206,7 @@ try {
               doi={pub.doi}
               url={pub.url}
               type={pub.type}
+              metrics={pub.metrics}
               showAbstract={false}
               client:load
             />

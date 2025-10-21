@@ -41,6 +41,7 @@ jobs:
           cp -R apps/adam-murray/technical/dist/* deploy/adam-murray/technical/
           mkdir -p deploy/tender_circuits
           cp -R apps/tender-circuits/dist/* deploy/tender_circuits/
+          touch deploy/.nojekyll
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

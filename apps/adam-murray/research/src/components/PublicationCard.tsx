@@ -9,17 +9,19 @@ interface PublicationCardProps {
   readonly doi?: string;
   readonly url?: string;
   readonly type?: string;
+  readonly showAbstract?: boolean;
 }
 
-const PublicationCard: FC<PublicationCardProps> = ({ 
-  title, 
-  abstract, 
-  venue, 
-  year, 
+const PublicationCard: FC<PublicationCardProps> = ({
+  title,
+  abstract,
+  venue,
+  year,
   date,
-  doi, 
-  url, 
-  type 
+  doi,
+  url,
+  type,
+  showAbstract = true
 }) => {
   const handleClick = () => {
     if (url) {
@@ -54,16 +56,18 @@ const PublicationCard: FC<PublicationCardProps> = ({
         <h3 className={`text-xl font-bold leading-tight text-gray-9 group-hover:text-blue-9 transition-colors ${url ? 'hover:text-blue-7' : ''}`}>
           {title}
         </h3>
-        
+
         {/* Abstract */}
-        <p className="text-base text-gray-6 leading-relaxed line-clamp-4" style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 4,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        }}>
-          {abstract}
-        </p>
+        {showAbstract && (
+          <p className="text-base text-gray-6 leading-relaxed line-clamp-4" style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
+            {abstract}
+          </p>
+        )}
       </div>
       
       {/* Publication Details */}

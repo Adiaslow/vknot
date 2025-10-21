@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.TBa3i5EZ.js";import{B as e,R as n,V as c}from"./vector-square.XPhlKkDQ.js";import"./index.CVf8TyFT.js";function f({icon:t,rotation:o="0deg",color:a}){const r={VectorSquare:c,Route:n,BrainCircuit:e}[t];return s.jsx(r,{className:`w-6 h-6 text-${a}-600`,style:{transform:`rotate(${o})`}})}export{f as default};

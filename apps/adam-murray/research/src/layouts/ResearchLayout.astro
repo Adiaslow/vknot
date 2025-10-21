@@ -20,7 +20,7 @@ const { title, description } = Astro.props;
   <body class="min-h-screen bg-slate-100 font-sans text-slate-900">
     <Navigation
       theme="academic"
-      siteName="Adam Murray Research"
+      siteName="Adam Murray - Research"
       baseUrl="/adam-murray/research"
       links={[
         { href: "/adam-murray/research", label: "Home" },
@@ -47,7 +47,10 @@ const { title, description } = Astro.props;
         class="mx-auto flex w-full max-w-5xl flex-col gap-2 px-6 text-sm text-slate-500"
       >
         <span>© {new Date().getFullYear()} Adam Murray</span>
-        <span>Research in computational biology and neuroscience.</span>
+        <span
+          >Research in computational peptide drug design and developmental
+          neuroscience.</span
+        >
       </div>
     </footer>
   </body>

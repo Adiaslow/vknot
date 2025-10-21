@@ -9,6 +9,7 @@ build/
 .next/
 out/
 .astro/
+deploy/
 
 # Turbo
 .turbo/

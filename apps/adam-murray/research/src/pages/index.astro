@@ -1,0 +1,362 @@
+---
+import ResearchHero from "../components/ResearchHero.astro";
+import ResearchLayout from "../layouts/ResearchLayout.astro";
+import PublicationCard from "../components/PublicationCard";
+
+// Fetch publications from ORCID API
+const ORCID_ID = "0009-0006-1673-9485";
+let publications = [];
+
+try {
+  // Get the list of works from ORCID
+  const worksResponse = await fetch(
+    `https://pub.orcid.org/v3.0/${ORCID_ID}/works`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (worksResponse.ok) {
+    const worksData = await worksResponse.json();
+
+    // Process each work group (all publications for homepage preview)
+    for (const workGroup of worksData.group || []) {
+      // Use the first work-summary in each group
+      const workSummary = workGroup["work-summary"][0];
+
+      if (workSummary) {
+        // Create abstract based on available information
+        let abstract = "Research publication";
+        const title = workSummary.title?.title?.value || "Untitled";
+
+        // Enhance abstract based on title keywords
+        if (
+          title.toLowerCase().includes("channel") ||
+          title.toLowerCase().includes("nav")
+        ) {
+          abstract =
+            "Computational research on ion channel mechanisms and drug design for neurological applications.";
+        } else if (
+          title.toLowerCase().includes("dna") ||
+          title.toLowerCase().includes("library")
+        ) {
+          abstract =
+            "Advanced computational methods for drug discovery using DNA-encoded chemical libraries.";
+        } else if (
+          title.toLowerCase().includes("alphafold") ||
+          title.toLowerCase().includes("modeling")
+        ) {
+          abstract =
+            "Structural bioinformatics and computational modeling using AI-based protein structure prediction.";
+        } else if (
+          title.toLowerCase().includes("moast") ||
+          title.toLowerCase().includes("mechanism")
+        ) {
+          abstract =
+            "Computational tools for analyzing and comparing mechanisms of action in drug discovery.";
+        }
+
+        // Determine venue
+        let venue = "In Review";
+        if (workSummary["journal-title"]?.value) {
+          venue = workSummary["journal-title"].value;
+        } else if (workSummary.type === "preprint") {
+          venue = "Preprint";
+        }
+
+        // Extract DOI from external IDs
+        let doi = "";
+        let url = "";
+
+        if (workSummary["external-ids"]?.["external-id"]) {
+          const doiRecord = workSummary["external-ids"]["external-id"].find(
+            (id: any) => id["external-id-type"] === "doi"
+          );
+          if (doiRecord) {
+            doi = doiRecord["external-id-value"];
+          }
+        }
+
+        // Get URL to publication
+        if (workSummary.url?.value) {
+          url = workSummary.url.value;
+        }
+
+        // Extract full publication date
+        let publicationDate = "";
+        let year = new Date().getFullYear();
+
+        if (workSummary["publication-date"]) {
+          const pubDate = workSummary["publication-date"];
+          year = pubDate.year?.value || year;
+
+          if (pubDate.month?.value && pubDate.day?.value) {
+            const month = String(pubDate.month.value).padStart(2, "0");
+            const day = String(pubDate.day.value).padStart(2, "0");
+            publicationDate = `${year}-${month}-${day}`;
+          } else if (pubDate.month?.value) {
+            const monthNames = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            publicationDate = `${monthNames[pubDate.month.value - 1]} ${year}`;
+          } else {
+            publicationDate = String(year);
+          }
+        } else {
+          publicationDate = String(year);
+        }
+
+        const publication = {
+          title: title,
+          abstract: abstract,
+          venue: venue,
+          year: year,
+          date: publicationDate,
+          type: workSummary.type || "journal-article",
+          doi: doi,
+          url: url,
+        };
+
+        publications.push(publication);
+      }
+    }
+  }
+
+  // If no publications were found, but API call succeeded, show empty state
+  if (publications.length === 0) {
+    publications = [
+      {
+        title: "Building Research Portfolio",
+        abstract:
+          "Publications and research outputs will appear here as they become available.",
+        venue: "ORCID Profile",
+        year: new Date().getFullYear(),
+        date: String(new Date().getFullYear()),
+        doi: "",
+        url: "",
+        type: "note",
+      },
+    ];
+  }
+} catch (error) {
+  console.warn("Failed to fetch ORCID publications:", error);
+  // Fallback to research focus areas if ORCID fetch fails
+  publications = [
+    {
+      title: "Research Focus: Macrocyclic Peptide Drug Discovery",
+      abstract:
+        "Developing computational approaches for designing cyclic peptides with improved pharmacological properties through collaboration with the Lokey Lab.",
+      venue: "Lokey Lab, UCSC",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://lokey.chemistry.ucsc.edu/",
+      type: "research-focus",
+    },
+    {
+      title: "Research Focus: Cortical Circuit Development",
+      abstract:
+        "Investigating neural circuit connectivity and development using computational methods in neuroscience research.",
+      venue: "Kim Neuroscience Lab, UCSC",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://www.ejkimlab.com/",
+      type: "research-focus",
+    },
+    {
+      title: "Research Focus: Electrophysiological Signaling",
+      abstract:
+        "Novel computational methods for observing and controlling electrophysiological signaling in neural systems.",
+      venue: "Sack & Yarov-Yarovoy Labs, UC Davis",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
+      type: "research-focus",
+    },
+  ];
+}
+---
+
+<ResearchLayout
+  title="Adam Murray — Research"
+  description="Computational research and lab experiments by Adam Murray."
+>
+  <ResearchHero
+    title="Computational Biology & Neuroscience"
+    lead="Research in computational biology and neuroscience through collaborative work at UC Santa Cruz and UC Davis."
+    accent="Research Focus Areas"
+  />
+
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-3">
+      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
+        {
+          publications.length > 0 &&
+          publications[0].title?.startsWith("Research Focus")
+            ? "Research Focus Areas"
+            : publications.length > 0 &&
+                publications[0].title?.startsWith("Building Research")
+              ? "Research Portfolio"
+              : "Recent Publications"
+        }
+      </h2>
+      <div class="flex flex-col gap-4">
+        <p class="text-slate-600 leading-relaxed">
+          {
+            publications.length > 0 &&
+            publications[0].title?.startsWith("Research Focus")
+              ? "Current research initiatives across computational biology, neuroscience, and drug discovery."
+              : publications.length > 0 &&
+                  publications[0].title?.startsWith("Building Research")
+                ? "Publications and research outputs will appear here as they become available."
+                : "Recent peer-reviewed publications from ongoing research collaborations."
+          }
+        </p>
+        {
+          publications.length > 6 &&
+            !publications[0].title?.startsWith("Research Focus") &&
+            !publications[0].title?.startsWith("Building Research") && (
+              <p class="text-sm text-slate-500">
+                Showing recent publications.
+                <a
+                  href="/adam-murray/research/publications"
+                  class="text-blue-600 hover:text-blue-700 font-medium ml-1"
+                >
+                  View all {publications.length} publications →
+                </a>
+              </p>
+            )
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-8">
+      {
+        publications
+          .slice(0, 6)
+          .map((pub, index) => (
+            <PublicationCard
+              key={index}
+              title={pub.title}
+              abstract={pub.abstract}
+              venue={pub.venue}
+              year={pub.year}
+              date={pub.date}
+              doi={pub.doi}
+              url={pub.url}
+              type={pub.type}
+              client:load
+            />
+          ))
+      }
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-3">
+      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
+        Research Focus
+      </h2>
+      <p class="text-slate-600 leading-relaxed">
+        Computational research through collaborative work at UC Santa Cruz and
+        UC Davis.
+      </p>
+    </div>
+    <div class="grid gap-6 md:grid-cols-3">
+      <div
+        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5"
+      >
+        <div class="flex flex-col gap-3">
+          <div
+            class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"
+          >
+            <svg
+              class="w-6 h-6 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Lokey Lab</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Research collaboration at UC Santa Cruz.
+          </p>
+        </div>
+      </div>
+      <div
+        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5"
+      >
+        <div class="flex flex-col gap-3">
+          <div
+            class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center"
+          >
+            <svg
+              class="w-6 h-6 text-emerald-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Kim Lab</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Neuroscience research collaboration at UC Santa Cruz.
+          </p>
+        </div>
+      </div>
+      <div
+        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5"
+      >
+        <div class="flex flex-col gap-3">
+          <div
+            class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center"
+          >
+            <svg
+              class="w-6 h-6 text-purple-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Sack & Yarov-Yarovoy Labs</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Research collaboration at UC Davis.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</ResearchLayout>

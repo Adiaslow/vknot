@@ -1,0 +1,63 @@
+---
+export interface Props {
+  readonly title: string;
+  readonly description: string;
+  readonly image?: string;
+  readonly article?: boolean;
+  readonly publishedTime?: string;
+  readonly modifiedTime?: string;
+  readonly tags?: ReadonlyArray<string>;
+}
+
+const {
+  title,
+  description,
+  image,
+  article = false,
+  publishedTime,
+  modifiedTime,
+  tags = []
+} = Astro.props satisfies Props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': article ? 'Article' : 'WebSite',
+  name: title,
+  description,
+  url: canonicalURL.toString(),
+  ...(article
+    ? {
+        headline: title,
+        datePublished: publishedTime,
+        dateModified: modifiedTime ?? publishedTime,
+        keywords: tags.join(', ')
+      }
+    : {})
+};
+---
+
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL} />
+
+<meta property="og:type" content={article ? 'article' : 'website'} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{image ? <meta property="og:image" content={image} /> : null}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image ? <meta name="twitter:image" content={image} /> : null}
+
+{publishedTime ? <meta property="article:published_time" content={publishedTime} /> : null}
+{modifiedTime ? <meta property="article:modified_time" content={modifiedTime} /> : null}
+{tags.map((tag) => (
+  <meta property="article:tag" content={tag} />
+))}
+
+<script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+

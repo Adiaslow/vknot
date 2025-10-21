@@ -1,0 +1,54 @@
+---
+import { Navigation, SEO } from "@vknot/ui";
+
+export interface Props {
+  readonly title: string;
+  readonly description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<html lang="en" class="bg-slate-100 text-slate-900">
+  <head>
+    <SEO title={title} description={description ?? "Research portfolio"} />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Literata:wght@400;600&display=swap"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-100 font-sans text-slate-900">
+    <Navigation
+      theme="academic"
+      siteName="Adam Murray Research"
+      baseUrl="/adam-murray/research"
+      links={[
+        { href: "/adam-murray/research", label: "Home" },
+        { href: "/adam-murray/research/publications", label: "Publications" },
+        { href: "/adam-murray/research/projects", label: "Projects" },
+        { href: "/adam-murray/research/labs", label: "Lab" },
+        { href: "/adam-murray/research/cv", label: "CV" },
+      ]}
+      ctas={[
+        {
+          href: "https://orcid.org/0009-0006-1673-9485",
+          label: "ORCID",
+          variant: "secondary",
+        },
+      ]}
+    />
+    <main
+      class="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 pb-20 pt-16"
+    >
+      <slot />
+    </main>
+    <footer class="border-t border-slate-200 bg-white py-8">
+      <div
+        class="mx-auto flex w-full max-w-5xl flex-col gap-2 px-6 text-sm text-slate-500"
+      >
+        <span>© {new Date().getFullYear()} Adam Murray</span>
+        <span>Research in computational biology and neuroscience.</span>
+      </div>
+    </footer>
+  </body>
+</html>

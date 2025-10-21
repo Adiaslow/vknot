@@ -1,0 +1,18 @@
+---
+export interface Props {
+  readonly title: string;
+  readonly lead: string;
+  readonly accent?: string;
+}
+
+const { title, lead, accent = "Computational Research Lab" } = Astro.props;
+---
+
+<section
+  class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/80 px-10 py-12 shadow-sm backdrop-blur"
+>
+  <span class="text-xs uppercase tracking-[0.4em] text-slate-500">{accent}</span
+  >
+  <h1 class="text-4xl font-semibold tracking-tight text-slate-900">{title}</h1>
+  <p class="max-w-3xl text-lg leading-relaxed text-slate-600">{lead}</p>
+</section>

@@ -1,0 +1,42 @@
+# name: Deploy to Porkbun (manual placeholder)
+#
+# on:
+#   workflow_dispatch:
+#
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: pnpm/action-setup@v3
+#         with:
+#           version: 9
+#       - name: Set up Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+#           cache: 'pnpm'
+#       - name: Install dependencies
+#         run: pnpm install
+#       - name: Build
+#         run: pnpm turbo run build
+#       - name: Prepare artifact
+#         run: |
+#           rm -rf deploy
+#           mkdir -p deploy
+#           cp -R apps/landing/dist/* deploy/
+#           mkdir -p deploy/adam-murray/research
+#           cp -R apps/adam-murray/research/dist/* deploy/adam-murray/research/
+#           mkdir -p deploy/adam-murray/technical
+#           cp -R apps/adam-murray/technical/dist/* deploy/adam-murray/technical/
+#           mkdir -p deploy/tender_circuits
+#           cp -R apps/tender-circuits/dist/* deploy/tender_circuits/
+#       - name: Deploy via FTP
+#         uses: SamKirkland/FTP-Deploy-Action@v4
+#         with:
+#           server: pixie-ss1-ftp.porkbun.com
+#           username: ${{ secrets.PORKBUN_FTP_USER }}
+#           password: ${{ secrets.PORKBUN_FTP_PASSWORD }}
+#           local-dir: deploy
+#           server-dir: /public_html
+

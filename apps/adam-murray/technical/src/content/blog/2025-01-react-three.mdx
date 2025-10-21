@@ -1,0 +1,32 @@
+---
+title: "Building 3D Experiences with React Three Fiber"
+description: "A deep dive into building immersive WebGL scenes with R3F, starting from scene graph fundamentals to production readiness."
+date: 2025-01-15
+tags:
+  - react
+  - threejs
+  - webgl
+image: ./images/r3f-hero.jpg
+draft: false
+readingTimeMinutes: 8
+---
+
+import { CodePlayground } from "../../components/CodePlayground";
+
+# Introduction
+
+Let's dive into creating stunning 3D experiences...
+
+<CodePlayground
+  client:visible
+  code={`function Box() {
+  return (
+    <mesh>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial />
+    </mesh>
+  );
+}`}
+>
+  <div>Preview component would go here</div>
+</CodePlayground>

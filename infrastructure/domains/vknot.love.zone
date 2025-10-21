@@ -1,0 +1,9 @@
+; Zone export captured 2025-10-10
+; TTL default: 600 seconds unless specified
+
+@ 600 ALIAS ss1-sixie.porkbun.com
+* 600 CNAME ss1-sixie.porkbun.com
+ftp 600 CNAME pixie-ss1-ftp.porkbun.com
+_acme-challenge 600 TXT "czbbUpAXq2qLvvIeJ9skqUtTVGtNLZX1I4ehIwPubjQ"
+_acme-challenge 600 TXT "fgDBlqPDJtXvANi9XlJSqceo-HUQNBjyqJy-OhsfHBs"
+

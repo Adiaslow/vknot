@@ -1,0 +1,228 @@
+---
+import ResearchLayout from "../../layouts/ResearchLayout.astro";
+import PublicationCard from "../../components/PublicationCard";
+
+// Fetch publications from ORCID API (same as homepage)
+const ORCID_ID = "0009-0006-1673-9485";
+let publications = [];
+
+try {
+  // Get the list of works from ORCID
+  const worksResponse = await fetch(
+    `https://pub.orcid.org/v3.0/${ORCID_ID}/works`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (worksResponse.ok) {
+    const worksData = await worksResponse.json();
+
+    // Process all work groups (not just first 6 like homepage)
+    for (const workGroup of worksData.group || []) {
+      // Use the first work-summary in each group
+      const workSummary = workGroup["work-summary"][0];
+
+      if (workSummary) {
+        // Create abstract based on available information
+        let abstract = "Research publication";
+        const title = workSummary.title?.title?.value || "Untitled";
+
+        // Enhance abstract based on title keywords
+        if (
+          title.toLowerCase().includes("channel") ||
+          title.toLowerCase().includes("nav")
+        ) {
+          abstract =
+            "Computational research on ion channel mechanisms and drug design for neurological applications.";
+        } else if (
+          title.toLowerCase().includes("dna") ||
+          title.toLowerCase().includes("library")
+        ) {
+          abstract =
+            "Advanced computational methods for drug discovery using DNA-encoded chemical libraries.";
+        } else if (
+          title.toLowerCase().includes("alphafold") ||
+          title.toLowerCase().includes("modeling")
+        ) {
+          abstract =
+            "Structural bioinformatics and computational modeling using AI-based protein structure prediction.";
+        } else if (
+          title.toLowerCase().includes("moast") ||
+          title.toLowerCase().includes("mechanism")
+        ) {
+          abstract =
+            "Computational tools for analyzing and comparing mechanisms of action in drug discovery.";
+        }
+
+        // Determine venue
+        let venue = "In Review";
+        if (workSummary["journal-title"]?.value) {
+          venue = workSummary["journal-title"].value;
+        } else if (workSummary.type === "preprint") {
+          venue = "Preprint";
+        }
+
+        // Extract DOI from external IDs
+        let doi = "";
+        let url = "";
+
+        if (workSummary["external-ids"]?.["external-id"]) {
+          const doiRecord = workSummary["external-ids"]["external-id"].find(
+            (id: any) => id["external-id-type"] === "doi"
+          );
+          if (doiRecord) {
+            doi = doiRecord["external-id-value"];
+          }
+        }
+
+        // Get URL to publication
+        if (workSummary.url?.value) {
+          url = workSummary.url.value;
+        }
+
+        // Extract full publication date
+        let publicationDate = "";
+        let year = new Date().getFullYear();
+
+        if (workSummary["publication-date"]) {
+          const pubDate = workSummary["publication-date"];
+          year = pubDate.year?.value || year;
+
+          if (pubDate.month?.value && pubDate.day?.value) {
+            const month = String(pubDate.month.value).padStart(2, "0");
+            const day = String(pubDate.day.value).padStart(2, "0");
+            publicationDate = `${year}-${month}-${day}`;
+          } else if (pubDate.month?.value) {
+            const monthNames = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            publicationDate = `${monthNames[pubDate.month.value - 1]} ${year}`;
+          } else {
+            publicationDate = String(year);
+          }
+        } else {
+          publicationDate = String(year);
+        }
+
+        const publication = {
+          title: title,
+          abstract: abstract,
+          venue: venue,
+          year: year,
+          date: publicationDate,
+          type: workSummary.type || "journal-article",
+          doi: doi,
+          url: url,
+        };
+
+        publications.push(publication);
+      }
+    }
+  }
+
+  // If no publications were found, but API call succeeded, show empty state
+  if (publications.length === 0) {
+    publications = [
+      {
+        title: "Building Research Portfolio",
+        abstract:
+          "Publications and research outputs will appear here as they become available.",
+        venue: "ORCID Profile",
+        year: new Date().getFullYear(),
+        date: String(new Date().getFullYear()),
+        doi: "",
+        url: "",
+        type: "note",
+      },
+    ];
+  }
+} catch (error) {
+  console.warn("Failed to fetch ORCID publications:", error);
+  // Fallback to research focus areas if ORCID fetch fails
+  publications = [
+    {
+      title: "Research Focus: Macrocyclic Peptide Drug Discovery",
+      abstract:
+        "Developing computational approaches for designing cyclic peptides with improved pharmacological properties through collaboration with the Lokey Lab.",
+      venue: "Lokey Lab, UCSC",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://lokey.chemistry.ucsc.edu/",
+      type: "research-focus",
+    },
+    {
+      title: "Research Focus: Cortical Circuit Development",
+      abstract:
+        "Investigating neural circuit connectivity and development using computational methods in neuroscience research.",
+      venue: "Kim Neuroscience Lab, UCSC",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://www.ejkimlab.com/",
+      type: "research-focus",
+    },
+    {
+      title: "Research Focus: Electrophysiological Signaling",
+      abstract:
+        "Novel computational methods for observing and controlling electrophysiological signaling in neural systems.",
+      venue: "Sack & Yarov-Yarovoy Labs, UC Davis",
+      year: 2024,
+      date: "2024",
+      doi: "",
+      url: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
+      type: "research-focus",
+    },
+  ];
+}
+---
+
+<ResearchLayout
+  title="Publications"
+  description="Selected publications by Adam Murray."
+>
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+      <h1 class="text-4xl font-bold text-slate-900 tracking-tight">
+        Publications
+      </h1>
+      <p class="text-lg text-slate-600 leading-relaxed max-w-3xl">
+        Research publications through collaborative work at UC Santa Cruz and UC
+        Davis.
+      </p>
+    </div>
+    <div class="flex flex-col gap-8">
+      {
+        publications.map((pub, index) => (
+          <div key={index}>
+            <PublicationCard
+              title={pub.title}
+              abstract={pub.abstract}
+              venue={pub.venue}
+              year={pub.year}
+              date={pub.date}
+              doi={pub.doi}
+              url={pub.url}
+              type={pub.type}
+              client:load
+            />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</ResearchLayout>

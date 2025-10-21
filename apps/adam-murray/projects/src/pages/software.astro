@@ -1,0 +1,249 @@
+---
+import ProjectsLayout from "../layouts/ProjectsLayout.astro";
+
+const softwareProjects = [
+  {
+    title: "MAS-Universal",
+    description:
+      "Comprehensive framework for building intelligent systems with fractal philosophy. Features recursive architecture where intelligence emerges through specialized elements across multiple abstraction levels.",
+    tags: ["Python", "AI Architecture", "Intelligent Systems", "Framework"],
+    status: "Active",
+    github: "https://github.com/MAS-Universal",
+    type: "personal",
+  },
+  {
+    title: "LC-Seq",
+    description:
+      "Production-ready DNA-Encoded Library chromatographic data analysis with rigorous mathematical foundations including Morse theory and persistent homology for noise-robust peak detection.",
+    tags: [
+      "Python",
+      "Computational Biology",
+      "Data Analysis",
+      "Drug Discovery",
+    ],
+    status: "Production",
+    github: "https://github.com/Adiaslow/LC-Seq-Official",
+    type: "lokey-lab",
+  },
+  {
+    title: "VAPOR",
+    description:
+      "Bidirectional Molecular Intelligence framework with true hierarchical composition learning. Features atom → fragment/residue → molecular → properties flow in both forward and backward directions.",
+    tags: ["PyTorch", "Molecular AI", "VAE", "Drug Discovery"],
+    status: "Active",
+    type: "lokey-lab",
+  },
+  {
+    title: "Procedaural",
+    description:
+      "Mathematical spatial audio synthesis environment combining real-time signal generation with acoustic space simulation using layered architecture and plugin systems.",
+    tags: ["TypeScript", "Python", "Audio Synthesis", "Electron"],
+    status: "In Development",
+    type: "personal",
+  },
+  {
+    title: "KimLabISI",
+    description:
+      "Neuroscience research tools and analysis pipeline developed in collaboration with the Kim Neuroscience Lab at UC Santa Cruz for cortical circuit connectivity studies.",
+    tags: ["Python", "TypeScript", "Neuroscience", "Data Analysis"],
+    status: "Active",
+    github: "https://github.com/Kim-Neuroscience-Lab/KimLabISI",
+    type: "kim-lab",
+  },
+  {
+    title: "Pycroscope",
+    description:
+      "Production-ready Python performance analysis with integrated scientific computing pattern detection. Comprehensive profiling tools for computational biology workflows.",
+    tags: [
+      "Python",
+      "Performance Analysis",
+      "Profiling",
+      "Scientific Computing",
+    ],
+    status: "Active",
+    github: "https://github.com/Adiaslow/Pycroscope",
+    type: "personal",
+  },
+  {
+    title: "HyperBlend",
+    description:
+      "Advanced molecular visualization and analysis toolkit for protein structure manipulation and drug design workflows.",
+    tags: ["Python", "Molecular Visualization", "Protein Analysis", "Blender"],
+    status: "Active",
+    github: "https://github.com/Adiaslow/HyperBlend",
+    type: "personal",
+  },
+  {
+    title: "IoTA",
+    description:
+      "Intelligent optimization and trajectory analysis framework for computational chemistry and molecular dynamics simulations.",
+    tags: [
+      "Python",
+      "Optimization",
+      "Molecular Dynamics",
+      "Computational Chemistry",
+    ],
+    status: "Active",
+    github: "https://github.com/Adiaslow/IoTA",
+    type: "personal",
+  },
+  {
+    title: "PRISM",
+    description:
+      "Protein structure prediction and analysis suite implementing state-of-the-art machine learning methods for structural biology.",
+    tags: ["Python", "Machine Learning", "Protein Structure", "Bioinformatics"],
+    status: "Active",
+    github: "https://github.com/Adiaslow/PRISM",
+    type: "personal",
+  },
+  {
+    title: "PepLab-Old",
+    description:
+      "Legacy peptide design and analysis laboratory tools developed for cyclic peptide drug discovery research.",
+    tags: [
+      "Python",
+      "Peptide Design",
+      "Drug Discovery",
+      "Computational Biology",
+    ],
+    status: "Legacy",
+    github: "https://github.com/Adiaslow/PepLab-Old",
+    type: "lokey-lab",
+  },
+  {
+    title: "Super-Love-Bot-Python",
+    description:
+      "Intelligent conversational agent with natural language processing capabilities for interactive applications.",
+    tags: ["Python", "NLP", "Chatbot", "Machine Learning"],
+    status: "Experimental",
+    github: "https://github.com/Adiaslow/Super-Love-Bot-Python",
+    type: "personal",
+  },
+  {
+    title: "cloth-of-gold-processing",
+    description:
+      "Creative coding framework for generative art and procedural content generation using mathematical principles.",
+    tags: ["Processing", "Generative Art", "Creative Coding", "Visualization"],
+    status: "Experimental",
+    github: "https://github.com/Adiaslow/cloth-of-gold-processing",
+    type: "personal",
+  },
+];
+---
+
+<ProjectsLayout
+  title="Software Projects"
+  description="Production systems, frameworks, and research tools by Adam Murray."
+>
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+      <h1 class="text-4xl font-bold text-white tracking-tight">
+        Software Projects
+      </h1>
+      <p class="text-xl text-slate-300 leading-relaxed max-w-4xl">
+        Production systems, research frameworks, and development tools spanning
+        computational biology, artificial intelligence, and creative technology
+        applications.
+      </p>
+
+      <div class="flex items-center gap-4 text-sm text-slate-400">
+        <span>{softwareProjects.length} projects</span>
+        <span>•</span>
+        <span>Production systems to experimental tools</span>
+      </div>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-2">
+      {
+        softwareProjects.map((project) => (
+          <article class="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-all duration-300 hover:border-slate-700 hover:bg-slate-900/90 hover:-translate-y-1">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
+                    {project.title}
+                  </h3>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    {project.type && (
+                      <span
+                        class={`text-xs px-2 py-1 rounded-full font-medium ${
+                          project.type === "personal"
+                            ? "bg-blue-900/30 border border-blue-800/50 text-blue-300"
+                            : project.type === "lokey-lab"
+                              ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                              : project.type === "kim-lab"
+                                ? "bg-orange-900/30 border border-orange-800/50 text-orange-300"
+                                : "bg-slate-800/30 border border-slate-700/50 text-slate-300"
+                        }`}
+                      >
+                        {project.type === "personal"
+                          ? "Personal"
+                          : project.type === "lokey-lab"
+                            ? "Lokey Lab"
+                            : project.type === "kim-lab"
+                              ? "Kim Lab"
+                              : "Research"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <span
+                  class={`text-xs px-2 py-1 rounded-full font-medium ${
+                    project.status === "Production"
+                      ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                      : project.status === "Active"
+                        ? "bg-green-900/30 border border-green-800/50 text-green-300"
+                        : project.status === "In Development"
+                          ? "bg-yellow-900/30 border border-yellow-800/50 text-yellow-300"
+                          : project.status === "Legacy"
+                            ? "bg-slate-900/30 border border-slate-700/50 text-slate-400"
+                            : "bg-purple-900/30 border border-purple-800/50 text-purple-300"
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </div>
+
+              <p class="text-slate-400 leading-relaxed text-sm">
+                {project.description}
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                {project.tags.map((tag) => (
+                  <span class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {project.github && (
+                <div class="flex items-center gap-4 pt-4 border-t border-slate-800 mt-auto">
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    <span>View on GitHub</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Hover gradient effect */}
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</ProjectsLayout>
+

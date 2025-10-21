@@ -1,0 +1,39 @@
+---
+import ResearchLayout from "../layouts/ResearchLayout.astro";
+---
+
+<ResearchLayout
+  title="Curriculum Vitae"
+  description="Curriculum vitae for Adam Murray."
+>
+  <section class="flex flex-col gap-8">
+    <header class="flex flex-col gap-2">
+      <h1 class="text-3xl font-semibold text-slate-900">Curriculum Vitae</h1>
+      <p class="text-slate-600">
+        Summary of academic, professional, and creative work.
+      </p>
+    </header>
+
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900">Experience</h2>
+      <ul class="flex flex-col gap-3 text-sm text-slate-600">
+        <li>
+          <strong>Principal Researcher</strong>, Computational Design Studio ·
+          2023 – Present
+        </li>
+        <li>
+          <strong>Visiting Lecturer</strong>, Art & Technology Program · 2022 –
+          2024
+        </li>
+      </ul>
+    </section>
+
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900">Education</h2>
+      <ul class="flex flex-col gap-3 text-sm text-slate-600">
+        <li>MFA, Computational Arts · 2022</li>
+        <li>BS, Computer Science & Design · 2018</li>
+      </ul>
+    </section>
+  </section>
+</ResearchLayout>

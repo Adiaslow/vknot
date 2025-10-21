@@ -1,0 +1,92 @@
+---
+import { siteMeta } from "@vknot/config";
+
+const { landing, technical, research, tenderCircuits } = siteMeta.apps;
+---
+
+<html lang="en" class="bg-gray-9.5 text-white">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VKnot — Creative Technology Collective</title>
+  </head>
+  <body class="min-h-screen bg-gray-9.5 antialiased">
+    <main class="mx-auto flex w-full max-w-4xl flex-col gap-16 px-6 py-24">
+      <section class="flex flex-col gap-6">
+        <p class="text-sm uppercase tracking-[0.4em] text-gray-4">VKNOT</p>
+        <h1 class="text-4xl font-semibold text-white">
+          Creative technology across research, writing, and sound.
+        </h1>
+        <p class="max-w-2xl text-lg text-gray-3">
+          VKnot brings together academic research, technical storytelling, and
+          independent music into a single modern web presence.
+        </p>
+      </section>
+
+      <section class="grid gap-8 md:grid-cols-2">
+        <a
+          class="group rounded-2xl border border-gray-8 bg-gray-9/60 p-8 transition hover:border-gray-5"
+          href={research.base}
+        >
+          <p class="text-xs uppercase tracking-[0.3em] text-gray-5">
+            Research Lab
+          </p>
+          <h2 class="mt-2 text-2xl font-semibold text-white">
+            {research.title}
+          </h2>
+          <p class="mt-4 text-sm text-gray-3">
+            Computational aesthetics, laboratory projects, publications, and
+            collaborative experiments.
+          </p>
+        </a>
+
+        <a
+          class="group rounded-2xl border border-gray-8 bg-gray-9/60 p-8 transition hover:border-gray-5"
+          href={technical.base}
+        >
+          <p class="text-xs uppercase tracking-[0.3em] text-gray-5">
+            Technical Writing
+          </p>
+          <h2 class="mt-2 text-2xl font-semibold text-white">
+            {technical.title}
+          </h2>
+          <p class="mt-4 text-sm text-gray-3">
+            Long-form design systems, real-world engineering notes, and
+            production-grade tutorials.
+          </p>
+        </a>
+
+        <a
+          class="group rounded-2xl border border-gray-8 bg-gray-9/60 p-8 transition hover:border-gray-5"
+          href={tenderCircuits.base}
+        >
+          <p class="text-xs uppercase tracking-[0.3em] text-gray-5">
+            Record Label
+          </p>
+          <h2 class="mt-2 text-2xl font-semibold text-white">
+            {tenderCircuits.title}
+          </h2>
+          <p class="mt-4 text-sm text-gray-3">
+            Experiential releases, artist collaborations, and audiovisual
+            showcases.
+          </p>
+        </a>
+
+        <a
+          class="group rounded-2xl border border-slate-800 bg-slate-900/60 p-8 transition hover:border-slate-500"
+          href={landing.base}
+        >
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-500">
+            Everything Else
+          </p>
+          <h2 class="mt-2 text-2xl font-semibold text-white">
+            Studio, notes, event series
+          </h2>
+          <p class="mt-4 text-sm text-slate-300">
+            Direct contact, experimental prototypes, and hybrid projects.
+          </p>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,255 @@
+---
+import LabelLayout from "../../layouts/LabelLayout.astro";
+
+const release = {
+  title: "Life Is Fragile",
+  artist: "Soft Systems",
+  year: 2025,
+  releaseDate: "October 06, 2025",
+  catalogNumber: "TC001",
+  genres: ["Electronic", "Ambient", "Avant Garde"],
+  subgenres: ["Lower-case Music"],
+  style: "Instrumental",
+  duration: "43:22",
+  description:
+    "A contemplative exploration of transient beauty through processed field recordings and generative synthesis. Life Is Fragile examines the delicate balance between structure and dissolution, using algorithmic composition and environmental sound to create an immersive meditation on impermanence.",
+  tracklist: [
+    { title: "Prelude in Minor Catastrophes", duration: "6:42" },
+    { title: "Soft Collapse", duration: "8:15" },
+    { title: "Interim States", duration: "5:33" },
+    { title: "The Weight of Small Things", duration: "9:18" },
+    { title: "Life Is Fragile", duration: "7:45" },
+    { title: "Afterglow", duration: "5:49" },
+  ],
+  credits: {
+    "Composed & Produced": "Soft Systems",
+    "Field Recordings": "Various locations, California",
+    Mastered: "Soft Systems",
+    Artwork: "Tender Circuits",
+    Label: "Tender Circuits",
+  },
+  notes:
+    "Recorded using generative Max/MSP patches, field recordings captured with handheld devices, and processed through custom granular synthesis tools. All sounds sourced from environmental recordings made between 2024-2025.",
+};
+---
+
+<LabelLayout
+  title={`${release.title} - ${release.artist}`}
+  description={`${release.title} by ${release.artist}: ${release.description.substring(0, 150)}...`}
+>
+  <section class="flex flex-col gap-12">
+    {/* Navigation */}
+    <div class="flex items-center gap-2 text-sm text-slate-400">
+      <a
+        href="/tender_circuits/releases"
+        class="hover:text-slate-300 transition-colors">Releases</a
+      >
+      <span>/</span>
+      <span>{release.title}</span>
+    </div>
+
+    {/* Release Header */}
+    <div class="flex flex-col gap-8">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span
+            class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full"
+          >
+            {release.catalogNumber}
+          </span>
+          <span class="text-xs text-slate-400 font-mono">
+            {release.releaseDate}
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h1 class="text-4xl font-bold text-white tracking-tight">
+            {release.title}
+          </h1>
+          <div class="flex items-center gap-2">
+            <span class="text-xl text-slate-300">by</span>
+            <a
+              href="/tender_circuits/artists/soft-systems"
+              class="text-xl text-emerald-300 hover:text-emerald-200 transition-colors font-medium"
+            >
+              {release.artist}
+            </a>
+          </div>
+        </div>
+
+        <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
+          {release.description}
+        </p>
+
+        {/* Genres and Tags */}
+        <div class="flex flex-wrap gap-2">
+          {
+            release.genres.map((genre) => (
+              <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                {genre}
+              </span>
+            ))
+          }
+          {
+            release.subgenres.map((subgenre) => (
+              <span class="text-xs px-3 py-1 rounded-full bg-fuchsia-900/30 text-fuchsia-300 border border-fuchsia-800/50">
+                {subgenre}
+              </span>
+            ))
+          }
+          <span
+            class="text-xs px-3 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/50"
+          >
+            {release.style}
+          </span>
+        </div>
+      </div>
+
+      {/* Release Info */}
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]"
+            >
+              Release Information
+            </h3>
+            <div class="grid gap-3">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Duration:</span>
+                <span class="text-slate-300 font-mono">{release.duration}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Format:</span>
+                <span class="text-slate-300">Digital</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Catalog:</span>
+                <span class="text-slate-300 font-mono"
+                  >{release.catalogNumber}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Year:</span>
+                <span class="text-slate-300">{release.year}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]"
+            >
+              Listen
+            </h3>
+            <div class="flex flex-col gap-3">
+              <button
+                class="w-full rounded-lg bg-emerald-900/30 border border-emerald-800/50 py-3 px-4 text-emerald-300 hover:bg-emerald-900/50 hover:text-emerald-200 transition-all duration-200 font-medium"
+              >
+                ▶ Play Album
+              </button>
+              <div class="text-xs text-slate-500 text-center">
+                Streaming integration coming soon
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Track Listing */}
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-8">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-white">Tracklist</h2>
+          <span class="text-xs text-slate-500 font-mono">
+            {release.duration}
+          </span>
+        </div>
+
+        <div class="grid gap-1">
+          {
+            release.tracklist.map((track, index) => (
+              <div class="flex items-center gap-4 py-3 px-3 rounded-lg hover:bg-slate-800/50 transition-colors group">
+                <span class="text-xs text-slate-500 font-mono w-8 text-right">
+                  {(index + 1).toString().padStart(2, "0")}
+                </span>
+                <span class="text-slate-300 flex-1 group-hover:text-white transition-colors">
+                  {track.title}
+                </span>
+                <span class="text-xs text-slate-500 font-mono">
+                  {track.duration}
+                </span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* Credits */}
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-8">
+      <div class="flex flex-col gap-6">
+        <h2 class="text-xl font-semibold text-white">Credits</h2>
+
+        <div class="grid gap-3">
+          {
+            Object.entries(release.credits).map(([role, credit]) => (
+              <div class="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span class="text-slate-500 text-sm">{role}:</span>
+                <span class="text-slate-300">{credit}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* Production Notes */}
+    <section class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8">
+      <div class="flex flex-col gap-4">
+        <h2 class="text-xl font-semibold text-white">Production Notes</h2>
+        <p class="text-slate-400 leading-relaxed">
+          {release.notes}
+        </p>
+      </div>
+    </section>
+
+    {/* Related */}
+    <section class="flex flex-col gap-6">
+      <h2 class="text-xl font-semibold text-white">More from Soft Systems</h2>
+
+      <div class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8">
+        <div class="flex flex-col gap-4 text-center">
+          <p class="text-slate-400">
+            This is the debut release from Soft Systems on Tender Circuits.
+          </p>
+          <div class="flex items-center gap-4 justify-center pt-2">
+            <a
+              class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+              href="/tender_circuits/artists/soft-systems"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              <span>View Artist Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</LabelLayout>
+

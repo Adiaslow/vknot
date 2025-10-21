@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    {"path": "packages/config/tsconfig.json"},
+    {"path": "packages/content/tsconfig.json"},
+    {"path": "packages/ui/tsconfig.json"},
+    {"path": "apps/adam-murray/research/tsconfig.json"},
+    {"path": "apps/adam-murray/technical/tsconfig.json"},
+    {"path": "apps/landing/tsconfig.json"},
+    {"path": "apps/tender-circuits/tsconfig.json"}
+  ]
+}
+

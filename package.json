@@ -1,0 +1,25 @@
+{
+  "name": "vknot",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "check": "turbo run check",
+    "format": "biome format --write ./",
+    "format:check": "biome format --check ./",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "turbo": "^2.0.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.6.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

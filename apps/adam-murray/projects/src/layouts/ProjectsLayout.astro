@@ -1,0 +1,61 @@
+---
+import { Navigation, SEO } from "@vknot/ui";
+
+export interface Props {
+  readonly title: string;
+  readonly description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<html lang="en" class="bg-slate-950 text-slate-50">
+  <head>
+    <SEO
+      title={title}
+      description={description ??
+        "Creative projects, software development, and experimental work by Adam Murray."}
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-50">
+    <Navigation
+      theme="music"
+      siteName="Adam Murray Projects"
+      baseUrl="/adam-murray/projects"
+      links={[
+        { href: "/adam-murray/projects", label: "Home" },
+        { href: "/adam-murray/projects/software", label: "Software" },
+        { href: "/adam-murray/projects/creative", label: "Creative" },
+        { href: "/adam-murray/projects/research", label: "Research" },
+      ]}
+      ctas={[
+        {
+          href: "https://github.com/Adiaslow",
+          label: "GitHub",
+          variant: "secondary",
+        },
+      ]}
+    />
+    <main
+      class="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 pb-24 pt-16"
+    >
+      <slot />
+    </main>
+    <footer class="border-t border-slate-800 bg-slate-900/60 py-12">
+      <div
+        class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 text-sm text-slate-400"
+      >
+        <span>© {new Date().getFullYear()} Adam Murray</span>
+        <span
+          >Creative projects, software development, and experimental work.</span
+        >
+      </div>
+    </footer>
+  </body>
+</html>

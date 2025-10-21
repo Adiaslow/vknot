@@ -1,0 +1,318 @@
+---
+import ProjectsLayout from "../layouts/ProjectsLayout.astro";
+
+const researchProjects = [
+  {
+    title: "SFSA",
+    description:
+      "Soap Film Surface Analysis for cyclic peptide conformations. Models peptide conformations as minimal energy surfaces using soap film physics principles for geometric analysis.",
+    tags: [
+      "Computational Geometry",
+      "Differential Geometry",
+      "Peptide Analysis",
+    ],
+    status: "Research",
+    lab: "Lokey Lab",
+    type: "lokey-lab",
+    institution: "UC Santa Cruz",
+  },
+  {
+    title: "KimLabISI",
+    description:
+      "Neuroscience research tools and analysis pipeline developed in collaboration with the Kim Neuroscience Lab at UC Santa Cruz for cortical circuit connectivity studies.",
+    tags: ["Python", "TypeScript", "Neuroscience", "Data Analysis"],
+    status: "Active",
+    lab: "Kim Lab",
+    github: "https://github.com/Kim-Neuroscience-Lab/KimLabISI",
+    type: "kim-lab",
+    institution: "UC Santa Cruz",
+  },
+  {
+    title: "LC-Seq",
+    description:
+      "Production-ready DNA-Encoded Library chromatographic data analysis with rigorous mathematical foundations including Morse theory and persistent homology for noise-robust peak detection.",
+    tags: [
+      "Python",
+      "Computational Biology",
+      "Data Analysis",
+      "Drug Discovery",
+    ],
+    status: "Production",
+    lab: "Lokey Lab",
+    github: "https://github.com/Adiaslow/LC-Seq-Official",
+    type: "lokey-lab",
+    institution: "UC Santa Cruz",
+  },
+  {
+    title: "VAPOR",
+    description:
+      "Bidirectional Molecular Intelligence framework with true hierarchical composition learning. Features atom → fragment/residue → molecular → properties flow in both forward and backward directions.",
+    tags: ["PyTorch", "Molecular AI", "VAE", "Drug Discovery"],
+    status: "Active",
+    lab: "Lokey Lab",
+    type: "lokey-lab",
+    institution: "UC Santa Cruz",
+  },
+  {
+    title: "Ion Channel Structure Prediction",
+    description:
+      "Mathematical modeling of ion channels using AlphaFold2, RoseTTAFold2, and ESMFold with geometric deep learning approaches.",
+    tags: ["Structural Biology", "Deep Learning", "Protein Folding"],
+    status: "Published",
+    lab: "Sack & Yarov-Yarovoy Labs",
+    type: "yarov-yarovoy-lab",
+    institution: "UC Davis",
+    publication: "Channels (2024)",
+  },
+  {
+    title: "NaV1.7 Computational Design",
+    description:
+      "Mathematical optimization approaches for computational design of binders targeting voltage-sensing domain IV from NaV1.7 sodium channel.",
+    tags: ["Optimization Theory", "Protein Design", "Computational Chemistry"],
+    status: "Published",
+    lab: "Sack & Yarov-Yarovoy Labs",
+    type: "yarov-yarovoy-lab",
+    institution: "UC Davis",
+    publication: "Biophysical Journal (2024)",
+  },
+  {
+    title: "NaV1.8 Inhibitor Design",
+    description:
+      "Computational design framework for NaV1.8 sodium channel inhibitors using mathematical optimization for novel non-addictive pain management treatments.",
+    tags: ["Drug Design", "Optimization", "Pharmacology"],
+    status: "Published",
+    lab: "Sack & Yarov-Yarovoy Labs",
+    type: "yarov-yarovoy-lab",
+    institution: "UC Davis",
+    publication: "Biophysical Journal (2025)",
+  },
+  {
+    title: "DNA-Encoded Library Fidelity Analysis",
+    description:
+      "Statistical and mathematical frameworks for massively parallel, single-molecule assessment of synthetic fidelity and drug-like properties in DNA-encoded libraries.",
+    tags: ["Statistical Analysis", "Molecular Statistics", "High-Throughput"],
+    status: "Published",
+    lab: "Lokey Lab",
+    type: "lokey-lab",
+    institution: "UC Santa Cruz",
+    publication: "ChemRxiv (2025)",
+  },
+  {
+    title: "Cyclic Peptide Drug Discovery",
+    description:
+      "Developing computational approaches for designing cyclic peptides with improved pharmacological properties through structure-activity relationship modeling.",
+    tags: ["Peptide Design", "Drug Discovery", "Computational Chemistry"],
+    status: "Active",
+    lab: "Lokey Lab",
+    type: "lokey-lab",
+    institution: "UC Santa Cruz",
+  },
+];
+---
+
+<ProjectsLayout
+  title="Research Projects"
+  description="Laboratory collaborations and academic research projects by Adam Murray."
+>
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+      <h1 class="text-4xl font-bold text-white tracking-tight">
+        Research & Academic Projects
+      </h1>
+      <p class="text-xl text-slate-300 leading-relaxed max-w-4xl">
+        Collaborative research spanning computational biology, neuroscience, and
+        drug discovery through partnerships with leading laboratories at UC
+        Santa Cruz and UC Davis.
+      </p>
+
+      <div class="flex items-center gap-4 text-sm text-slate-400">
+        <span>{researchProjects.length} projects</span>
+        <span>•</span>
+        <span>3 research laboratories</span>
+        <span>•</span>
+        <span>4 published papers</span>
+      </div>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-1">
+      {
+        researchProjects.map((project) => (
+          <article class="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-all duration-300 hover:border-slate-700 hover:bg-slate-900/90 hover:-translate-y-1">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    {project.title}
+                  </h3>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    {project.lab && (
+                      <span
+                        class={`text-xs px-2 py-1 rounded-full font-medium ${
+                          project.type === "lokey-lab"
+                            ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                            : project.type === "kim-lab"
+                              ? "bg-orange-900/30 border border-orange-800/50 text-orange-300"
+                              : project.type === "yarov-yarovoy-lab"
+                                ? "bg-blue-900/30 border border-blue-800/50 text-blue-300"
+                                : "bg-slate-800/30 border border-slate-700/50 text-slate-300"
+                        }`}
+                      >
+                        {project.lab}
+                      </span>
+                    )}
+
+                    {project.institution && (
+                      <span class="text-xs px-2 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-400">
+                        {project.institution}
+                      </span>
+                    )}
+
+                    {project.publication && (
+                      <span class="text-xs px-2 py-1 rounded-full bg-purple-900/30 border border-purple-800/50 text-purple-300">
+                        Published
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <span
+                  class={`text-xs px-2 py-1 rounded-full font-medium ${
+                    project.status === "Published"
+                      ? "bg-green-900/30 border border-green-800/50 text-green-300"
+                      : project.status === "Production"
+                        ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                        : project.status === "Active"
+                          ? "bg-blue-900/30 border border-blue-800/50 text-blue-300"
+                          : "bg-cyan-900/30 border border-cyan-800/50 text-cyan-300"
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </div>
+
+              <p class="text-slate-400 leading-relaxed text-sm">
+                {project.description}
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                {project.tags.map((tag) => (
+                  <span class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div class="flex items-center justify-between pt-4 border-t border-slate-800 mt-auto">
+                <div class="flex items-center gap-4">
+                  {project.github && (
+                    <a
+                      class="inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                      </svg>
+                      <span>View Code</span>
+                    </a>
+                  )}
+                </div>
+
+                {project.publication && (
+                  <div class="flex items-center gap-2">
+                    <svg
+                      class="w-4 h-4 text-slate-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                    <span class="text-sm text-slate-500">
+                      {project.publication}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Hover gradient effect */}
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/5 via-transparent to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- Research Collaborations Section -->
+    <section
+      class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8 mt-8"
+    >
+      <div class="flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-white">Research Collaborations</h2>
+        <div class="grid gap-6 md:grid-cols-3">
+          <div class="flex flex-col gap-3">
+            <h3 class="text-lg font-semibold text-emerald-300">
+              Lokey Lab @ UCSC
+            </h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Computational approaches for cyclic peptide drug discovery,
+              including machine learning frameworks for peptide design and
+              DNA-encoded library analysis.
+            </p>
+            <a
+              href="https://lokey.chemistry.ucsc.edu/"
+              target="_blank"
+              class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              Visit Lab Website →
+            </a>
+          </div>
+          <div class="flex flex-col gap-3">
+            <h3 class="text-lg font-semibold text-orange-300">
+              Kim Lab @ UCSC
+            </h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Neuroscience research tools for cortical circuit connectivity
+              analysis, developing modern computational pipelines for brain
+              imaging data.
+            </p>
+            <a
+              href="https://www.ejkimlab.com/"
+              target="_blank"
+              class="text-xs text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              Visit Lab Website →
+            </a>
+          </div>
+          <div class="flex flex-col gap-3">
+            <h3 class="text-lg font-semibold text-blue-300">
+              Sack & Yarov-Yarovoy Labs @ UC Davis
+            </h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Ion channel research using computational methods for protein
+              design, focusing on novel therapeutic targets for pain management.
+            </p>
+            <a
+              href="https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html"
+              target="_blank"
+              class="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Visit Lab Website →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</ProjectsLayout>
+

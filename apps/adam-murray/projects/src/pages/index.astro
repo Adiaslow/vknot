@@ -1,0 +1,428 @@
+---
+import ProjectsLayout from "../layouts/ProjectsLayout.astro";
+
+const featuredProjects = [
+  {
+    title: "MAS-Universal",
+    description:
+      "A comprehensive framework for building intelligent systems with fractal philosophy. Features recursive architecture where intelligence emerges through specialized elements across multiple abstraction levels.",
+    category: "Software",
+    tags: ["Python", "AI Architecture", "Intelligent Systems", "Framework"],
+    image: null,
+    status: "Active",
+    slug: "mas-universal",
+    github: "https://github.com/MAS-Universal",
+    type: "personal",
+  },
+  {
+    title: "LC-Seq",
+    description:
+      "Production-ready DNA-Encoded Library chromatographic data analysis with rigorous mathematical foundations including Morse theory and persistent homology for noise-robust peak detection.",
+    category: "Software",
+    tags: [
+      "Python",
+      "Computational Biology",
+      "Data Analysis",
+      "Drug Discovery",
+    ],
+    image: null,
+    status: "Production",
+    slug: "lc-seq",
+    github: "https://github.com/Adiaslow/LC-Seq-Official",
+    type: "lokey-lab",
+  },
+  {
+    title: "VAPOR",
+    description:
+      "Bidirectional Molecular Intelligence framework with true hierarchical composition learning. Features atom → fragment/residue → molecular → properties flow in both forward and backward directions.",
+    category: "Software",
+    tags: ["PyTorch", "Molecular AI", "VAE", "Drug Discovery"],
+    image: null,
+    status: "Active",
+    slug: "vapor",
+    type: "lokey-lab",
+  },
+  {
+    title: "Procedaural",
+    description:
+      "Mathematical spatial audio synthesis environment combining real-time signal generation with acoustic space simulation using layered architecture and plugin systems.",
+    category: "Software",
+    tags: ["TypeScript", "Python", "Audio Synthesis", "Electron"],
+    image: null,
+    status: "In Development",
+    slug: "procedaural",
+    type: "personal",
+  },
+  {
+    title: "SFSA",
+    description:
+      "Soap Film Surface Analysis for cyclic peptide conformations. Models peptide conformations as minimal energy surfaces using soap film physics principles for geometric analysis.",
+    category: "Research",
+    tags: [
+      "Computational Geometry",
+      "Differential Geometry",
+      "Peptide Analysis",
+    ],
+    image: null,
+    status: "Research",
+    slug: "sfsa",
+    type: "lokey-lab",
+  },
+  {
+    title: "KimLabISI",
+    description:
+      "Neuroscience research tools and analysis pipeline developed in collaboration with the Kim Neuroscience Lab at UC Santa Cruz for cortical circuit connectivity studies.",
+    category: "Software",
+    tags: ["Python", "TypeScript", "Neuroscience", "Data Analysis"],
+    image: null,
+    status: "Active",
+    slug: "kim-lab-isi",
+    github: "https://github.com/Kim-Neuroscience-Lab/KimLabISI",
+    type: "kim-lab",
+  },
+];
+
+const categories = [
+  {
+    name: "Software",
+    description: "Production systems, frameworks, and research tools",
+    icon: "💻",
+    href: "/adam-murray/projects/software",
+    projectCount: 12,
+  },
+  {
+    name: "Creative",
+    description: "Audio synthesis, generative art, and experimental interfaces",
+    icon: "🎨",
+    href: "/adam-murray/projects/creative",
+    projectCount: 6,
+  },
+  {
+    name: "Research",
+    description: "Laboratory collaborations and academic research projects",
+    icon: "🔬",
+    href: "/adam-murray/projects/research",
+    projectCount: 9,
+  },
+];
+---
+
+<ProjectsLayout
+  title="Adam Murray — Projects"
+  description="Creative projects, software development, and experimental work by Adam Murray."
+>
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-4">
+        <h1
+          class="text-5xl font-bold text-white tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent"
+        >
+          Creative Projects
+        </h1>
+        <p class="text-xl text-slate-300 leading-relaxed max-w-4xl">
+          A collection of software projects, mathematical explorations, games,
+          and experiments that emerge from curiosity and the desire to build
+          things that don't yet exist.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <span
+          class="px-4 py-2 rounded-full bg-purple-900/30 border border-purple-800/50 text-purple-300 text-sm font-medium"
+        >
+          Software Development
+        </span>
+        <span
+          class="px-4 py-2 rounded-full bg-blue-900/30 border border-blue-800/50 text-blue-300 text-sm font-medium"
+        >
+          Mathematical Computing
+        </span>
+        <span
+          class="px-4 py-2 rounded-full bg-green-900/30 border border-green-800/50 text-green-300 text-sm font-medium"
+        >
+          Game Development
+        </span>
+        <span
+          class="px-4 py-2 rounded-full bg-orange-900/30 border border-orange-800/50 text-orange-300 text-sm font-medium"
+        >
+          Creative Coding
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="flex flex-col gap-8">
+    <div class="flex flex-col gap-3">
+      <h2 class="text-3xl font-bold text-white tracking-tight">
+        Project Categories
+      </h2>
+      <p class="text-slate-400 leading-relaxed">
+        Explore different types of projects organized by focus area and
+        approach.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {
+        categories.map((category) => (
+          <a
+            href={category.href}
+            class="group relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80 p-6 backdrop-blur transition-all duration-300 hover:border-slate-700 hover:bg-slate-900/90 hover:-translate-y-1"
+          >
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{category.icon}</span>
+                <h3 class="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
+                  {category.name}
+                </h3>
+              </div>
+
+              <p class="text-sm text-slate-400 leading-relaxed">
+                {category.description}
+              </p>
+
+              <div class="flex items-center justify-between mt-auto">
+                <span class="text-xs text-slate-500">
+                  {category.projectCount} project
+                  {category.projectCount !== 1 ? "s" : ""}
+                </span>
+                <svg
+                  class="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Hover gradient effect */}
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Featured Projects -->
+  <section class="flex flex-col gap-8">
+    <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3">
+        <h2 class="text-3xl font-bold text-white tracking-tight">
+          Featured Projects
+        </h2>
+        <p class="text-slate-400 leading-relaxed">
+          Recent work and ongoing experiments across different domains.
+        </p>
+      </div>
+
+      <a
+        href="/adam-murray/projects/all"
+        class="inline-flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+      >
+        <span>View All Projects</span>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {
+        featuredProjects.map((project) => (
+          <article class="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 transition-all duration-300 hover:border-slate-700 hover:bg-slate-900/90 hover:-translate-y-2">
+            {/* Project Image Placeholder */}
+            <div class="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-800">
+              <div class="flex h-full items-center justify-center">
+                <span class="text-slate-500 text-sm font-mono">
+                  Preview Coming Soon
+                </span>
+              </div>
+            </div>
+
+            {/* Project Content */}
+            <div class="p-6 flex flex-col gap-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
+                    {project.title}
+                  </h3>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs px-2 py-1 rounded-full bg-purple-900/30 border border-purple-800/50 text-purple-300 w-fit">
+                      {project.category}
+                    </span>
+                    {project.type && (
+                      <span
+                        class={`text-xs px-2 py-1 rounded-full font-medium ${
+                          project.type === "personal"
+                            ? "bg-blue-900/30 border border-blue-800/50 text-blue-300"
+                            : project.type === "lokey-lab"
+                              ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                              : project.type === "kim-lab"
+                                ? "bg-orange-900/30 border border-orange-800/50 text-orange-300"
+                                : "bg-slate-800/30 border border-slate-700/50 text-slate-300"
+                        }`}
+                      >
+                        {project.type === "personal"
+                          ? "Personal"
+                          : project.type === "lokey-lab"
+                            ? "Lokey Lab"
+                            : project.type === "kim-lab"
+                              ? "Kim Lab"
+                              : "Research"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <span
+                  class={`text-xs px-2 py-1 rounded-full font-medium ${
+                    project.status === "In Development"
+                      ? "bg-yellow-900/30 border border-yellow-800/50 text-yellow-300"
+                      : project.status === "Active"
+                        ? "bg-green-900/30 border border-green-800/50 text-green-300"
+                        : project.status === "Production"
+                          ? "bg-emerald-900/30 border border-emerald-800/50 text-emerald-300"
+                          : project.status === "Research"
+                            ? "bg-cyan-900/30 border border-cyan-800/50 text-cyan-300"
+                            : "bg-blue-900/30 border border-blue-800/50 text-blue-300"
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </div>
+
+              <p class="text-slate-400 leading-relaxed text-sm">
+                {project.description}
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                {project.tags.map((tag) => (
+                  <span class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div class="flex items-center gap-4 pt-4 border-t border-slate-800 mt-auto">
+                <a
+                  class="inline-flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                  href={`/adam-murray/projects/${project.slug}`}
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  <span>View Details</span>
+                </a>
+
+                {project.github && (
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    <span>GitHub</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Hover gradient effect */}
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Call to Action -->}
+  <section
+    class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-12 text-center"
+  >
+    <div class="flex flex-col gap-6 items-center">
+      <h2 class="text-2xl font-bold text-white">
+        Interested in Collaborating?
+      </h2>
+      <p class="text-slate-400 leading-relaxed max-w-2xl">
+        I'm always interested in discussing ideas, sharing knowledge, or working
+        together on interesting projects. Feel free to reach out if something
+        here sparks your curiosity.
+      </p>
+      <div class="flex items-center gap-4">
+        <a
+          class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:from-purple-700 hover:to-pink-700 hover:scale-105"
+          href="mailto:a.murray0413@gmail.com"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            ></path>
+          </svg>
+          <span>Get in Touch</span>
+        </a>
+
+        <a
+          class="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-transparent px-6 py-3 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800/50"
+          href="https://github.com/adammurray"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+            ></path>
+          </svg>
+          <span>View GitHub</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</ProjectsLayout>

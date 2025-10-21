@@ -1,0 +1,189 @@
+---
+import LabelLayout from "../../layouts/LabelLayout.astro";
+
+const artist = {
+  name: "Soft Systems",
+  description:
+    "Soft Systems explores the intersection of algorithmic composition, field recording, and ambient electronics. Working with processed environmental sound and generative synthesis, the project creates immersive soundscapes that examine themes of impermanence, fragility, and the beauty found in transitional states.",
+  genres: ["Electronic", "Ambient", "Experimental", "Electroacoustic"],
+  location: "California",
+  releases: [
+    {
+      title: "Life Is Fragile",
+      year: 2025,
+      catalogNumber: "TC001",
+      slug: "life-is-fragile",
+    },
+  ],
+  approach: [
+    "Generative and algorithmic composition techniques",
+    "Field recording and environmental sound processing",
+    "Granular and spectral synthesis",
+    "Real-time audio manipulation and live coding",
+  ],
+};
+---
+
+<LabelLayout
+  title={`${artist.name} - Artist`}
+  description={`${artist.name}: ${artist.description.substring(0, 150)}...`}
+>
+  <section class="flex flex-col gap-12">
+    {/* Artist Header */}
+    <div class="flex flex-col gap-6">
+      <div class="flex items-center gap-2 text-sm text-slate-400">
+        <a
+          href="/tender_circuits/artists"
+          class="hover:text-slate-300 transition-colors">Artists</a
+        >
+        <span>/</span>
+        <span>{artist.name}</span>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <h1 class="text-4xl font-bold text-white tracking-tight">
+            {artist.name}
+          </h1>
+          <span
+            class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full"
+          >
+            Featured Artist
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm text-slate-400">
+          <span>{artist.location}</span>
+          <span>•</span>
+          <span
+            >{artist.releases.length} release{
+              artist.releases.length !== 1 ? "s" : ""
+            }</span
+          >
+        </div>
+      </div>
+
+      <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
+        {artist.description}
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        {
+          artist.genres.map((genre) => (
+            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {genre}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* Approach & Methods */}
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-8">
+      <div class="flex flex-col gap-6">
+        <h2 class="text-2xl font-semibold text-white">Approach & Methods</h2>
+        <div class="grid gap-3">
+          {
+            artist.approach.map((method) => (
+              <div class="flex items-center gap-3">
+                <div class="w-1 h-1 rounded-full bg-emerald-400" />
+                <span class="text-slate-300">{method}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* Releases */}
+    <section class="flex flex-col gap-8">
+      <h2 class="text-2xl font-semibold text-white">
+        Releases on Tender Circuits
+      </h2>
+
+      <div class="flex flex-col gap-6">
+        {
+          artist.releases.map((release) => (
+            <article class="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-all duration-300 hover:border-slate-700/80 hover:bg-slate-900/90">
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
+                    {release.catalogNumber}
+                  </span>
+                  <span class="text-xs text-slate-400 font-mono">
+                    {release.year}
+                  </span>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-xl font-bold text-white group-hover:text-emerald-100 transition-colors">
+                    {release.title}
+                  </h3>
+                </div>
+
+                <div class="flex items-center gap-4 pt-2">
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                    href={`/tender_circuits/releases/${release.slug}`}
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-7a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Listen</span>
+                  </a>
+
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
+                    href="/tender_circuits/releases"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                    <span>View Discography</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    {/* Contact/Connect */}
+    <section class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8">
+      <div class="flex flex-col gap-4 text-center">
+        <h2 class="text-xl font-semibold text-white">Connect</h2>
+        <p class="text-slate-400 leading-relaxed max-w-2xl mx-auto">
+          For booking, collaboration inquiries, or more information about Soft
+          Systems, please reach out through the label.
+        </p>
+        <div class="pt-2">
+          <span class="text-xs text-slate-500 uppercase tracking-[0.2em]">
+            Contact via Tender Circuits
+          </span>
+        </div>
+      </div>
+    </section>
+  </section>
+</LabelLayout>
+

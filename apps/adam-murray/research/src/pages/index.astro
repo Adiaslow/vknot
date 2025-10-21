@@ -3,6 +3,7 @@ import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
 import PublicationCard from "../components/PublicationCard";
 import LabIconSmall from "../components/LabIconSmall";
+import { fetchAbstractFromCrossRef } from "../utils/fetchAbstract";
 
 // Fetch publications from ORCID API
 const ORCID_ID = "0009-0006-1673-9485";
@@ -28,36 +29,7 @@ try {
       const workSummary = workGroup["work-summary"][0];
 
       if (workSummary) {
-        // Create abstract based on available information
-        let abstract = "Research publication";
         const title = workSummary.title?.title?.value || "Untitled";
-
-        // Enhance abstract based on title keywords
-        if (
-          title.toLowerCase().includes("channel") ||
-          title.toLowerCase().includes("nav")
-        ) {
-          abstract =
-            "Computational research on ion channel mechanisms and drug design for neurological applications.";
-        } else if (
-          title.toLowerCase().includes("dna") ||
-          title.toLowerCase().includes("library")
-        ) {
-          abstract =
-            "Advanced computational methods for drug discovery using DNA-encoded chemical libraries.";
-        } else if (
-          title.toLowerCase().includes("alphafold") ||
-          title.toLowerCase().includes("modeling")
-        ) {
-          abstract =
-            "Structural bioinformatics and computational modeling using AI-based protein structure prediction.";
-        } else if (
-          title.toLowerCase().includes("moast") ||
-          title.toLowerCase().includes("mechanism")
-        ) {
-          abstract =
-            "Computational tools for analyzing and comparing mechanisms of action in drug discovery.";
-        }
 
         // Determine venue
         let venue = "In Review";
@@ -79,6 +51,9 @@ try {
             doi = doiRecord["external-id-value"];
           }
         }
+
+        // Fetch real abstract from CrossRef using DOI
+        const abstract = doi ? await fetchAbstractFromCrossRef(doi) : "";
 
         // Get URL to publication
         if (workSummary.url?.value) {

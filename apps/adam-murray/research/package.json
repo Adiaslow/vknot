@@ -13,13 +13,13 @@
     "@astrojs/mdx": "^4.0.0",
     "@astrojs/react": "^3.5.0",
     "@astrojs/sitemap": "^3.0.3",
+    "@unocss/astro": "^0.58.0",
     "astro": "^4.15.9",
-    "remark-math": "^6.0.0",
-    "rehype-katex": "^7.0.0",
+    "lucide-react": "^0.546.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@unocss/astro": "^0.58.0",
+    "rehype-katex": "^7.0.0",
+    "remark-math": "^6.0.0",
     "unocss": "^0.58.0"
   }
 }
-

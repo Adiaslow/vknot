@@ -1,13 +1,15 @@
 ---
 import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
+import { SquareStack, Route, BrainCircuit } from "lucide-react";
 
 const labs = [
   {
     id: "lokey-lab",
     name: "Lokey Lab",
     institution: "UC Santa Cruz",
-    icon: "beaker",
+    icon: SquareStack,
+    iconRotation: "-45deg",
     iconColor: "blue",
     website: "https://lokey.chemistry.ucsc.edu/",
     labFocus: "The Lokey Lab focuses on cyclic peptide natural products and their application to challenging drug targets. Their research addresses three main areas: (1) understanding how naturally occurring cyclic peptides achieve unexpected pharmacokinetic properties despite being outside conventional drug-likeness parameters, (2) developing DNA-encoded cyclic peptide libraries for targeting protein-protein interactions related to uncontrolled cell proliferation, and (3) designing and optimizing targeted protein degraders (molecular glues and PROTACs) with improved ADME profiles. The lab's work bridges structural biology, medicinal chemistry, and high-throughput screening to enable modulation of difficult targets like protein-protein interactions and allosteric binding sites.",
@@ -17,7 +19,8 @@ const labs = [
     id: "kim-lab",
     name: "Kim Lab",
     institution: "UC Santa Cruz",
-    icon: "brain",
+    icon: BrainCircuit,
+    iconRotation: "0deg",
     iconColor: "emerald",
     website: "https://www.ejkimlab.com/",
     labFocus: "The Kim Lab investigates the organizational logic of long-distance cortical circuits and their developmental mechanisms using mouse visual cortex as a model system. Their research addresses two fundamental questions: In the mature brain, what are the connectivity and functional bases of neural circuits at the cellular level? In the developing brain, what mechanisms match gene expression to neuronal connectivity? The lab employs cutting-edge techniques including novel trans-synaptic viral tracers, mouse genetics, single-cell genome-wide sequencing, and in vivo imaging to understand how specific long-distance neural circuits develop and organize at single-cell resolution. This work provides insights into neurodevelopmental disorders such as autism and schizophrenia.",
@@ -27,19 +30,14 @@ const labs = [
     id: "yarov-yarovoy-lab",
     name: "Yarov-Yarovoy Lab",
     institution: "UC Davis",
-    icon: "network",
+    icon: Route,
+    iconRotation: "-45deg",
     iconColor: "purple",
     website: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
     labFocus: "The Yarov-Yarovoy Lab specializes in ion channel structure and the design of subtype-specific modulators. Their research encompasses structure-function studies of voltage-gated ion channels, computational design of channel modulators, development of computational methods for membrane protein structure prediction, and evolutionary analysis of human voltage-gated ion channels. A primary focus is designing novel subtype-selective neuronal sodium channel blockers for treating pain and epilepsy—major unmet medical needs affecting millions worldwide. Using innovative computational approaches combined with electrophysiology, biochemistry, and molecular biology, the lab designs and validates therapeutically useful drugs with high efficacy and minimal side effects, providing fundamental insights into neuromodulation and signal transduction.",
     myWork: "Development and application of deep learning-based protein design, optimization, and validation pipelines for binders targeting ion channels at UC Davis.",
   },
 ];
-
-const icons = {
-  beaker: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-  brain: "M13 10V3L4 14h7v7l9-11h-7z",
-  network: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-};
 ---
 
 <ResearchLayout
@@ -58,19 +56,11 @@ const icons = {
         <div class="flex items-start justify-between gap-4 flex-wrap">
           <div class="flex items-center gap-4">
             <div class={`w-16 h-16 rounded-full bg-${lab.iconColor}-100 flex items-center justify-center flex-shrink-0`}>
-              <svg
-                class={`w-8 h-8 text-${lab.iconColor}-600`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d={icons[lab.icon]}
-                />
-              </svg>
+              <lab.icon
+                className={`w-8 h-8 text-${lab.iconColor}-600`}
+                style={`transform: rotate(${lab.iconRotation})`}
+                client:load
+              />
             </div>
             <div>
               <h2 class="text-3xl font-bold text-slate-900 tracking-tight">

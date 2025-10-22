@@ -1,29 +1,37 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
+import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
+
+// Fetch Life Is Fragile album from Spotify
+const albumId = import.meta.env.SPOTIFY_ALBUM_LIFE_IS_FRAGILE || "6HCJ9AIBTHrdG3fI5kUPVO";
+const spotifyAlbum = await fetchSpotifyAlbum(albumId);
+
+if (!spotifyAlbum) {
+  throw new Error(`Failed to fetch Spotify album data for ID: ${albumId}. Please check your Spotify credentials in .env file.`);
+}
+
+const spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
 
 const releases = [
   {
-    title: "Life Is Fragile",
-    artist: "Soft Systems",
-    year: 2025,
-    releaseDate: "Oct. 06, 2025",
+    title: spotifyData.title,
+    artist: spotifyData.artist,
+    year: spotifyData.year,
+    releaseDate: new Date(spotifyData.releaseDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }),
     catalogNumber: "TC001",
-    artwork: "/tender_circuits/images/releases/life-is-fragile.jpg",
+    artwork: spotifyData.artwork,
     genres: ["Electronic", "Ambient", "Avant Garde"],
     subgenres: ["Lower-case Music"],
     style: "Instrumental",
     slug: "life-is-fragile",
     description:
       "A contemplative exploration of transient beauty through processed field recordings and generative synthesis.",
-    tracklist: [
-      "Prelude in Minor Catastrophes",
-      "Soft Collapse",
-      "Interim States",
-      "The Weight of Small Things",
-      "Life Is Fragile",
-      "Afterglow",
-    ],
-    duration: "43:22",
+    tracklist: spotifyData.tracklist.map(track => track.title),
+    duration: spotifyData.duration,
   },
 ];
 ---

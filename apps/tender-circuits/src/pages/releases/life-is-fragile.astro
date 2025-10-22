@@ -1,27 +1,32 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
+import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
+
+// Fetch album data from Spotify
+const albumId = import.meta.env.SPOTIFY_ALBUM_LIFE_IS_FRAGILE || "6HCJ9AIBTHrdG3fI5kUPVO";
+const spotifyAlbum = await fetchSpotifyAlbum(albumId);
+
+if (!spotifyAlbum) {
+  throw new Error(`Failed to fetch Spotify album data for ID: ${albumId}. Please check your Spotify credentials in .env file.`);
+}
+
+const spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
 
 const release = {
-  title: "Life Is Fragile",
-  artist: "Soft Systems",
-  year: 2025,
-  releaseDate: "October 06, 2025",
+  title: spotifyData.title,
+  artist: spotifyData.artist,
+  year: spotifyData.year,
+  releaseDate: spotifyData.releaseDate,
   catalogNumber: "TC001",
-  artwork: "/tender_circuits/images/releases/life-is-fragile.jpg",
+  artwork: spotifyData.artwork,
   genres: ["Electronic", "Ambient", "Avant Garde"],
   subgenres: ["Lower-case Music"],
   style: "Instrumental",
-  duration: "43:22",
+  duration: spotifyData.duration,
   description:
     "A contemplative exploration of transient beauty through processed field recordings and generative synthesis. Life Is Fragile examines the delicate balance between structure and dissolution, using algorithmic composition and environmental sound to create an immersive meditation on impermanence.",
-  tracklist: [
-    { title: "Prelude in Minor Catastrophes", duration: "6:42" },
-    { title: "Soft Collapse", duration: "8:15" },
-    { title: "Interim States", duration: "5:33" },
-    { title: "The Weight of Small Things", duration: "9:18" },
-    { title: "Life Is Fragile", duration: "7:45" },
-    { title: "Afterglow", duration: "5:49" },
-  ],
+  tracklist: spotifyData.tracklist,
+  spotifyUrl: spotifyData.spotifyUrl,
   credits: {
     "Composed & Produced": "Soft Systems",
     "Field Recordings": "Various locations, California",
@@ -157,14 +162,19 @@ const release = {
               Listen
             </h3>
             <div class="flex flex-col gap-3">
-              <button
-                class="w-full rounded-lg bg-emerald-900/30 border border-emerald-800/50 py-3 px-4 text-emerald-300 hover:bg-emerald-900/50 hover:text-emerald-200 transition-all duration-200 font-medium"
-              >
-                ▶ Play Album
-              </button>
-              <div class="text-xs text-slate-500 text-center">
-                Streaming integration coming soon
-              </div>
+              {release.spotifyUrl && (
+                <a
+                  href={release.spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-full rounded-lg bg-emerald-900/30 border border-emerald-800/50 py-3 px-4 text-emerald-300 hover:bg-emerald-900/50 hover:text-emerald-200 transition-all duration-200 font-medium text-center flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                  </svg>
+                  Listen on Spotify
+                </a>
+              )}
             </div>
           </div>
         </div>

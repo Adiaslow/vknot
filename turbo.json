@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".astro/**"],
-      "env": ["PUBLIC_*", "ASTRO_*"]
+      "env": ["PUBLIC_*", "ASTRO_*", "SPOTIFY_*"]
     },
     "dev": {
       "cache": false,

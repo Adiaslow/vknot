@@ -1,41 +1,45 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
 import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
+import { getReleaseBySlug } from "../../data/releases";
+
+// Get release config
+const releaseConfig = getReleaseBySlug('life-is-fragile');
+
+if (!releaseConfig) {
+  throw new Error('Release not found in catalog');
+}
 
 // Fetch album data from Spotify
-const albumId = import.meta.env.SPOTIFY_ALBUM_LIFE_IS_FRAGILE || "6HCJ9AIBTHrdG3fI5kUPVO";
-const spotifyAlbum = await fetchSpotifyAlbum(albumId);
+const spotifyAlbum = await fetchSpotifyAlbum(releaseConfig.spotifyAlbumId);
 
 if (!spotifyAlbum) {
-  throw new Error(`Failed to fetch Spotify album data for ID: ${albumId}. Please check your Spotify credentials in .env file.`);
+  throw new Error(`Failed to fetch Spotify album data for ID: ${releaseConfig.spotifyAlbumId}. Please check your Spotify credentials in .env file.`);
 }
 
 const spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
 
+// Merge config data with Spotify data
 const release = {
+  // From Spotify
   title: spotifyData.title,
   artist: spotifyData.artist,
   year: spotifyData.year,
   releaseDate: spotifyData.releaseDate,
-  catalogNumber: "TC001",
   artwork: spotifyData.artwork,
-  genres: ["Electronic", "Ambient", "Avant Garde"],
-  subgenres: ["Lower-case Music"],
-  style: "Instrumental",
   duration: spotifyData.duration,
-  description:
-    "A contemplative exploration of transient beauty through processed field recordings and generative synthesis. Life Is Fragile examines the delicate balance between structure and dissolution, using algorithmic composition and environmental sound to create an immersive meditation on impermanence.",
   tracklist: spotifyData.tracklist,
   spotifyUrl: spotifyData.spotifyUrl,
-  credits: {
-    "Composed & Produced": "Soft Systems",
-    "Field Recordings": "Various locations, California",
-    Mastered: "Soft Systems",
-    Artwork: "Tender Circuits",
-    Label: "Tender Circuits",
-  },
-  notes:
-    "Recorded using generative Max/MSP patches, field recordings captured with handheld devices, and processed through custom granular synthesis tools. All sounds sourced from environmental recordings made between 2024-2025.",
+
+  // From config
+  catalogNumber: releaseConfig.catalogNumber,
+  genres: releaseConfig.genres,
+  subgenres: releaseConfig.subgenres,
+  style: releaseConfig.style,
+  description: releaseConfig.description,
+  credits: releaseConfig.credits,
+  notes: releaseConfig.notes,
+  artistSlug: releaseConfig.artistSlug,
 };
 ---
 
@@ -75,7 +79,7 @@ const release = {
           <div class="flex items-center gap-2">
             <span class="text-xl text-slate-300">by</span>
             <a
-              href="/tender_circuits/artists/soft-systems"
+              href={`/tender_circuits/artists/${release.artistSlug}`}
               class="text-xl text-emerald-300 hover:text-emerald-200 transition-colors font-medium"
             >
               {release.artist}

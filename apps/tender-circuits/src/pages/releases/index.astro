@@ -1,39 +1,44 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
 import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
+import { releases as releaseConfigs } from "../../data/releases";
 
-// Fetch Life Is Fragile album from Spotify
-const albumId = import.meta.env.SPOTIFY_ALBUM_LIFE_IS_FRAGILE || "6HCJ9AIBTHrdG3fI5kUPVO";
-const spotifyAlbum = await fetchSpotifyAlbum(albumId);
+// Fetch Spotify data for all releases
+const releases = await Promise.all(
+  releaseConfigs.map(async (config) => {
+    const spotifyAlbum = await fetchSpotifyAlbum(config.spotifyAlbumId);
 
-if (!spotifyAlbum) {
-  throw new Error(`Failed to fetch Spotify album data for ID: ${albumId}. Please check your Spotify credentials in .env file.`);
-}
+    if (!spotifyAlbum) {
+      throw new Error(`Failed to fetch Spotify album data for ${config.catalogNumber}. Please check your Spotify credentials in .env file.`);
+    }
 
-const spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
+    const spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
 
-const releases = [
-  {
-    title: spotifyData.title,
-    artist: spotifyData.artist,
-    year: spotifyData.year,
-    releaseDate: new Date(spotifyData.releaseDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit'
-    }),
-    catalogNumber: "TC001",
-    artwork: spotifyData.artwork,
-    genres: ["Electronic", "Ambient", "Avant Garde"],
-    subgenres: ["Lower-case Music"],
-    style: "Instrumental",
-    slug: "life-is-fragile",
-    description:
-      "A contemplative exploration of transient beauty through processed field recordings and generative synthesis.",
-    tracklist: spotifyData.tracklist.map(track => track.title),
-    duration: spotifyData.duration,
-  },
-];
+    return {
+      // From Spotify
+      title: spotifyData.title,
+      artist: spotifyData.artist,
+      year: spotifyData.year,
+      releaseDate: new Date(spotifyData.releaseDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit'
+      }),
+      artwork: spotifyData.artwork,
+      tracklist: spotifyData.tracklist.map(track => track.title),
+      duration: spotifyData.duration,
+
+      // From config
+      catalogNumber: config.catalogNumber,
+      genres: config.genres,
+      subgenres: config.subgenres,
+      style: config.style,
+      slug: config.slug,
+      description: config.description,
+      artistSlug: config.artistSlug,
+    };
+  })
+);
 ---
 
 <LabelLayout
@@ -159,7 +164,7 @@ const releases = [
 
                   <a
                     class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
-                    href={`/tender_circuits/artists/${release.artist.toLowerCase().replace(" ", "-")}`}
+                    href={`/tender_circuits/artists/${release.artistSlug}`}
                   >
                     <svg
                       class="w-4 h-4"

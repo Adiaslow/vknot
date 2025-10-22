@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { FileText, Eye, BarChart3, Twitter, Users, ExternalLink } from 'lucide-react';
+import { FileText, Eye, BarChart3, Twitter, Users } from 'lucide-react';
 
 interface PublicationMetrics {
   citations?: number;
@@ -22,6 +22,8 @@ interface PublicationCardProps {
   readonly type?: string;
   readonly showAbstract?: boolean;
   readonly metrics?: PublicationMetrics;
+  readonly isIndexPage?: boolean;
+  readonly publicationId?: string;
 }
 
 const PublicationCard: FC<PublicationCardProps> = ({
@@ -34,18 +36,21 @@ const PublicationCard: FC<PublicationCardProps> = ({
   url,
   type,
   showAbstract = true,
-  metrics
+  metrics,
+  isIndexPage = false,
+  publicationId
 }) => {
   const handleClick = () => {
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+    if (isIndexPage && publicationId) {
+      window.location.href = `/adam-murray/research/publications#${publicationId}`;
     }
   };
 
   return (
-    <article 
+    <article
+      id={publicationId}
       className={`group relative flex flex-col bg-white border border-gray-2/60 rounded-lg p-8 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-3/80 ${
-        url ? 'cursor-pointer hover:-translate-y-1' : ''
+        isIndexPage && publicationId ? 'cursor-pointer hover:-translate-y-1' : ''
       }`}
       onClick={handleClick}
     >
@@ -99,64 +104,65 @@ const PublicationCard: FC<PublicationCardProps> = ({
           )}
         </div>
 
-        {/* Metrics */}
-        {metrics && (metrics.citations !== undefined || metrics.altmetricScore !== undefined || metrics.views !== undefined || metrics.tweets !== undefined) && (
-          <div className="flex flex-wrap gap-3 pt-2">
-            {metrics.citations !== undefined && metrics.citations > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <FileText className="w-4 h-4 text-blue-6" />
-                <span className="font-medium text-gray-7">{metrics.citations}</span>
-                <span className="text-gray-5">citations</span>
+        {/* Metrics and DOI */}
+        {(metrics && (metrics.citations !== undefined || metrics.altmetricScore !== undefined || metrics.views !== undefined || metrics.tweets !== undefined) || doi) && (
+          <div className="flex items-start justify-between gap-4 pt-2">
+            {/* Metrics */}
+            {metrics && (metrics.citations !== undefined || metrics.altmetricScore !== undefined || metrics.views !== undefined || metrics.tweets !== undefined) && (
+              <div className="flex flex-wrap gap-3 flex-1">
+                {metrics.citations !== undefined && metrics.citations > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <FileText className="w-4 h-4 text-blue-6" />
+                    <span className="font-medium text-gray-7">{metrics.citations}</span>
+                    <span className="text-gray-5">citations</span>
+                  </div>
+                )}
+                {metrics.views !== undefined && metrics.views > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Eye className="w-4 h-4 text-emerald-6" />
+                    <span className="font-medium text-gray-7">{metrics.views.toLocaleString()}</span>
+                    <span className="text-gray-5">views</span>
+                  </div>
+                )}
+                {metrics.altmetricScore !== undefined && metrics.altmetricScore > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <BarChart3 className="w-4 h-4 text-purple-6" />
+                    <span className="font-medium text-gray-7">{metrics.altmetricScore}</span>
+                    <span className="text-gray-5">altmetric</span>
+                  </div>
+                )}
+                {metrics.tweets !== undefined && metrics.tweets > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Twitter className="w-4 h-4 text-sky-6" />
+                    <span className="font-medium text-gray-7">{metrics.tweets}</span>
+                    <span className="text-gray-5">tweets</span>
+                  </div>
+                )}
+                {metrics.readers !== undefined && metrics.readers > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Users className="w-4 h-4 text-amber-6" />
+                    <span className="font-medium text-gray-7">{metrics.readers}</span>
+                    <span className="text-gray-5">readers</span>
+                  </div>
+                )}
               </div>
             )}
-            {metrics.views !== undefined && metrics.views > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <Eye className="w-4 h-4 text-emerald-6" />
-                <span className="font-medium text-gray-7">{metrics.views.toLocaleString()}</span>
-                <span className="text-gray-5">views</span>
-              </div>
-            )}
-            {metrics.altmetricScore !== undefined && metrics.altmetricScore > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <BarChart3 className="w-4 h-4 text-purple-6" />
-                <span className="font-medium text-gray-7">{metrics.altmetricScore}</span>
-                <span className="text-gray-5">altmetric</span>
-              </div>
-            )}
-            {metrics.tweets !== undefined && metrics.tweets > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <Twitter className="w-4 h-4 text-sky-6" />
-                <span className="font-medium text-gray-7">{metrics.tweets}</span>
-                <span className="text-gray-5">tweets</span>
-              </div>
-            )}
-            {metrics.readers !== undefined && metrics.readers > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <Users className="w-4 h-4 text-amber-6" />
-                <span className="font-medium text-gray-7">{metrics.readers}</span>
-                <span className="text-gray-5">readers</span>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* DOI */}
-        {doi && (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-gray-5 uppercase tracking-wider">DOI</span>
-            <code className="text-xs bg-gray-0.5 border border-gray-2 rounded px-2 py-1 text-gray-7 font-mono break-all">
-              {doi}
-            </code>
-          </div>
-        )}
-
-        {/* View Link */}
-        {url && (
-          <div className="flex items-center gap-2 pt-2">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-blue-6 group-hover:text-blue-7 transition-colors">
-              <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>View Publication</span>
-            </div>
+            {/* DOI */}
+            {doi && (
+              <div className="flex flex-col gap-1 items-end flex-shrink-0">
+                <span className="text-xs font-medium text-gray-5 uppercase tracking-wider">DOI</span>
+                <a
+                  href={`https://doi.org/${doi}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-xs bg-gray-0.5 border border-gray-2 rounded px-2 py-1 text-blue-6 hover:text-blue-7 hover:border-blue-3 font-mono break-all transition-colors"
+                >
+                  {doi}
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>

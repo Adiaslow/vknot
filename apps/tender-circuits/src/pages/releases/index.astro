@@ -8,6 +8,7 @@ const releases = [
     year: 2025,
     releaseDate: "Oct. 06, 2025",
     catalogNumber: "TC001",
+    artwork: "/tender_circuits/images/releases/Life is Fragile.jpg",
     genres: ["Electronic", "Ambient", "Avant Garde"],
     subgenres: ["Lower-case Music"],
     style: "Instrumental",
@@ -44,10 +45,25 @@ const releases = [
     <div class="flex flex-col gap-12">
       {
         releases.map((release) => (
-          <article class="group rounded-2xl border border-slate-800 bg-slate-900/70 p-8 transition-all duration-300 hover:border-slate-700/80 hover:bg-slate-900/90">
-            <div class="flex flex-col gap-8">
-              {/* Release Header */}
-              <div class="flex flex-col gap-6">
+          <article class="group rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden transition-all duration-300 hover:border-slate-700/80 hover:bg-slate-900/90">
+            <div class="flex flex-col md:flex-row gap-8">
+              {/* Album Artwork */}
+              {release.artwork && (
+                <div class="md:w-80 flex-shrink-0">
+                  <a href={`/tender_circuits/releases/${release.slug}`}>
+                    <img
+                      src={release.artwork}
+                      alt={`${release.title} album artwork`}
+                      class="w-full h-full object-cover md:h-full aspect-square transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </a>
+                </div>
+              )}
+
+              {/* Release Info */}
+              <div class="flex flex-col gap-8 p-8 md:pl-0 flex-1">
+                {/* Release Header */}
+                <div class="flex flex-col gap-6">
                 <div class="flex flex-col gap-3">
                   <div class="flex items-center gap-3 flex-wrap">
                     <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
@@ -111,47 +127,48 @@ const releases = [
                 </div>
               </div>
 
-              {/* Actions */}
-              <div class="flex items-center gap-4 pt-6 border-t border-slate-800">
-                <a
-                  class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
-                  href={`/tender_circuits/releases/${release.slug}`}
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {/* Actions */}
+                <div class="flex items-center gap-4 pt-6 border-t border-slate-800">
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                    href={`/tender_circuits/releases/${release.slug}`}
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-7a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Listen</span>
-                </a>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-7a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Listen</span>
+                  </a>
 
-                <a
-                  class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
-                  href={`/tender_circuits/artists/${release.artist.toLowerCase().replace(" ", "-")}`}
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
+                    href={`/tender_circuits/artists/${release.artist.toLowerCase().replace(" ", "-")}`}
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span>Artist Profile</span>
-                </a>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    <span>Artist Profile</span>
+                  </a>
+                </div>
               </div>
             </div>
           </article>

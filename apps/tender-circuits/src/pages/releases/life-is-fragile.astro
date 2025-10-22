@@ -7,6 +7,7 @@ const release = {
   year: 2025,
   releaseDate: "October 06, 2025",
   catalogNumber: "TC001",
+  artwork: "/tender_circuits/images/releases/Life is Fragile.jpg",
   genres: ["Electronic", "Ambient", "Avant Garde"],
   subgenres: ["Lower-case Music"],
   style: "Instrumental",
@@ -104,6 +105,17 @@ const release = {
           </span>
         </div>
       </div>
+
+      {/* Album Artwork */}
+      {release.artwork && (
+        <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/70 max-w-2xl">
+          <img
+            src={release.artwork}
+            alt={`${release.title} album artwork`}
+            class="w-full h-auto"
+          />
+        </div>
+      )}
 
       {/* Release Info */}
       <div class="grid gap-6 md:grid-cols-2">

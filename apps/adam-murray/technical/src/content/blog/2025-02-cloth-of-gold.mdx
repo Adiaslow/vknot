@@ -178,7 +178,9 @@ Initial:  ...     After 1 gen:  ...
          ...                    ...
 ```
 
-Both cells die due to competitive pressure (Rule 4), permanently removing mass from the system. No local rearrangement can recover this loss. This breaks time-reversibility and prevents conservation laws. $\blacksquare$
+Both cells die due to competitive pressure (Rule 4), permanently removing mass from the system. No local rearrangement can recover this loss. This breaks time-reversibility and prevents conservation laws.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 3.2 Territorial Pressure Dynamics
 
@@ -200,7 +202,9 @@ From the evolution rules:
 - If $P_{i,j} < 0$: Cell becomes/remains type b
 - If $P_{i,j} = 0$: Cell dies or remains empty
 
-This creates a flow from high to low pressure regions, analogous to fluid dynamics. The boundary between territories acts as an interface with surface tension proportional to the pressure differential. $\blacksquare$
+This creates a flow from high to low pressure regions, analogous to fluid dynamics. The boundary between territories acts as an interface with surface tension proportional to the pressure differential.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 3.3 Pattern Stability Under Competition
 
@@ -228,7 +232,9 @@ Sufficiency: If all conditions hold:
 
 - Interior cells satisfy Conway stability
 - Boundary cells maintain ownership through majority
-- Pattern structure is preserved $\blacksquare$
+- Pattern structure is preserved
+
+<div class="text-right">$\blacksquare$</div>
 
 ### Corollary
 
@@ -259,7 +265,9 @@ For each cell:
 - $N_A = N_B$ (stalemate preservation rule applies)
 - Pattern remains stable indefinitely
 
-A pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion. The chimeric pattern has $P = 0$ everywhere, achieving superior stability. $\blacksquare$
+A pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion. The chimeric pattern has $P = 0$ everywhere, achieving superior stability.
+
+<div class="text-right">$\blacksquare$</div>
 
 **Strategic Implications**:
 
@@ -320,7 +328,9 @@ Consider the placement phase. If player A plays deterministic placement $s^*$, p
 
 The chaotic evolution (Lyapunov exponent $\lambda > 0$) means small placement changes cascade unpredictably, preventing stable best responses for any pure strategy.
 
-Therefore, no pure strategy can be a best response to itself. $\blacksquare$
+Therefore, no pure strategy can be a best response to itself.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### Theorem 4.2 (Mixed Strategy Equilibrium)
 
@@ -334,7 +344,9 @@ The game satisfies conditions for Nash's existence theorem:
 2. Compact strategy space (probability distributions)
 3. Continuous payoff functions (population counts)
 
-By Nash's theorem, a mixed strategy equilibrium exists. $\blacksquare$
+By Nash's theorem, a mixed strategy equilibrium exists.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 4.4 Information Theory of Hidden Placement
 
@@ -382,7 +394,9 @@ If $n(t)$ grows linearly: $n(t) = \alpha t$
 
 $$R(t) = 10t + 8\alpha \cdot t(t+1)/2 = O(t^2)$$
 
-Quadratic growth dominates linear strategies asymptotically. $\blacksquare$
+Quadratic growth dominates linear strategies asymptotically.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 5.3 Optimal Pattern Packing
 
@@ -404,7 +418,9 @@ $$\text{Density}_{\text{honey}} = 8A/100 = 0.08A \text{ units/round}$$
 
 Ratio: $0.08A / (A/25) = 2.0$
 
-Honey farms are twice as space-efficient when defended. $\blacksquare$
+Honey farms are twice as space-efficient when defended.
+
+<div class="text-right">$\blacksquare$</div>
 
 ## 6. Dynamical Systems Analysis
 
@@ -461,7 +477,9 @@ $$
 Discretized territories naturally approximate Voronoi cells.
 
 Proof sketch:
-The evolution rules create pressure away from boundaries (conflict zones have higher death rates). The discretized influence field creates a step-function approximation of continuous Voronoi cells. Over time, territorial boundaries minimize interface length at the cell level, converging toward discrete Voronoi-like patterns which minimize perimeter for given areas. The quantization creates "jagged" boundaries that approximate smooth Voronoi boundaries at larger scales. $\blacksquare$
+The evolution rules create pressure away from boundaries (conflict zones have higher death rates). The discretized influence field creates a step-function approximation of continuous Voronoi cells. Over time, territorial boundaries minimize interface length at the cell level, converging toward discrete Voronoi-like patterns which minimize perimeter for given areas. The quantization creates "jagged" boundaries that approximate smooth Voronoi boundaries at larger scales.
+
+<div class="text-right">$\blacksquare$</div>
 
 ## 7. Computational Complexity
 
@@ -481,7 +499,9 @@ PSPACE-hardness: Reduction from Generalized Geography:
 2. Encode edges as possible cellular transitions
 3. Winning Geography strategy $\leftrightarrow$ winning Cloth of Gold strategy
 
-Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play. $\blacksquare$
+Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 7.2 Pattern Recognition Complexity
 
@@ -520,7 +540,9 @@ $$\text{Economic} \to \text{Defensive} \to \text{Aggressive} \to \text{Economic}
 - Defensive > Aggressive: Attacks waste resources against fortified positions
 - Aggressive > Economic: Disrupts high-value economic patterns
 
-No single strategy dominates all others. $\blacksquare$
+No single strategy dominates all others.
+
+<div class="text-right">$\blacksquare$</div>
 
 ### 8.2 Opening Theory
 

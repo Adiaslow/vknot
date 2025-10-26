@@ -1,0 +1,352 @@
+<!DOCTYPE html><html lang="en" class="bg-white text-slate-900"> <head><title>Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery</title><meta name="title" content="Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery"><meta name="description" content="A theoretical framework for molecular embeddings that preserves both synthetic and biological organizational principles through parallel hierarchical decomposition, with applications to cyclic peptide permeability prediction."><link rel="canonical" href="https://vknot.love/adam-murray/technical/posts/2025-10-parallel-chemical-hierarchies/"><meta property="og:type" content="website"><meta property="og:url" content="https://vknot.love/adam-murray/technical/posts/2025-10-parallel-chemical-hierarchies/"><meta property="og:title" content="Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery"><meta property="og:description" content="A theoretical framework for molecular embeddings that preserves both synthetic and biological organizational principles through parallel hierarchical decomposition, with applications to cyclic peptide permeability prediction."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery"><meta name="twitter:description" content="A theoretical framework for molecular embeddings that preserves both synthetic and biological organizational principles through parallel hierarchical decomposition, with applications to cyclic peptide permeability prediction."><script type="application/ld+json">{JSON.stringify(structuredData)}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><link rel="stylesheet" href="/adam-murray/technical/_astro/about.CwwzaQvw.css"></head> <body class="min-h-screen bg-white text-slate-900"> <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding-inline:32px;padding-block:18px;border-bottom:1px solid #f1f5f9;background:#ffffff;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)"><div style="display:flex;align-items:center;gap:12px"><a href="/adam-murray/technical" aria-label="Adam Murray - Research Explorations" style="display:flex;align-items:center;gap:8px;color:#0f172a;text-decoration:none;font-weight:600"><span style="font-size:1.1rem;letter-spacing:-0.01em">Adam Murray - Research Explorations</span></a></div><nav aria-label="Primary navigation" style="display:flex;align-items:center;gap:24px"><ul style="display:flex;align-items:center;gap:18px;list-style:none;margin:0;padding:0;font-size:0.95rem"><li style="display:block"><a href="/adam-murray/technical" style="color:#334155;text-decoration:none;font-weight:500">Posts</a></li><li style="display:block"><a href="/adam-murray/technical/about" style="color:#334155;text-decoration:none;font-weight:500">About</a></li></ul></nav></header> <main class="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 pb-24 pt-12">  <article class="prose prose-slate max-w-none">  <header class="flex flex-col gap-4"> <h1 class="text-4xl font-bold tracking-tight text-slate-900">Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery</h1> <time datetime="2025-05-28T00:00:00.000Z" class="text-sm text-slate-500"> May 28, 2025 </time> <p class="max-w-3xl text-lg text-slate-600">A theoretical framework for molecular embeddings that preserves both synthetic and biological organizational principles through parallel hierarchical decomposition, with applications to cyclic peptide permeability prediction.</p>   </header> <h1 id="parallel-chemical-hierarchies-a-multi-perspective-embedding-strategy-for-cyclic-peptide-drug-discovery">Parallel Chemical Hierarchies: A Multi-Perspective Embedding Strategy for Cyclic Peptide Drug Discovery</h1>
+<h2 id="abstract">Abstract</h2>
+<p>We present a theoretical framework for molecular embeddings based on parallel hierarchical decomposition, motivated by the unique challenges of cyclic peptide drug discovery. Unlike traditional nested hierarchies, our approach maintains two parallel organizational views—synthetic fragments and biological residues—that capture orthogonal chemical principles. We prove that this parallel structure preserves more information than serial hierarchies, enables efficient long-range interaction modeling, and naturally represents the dual nature of modified cyclic peptides. The framework is particularly suited for permeability prediction, where both synthetic accessibility and biological activity contribute to drug-like properties.</p>
+<h2 id="1-introduction">1. Introduction</h2>
+<h3 id="11-the-cyclic-peptide-permeability-challenge">1.1 The Cyclic Peptide Permeability Challenge</h3>
+<p>Cyclic peptides occupy a unique space in drug discovery—large enough to target “undruggable” protein-protein interactions, yet potentially permeable enough to be orally bioavailable. The key challenge is predicting and optimizing cell permeability, which depends on a complex interplay of factors:</p>
+<ul>
+<li><strong>Molecular size and lipophilicity</strong> (traditional drug-like properties)</li>
+<li><strong>Intramolecular hydrogen bonding</strong> (shielding polar groups)</li>
+<li><strong>Conformational flexibility</strong> (ability to adopt permeable conformations)</li>
+<li><strong>Non-canonical modifications</strong> (N-methylation, D-amino acids, unusual residues)</li>
+</ul>
+<p>These properties emerge from both the peptide sequence (biological view) and chemical modifications (synthetic view), neither of which fully captures the complete picture.</p>
+<h3 id="12-the-representation-problem">1.2 The Representation Problem</h3>
+<p>Traditional molecular representations force a choice:</p>
+<p><strong>Option 1: Chemical graph representation</strong></p>
+<ul>
+<li>Treats all atoms equally</li>
+<li>Loses peptide sequence information</li>
+<li>Computationally expensive for large molecules</li>
+</ul>
+<p><strong>Option 2: Sequence-based representation</strong></p>
+<ul>
+<li>Preserves biological information</li>
+<li>Loses chemical modification details</li>
+<li>Fails for non-canonical residues</li>
+</ul>
+<p><strong>Option 3: Hierarchical representation</strong></p>
+<ul>
+<li>Atoms → Functional groups → Molecule</li>
+<li>Creates information bottleneck</li>
+<li>Forces single organizational view</li>
+</ul>
+<p>For modified cyclic peptides—with N-methylations, D-amino acids, and non-natural residues—none of these approaches is sufficient.</p>
+<h3 id="13-our-contribution">1.3 Our Contribution</h3>
+<p>We propose a <strong>parallel hierarchical decomposition</strong> that maintains both synthetic and biological views simultaneously:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>        Atoms</span></span>
+<span class="line"><span>       /      \</span></span>
+<span class="line"><span>  Fragments  Residues</span></span>
+<span class="line"><span>       \      /</span></span>
+<span class="line"><span>       Molecule</span></span></code></pre>
+<p>This structure:</p>
+<ol>
+<li><strong>Preserves more information</strong> than serial hierarchies (proven via information theory)</li>
+<li><strong>Enables cross-level interactions</strong> between fragments and residues</li>
+<li><strong>Naturally represents</strong> modified cyclic peptides</li>
+<li><strong>Facilitates learning</strong> of permeability-relevant features</li>
+</ol>
+<h2 id="2-theoretical-foundations">2. Theoretical Foundations</h2>
+<h3 id="21-information-theoretic-analysis">2.1 Information-Theoretic Analysis</h3>
+<p><strong>Definition 2.1</strong> (Serial Hierarchical Decomposition): A serial hierarchy processes information through a single intermediate level:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>Atoms (A) → Hierarchy (H) → Molecule (M)</span></span></code></pre>
+<p><strong>Definition 2.2</strong> (Parallel Hierarchical Decomposition): A parallel hierarchy processes information through multiple independent levels:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>Atoms (A) → {Fragments (F), Residues (R)} → Molecule (M)</span></span></code></pre>
+<p><strong>Theorem 2.1</strong> (Information Preservation): Parallel decomposition preserves at least as much information as any serial decomposition.</p>
+<p><strong>Proof:</strong>
+Let I(A; M) be the mutual information between atoms and molecular properties.</p>
+<p>For serial decomposition:
+By the data processing inequality:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>I(A; M) ≤ I(A; H) ≤ H(A)</span></span></code></pre>
+<p>For parallel decomposition:
+Using the chain rule of mutual information:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>I(A; M|F,R) = I(A; M,F,R) - I(A; F,R)</span></span>
+<span class="line"><span>             = I(A; M) + I(A; F,R|M) - I(A; F,R)</span></span></code></pre>
+<p>Since F and R are both functions of A:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>I(A; F,R) = H(F,R) - H(F,R|A) = H(F,R)</span></span></code></pre>
+<p>By conditioning reduces entropy:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>I(A; M|F,R) ≥ max(I(A; M|F), I(A; M|R))</span></span></code></pre>
+<p>Since any serial hierarchy H can be viewed as either F or R alone:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>I(A; M|F,R) ≥ I(A; M|H)</span></span></code></pre>
+<p>Therefore, parallel decomposition preserves at least as much information. ∎</p>
+<h3 id="22-graph-theoretic-framework">2.2 Graph-Theoretic Framework</h3>
+<p><strong>Definition 2.3</strong> (Molecular Partition): A partition π of atomic set A groups atoms into disjoint subsets.</p>
+<p><strong>Definition 2.4</strong> (Fragment Partition): π_F groups atoms by synthetic building blocks (e.g., BRICS decomposition).</p>
+<p><strong>Definition 2.5</strong> (Residue Partition): π_R groups atoms by biological units (amino acid residues).</p>
+<p><strong>Lemma 2.2</strong> (Partition Refinement): The meet (intersection) of two partitions provides finer granularity than either partition alone.</p>
+<p><strong>Proof:</strong>
+For partitions π_F and π_R, their meet π_F ∧ π_R is defined as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>π_F ∧ π_R = {B_i ∩ B_j | B_i ∈ π_F, B_j ∈ π_R, B_i ∩ B_j ≠ ∅}</span></span></code></pre>
+<p>The entropy of a partition H(π) = -Σ_i (|B_i|/n) log(|B_i|/n).</p>
+<p>Since each block in π_F ∧ π_R is a subset of blocks in both π_F and π_R:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>|blocks(π_F ∧ π_R)| ≥ max(|blocks(π_F)|, |blocks(π_R)|)</span></span></code></pre>
+<p>Therefore:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>H(π_F ∧ π_R) ≥ max(H(π_F), H(π_R))</span></span></code></pre>
+<p>The finer partition captures more structural information. ∎</p>
+<h3 id="23-attention-based-long-range-interactions">2.3 Attention-Based Long-Range Interactions</h3>
+<p><strong>Definition 2.6</strong> (Graph Distance): In a molecular graph G, d(i,j) is the shortest path between atoms i and j.</p>
+<p><strong>Definition 2.7</strong> (Attention Mechanism): Attention computes pairwise relevance scores:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>Attention(i,j) = softmax(Q_i · K_j^T / √d)</span></span></code></pre>
+<p><strong>Theorem 2.3</strong> (Information Flow Complexity): Message passing requires O(diameter(G)) steps for global information flow, while attention requires O(1) steps.</p>
+<p><strong>Proof:</strong>
+In message passing with k iterations:</p>
+<ul>
+<li>Information from node i reaches nodes within distance k</li>
+<li>Full propagation requires k = diameter(G) iterations</li>
+<li>Time complexity: O(diameter(G) × |E|)</li>
+</ul>
+<p>With attention mechanism:</p>
+<ul>
+<li>All pairs compute attention scores simultaneously</li>
+<li>Information flows directly between any pair</li>
+<li>Time complexity: O(|V|²) but depth O(1)</li>
+</ul>
+<p>For cyclic peptides, diameter(G) ≈ n/2 for n residues, making attention significantly more efficient for long-range interactions. ∎</p>
+<h2 id="3-the-parallel-hierarchical-framework">3. The Parallel Hierarchical Framework</h2>
+<h3 id="31-formal-construction">3.1 Formal Construction</h3>
+<p><strong>Definition 3.1</strong> (Parallel Hierarchical Molecular Graph): A tuple (A, F, R, M, φ_F, φ_R, ψ) where:</p>
+<ul>
+<li>A = atomic features ∈ ℝ^(n × d_a)</li>
+<li>F = fragment features ∈ ℝ^(k_f × d_f)</li>
+<li>R = residue features ∈ ℝ^(k_r × d_r)</li>
+<li>M = molecular features ∈ ℝ^d_m</li>
+<li>φ_F: A → F (fragment assignment)</li>
+<li>φ_R: A → R (residue assignment)</li>
+<li>ψ: F × R → M (molecular composition)</li>
+</ul>
+<h3 id="32-cross-level-interactions">3.2 Cross-Level Interactions</h3>
+<p><strong>Definition 3.2</strong> (Fragment-Residue Interaction Tensor): T ∈ ℝ^(k_f × k_r × d_c) captures interactions between fragments and residues.</p>
+<p>For cyclic peptides, this captures critical relationships:</p>
+<ul>
+<li>N-methylation (fragment) on specific residues affects permeability</li>
+<li>D-amino acids (residue property) influence backbone conformation</li>
+<li>Aromatic fragments participate in π-π stacking across residues</li>
+</ul>
+<h3 id="33-permeability-relevant-features">3.3 Permeability-Relevant Features</h3>
+<p>The parallel structure naturally captures permeability determinants:</p>
+<p><strong>Fragment Level</strong>:</p>
+<ul>
+<li>Lipophilic groups (permeability enhancers)</li>
+<li>Polar functional groups (permeability barriers)</li>
+<li>Hydrogen bond donors/acceptors</li>
+</ul>
+<p><strong>Residue Level</strong>:</p>
+<ul>
+<li>Sequence patterns (e.g., Pro-Pro for rigidity)</li>
+<li>D/L stereochemistry</li>
+<li>N-methylation patterns</li>
+</ul>
+<p><strong>Cross-Level</strong>:</p>
+<ul>
+<li>Intramolecular hydrogen bonds (polar group shielding)</li>
+<li>Aromatic-aromatic interactions</li>
+<li>Modification-sequence compatibility</li>
+</ul>
+<h2 id="4-theoretical-properties">4. Theoretical Properties</h2>
+<h3 id="41-representational-capacity">4.1 Representational Capacity</h3>
+<p><strong>Theorem 4.1</strong> (Capacity Bound): The parallel hierarchy has higher representational capacity than any single hierarchy.</p>
+<p><strong>Proof:</strong>
+Representational capacity can be measured by the dimension of the feature space.</p>
+<p>Single hierarchy:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>dim(H) = k_h × d_h</span></span></code></pre>
+<p>Parallel hierarchy:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>dim(F × R) = k_f × d_f + k_r × d_r + k_f × k_r × d_c</span></span></code></pre>
+<p>The cross-term k_f × k_r × d_c represents additional capacity from interactions.</p>
+<p>For cyclic peptides:</p>
+<ul>
+<li>k_f ≈ number of modification types</li>
+<li>k_r ≈ number of residues</li>
+<li>Cross-term grows as O(k_f × k_r)</li>
+</ul>
+<p>Therefore:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>dim(F × R) &gt; dim(H) for any H with comparable complexity</span></span></code></pre>
+<p>∎</p>
+<h3 id="42-gradient-flow-properties">4.2 Gradient Flow Properties</h3>
+<p><strong>Theorem 4.2</strong> (Gradient Robustness): Parallel pathways reduce gradient vanishing probability.</p>
+<p><strong>Proof:</strong>
+Let p be the probability of gradient vanishing through a single path.</p>
+<p>Serial hierarchy:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>P(gradient reaches atoms) = 1 - p</span></span></code></pre>
+<p>Parallel hierarchy with independent pathways:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>P(gradient vanishes) = P(both paths fail) = p²</span></span>
+<span class="line"><span>P(gradient reaches atoms) = 1 - p²</span></span></code></pre>
+<p>Since p ∈ (0,1):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>1 - p² &gt; 1 - p</span></span></code></pre>
+<p>The parallel structure provides gradient flow redundancy. ∎</p>
+<h3 id="43-compositional-learning">4.3 Compositional Learning</h3>
+<p><strong>Definition 4.1</strong> (Compositional Rules): Learned mappings that generalize to novel combinations:</p>
+<ul>
+<li>Fragment compatibility: P(f_i connects to f_j)</li>
+<li>Residue compatibility: P(r_i follows r_j)</li>
+<li>Cross-level compatibility: P(f_i compatible with r_j)</li>
+</ul>
+<p><strong>Conjecture 4.1</strong>: The parallel hierarchy learns compositional rules that generalize to novel modified peptides.</p>
+<p><strong>Supporting argument</strong> (not a proof):
+The architecture separates:</p>
+<ol>
+<li>Local chemical rules (fragments)</li>
+<li>Sequential patterns (residues)</li>
+<li>Interaction rules (cross-level)</li>
+</ol>
+<p>This factorization encourages learning reusable components rather than memorizing complete structures.</p>
+<h2 id="5-application-to-cyclic-peptide-permeability">5. Application to Cyclic Peptide Permeability</h2>
+<h3 id="51-why-parallel-hierarchy-suits-cyclic-peptides">5.1 Why Parallel Hierarchy Suits Cyclic Peptides</h3>
+<p>Cyclic peptides have inherent dual nature:</p>
+<p><strong>Biological organization</strong> (Residues):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>CYCLO(Arg-D-Phe-Pro-NMe-Val-Leu)</span></span></code></pre>
+<ul>
+<li>Sequence determines backbone conformation</li>
+<li>Residue properties affect recognition</li>
+</ul>
+<p><strong>Synthetic organization</strong> (Fragments):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>Guanidine-Phenyl-Pyrrolidine-NMethyl-Isopropyl-Isobutyl</span></span></code></pre>
+<ul>
+<li>Functional groups determine lipophilicity</li>
+<li>Modifications affect permeability</li>
+</ul>
+<p>Neither view is complete; both are necessary.</p>
+<h3 id="52-permeability-feature-extraction">5.2 Permeability Feature Extraction</h3>
+<p>The parallel hierarchy naturally extracts permeability-relevant features:</p>
+<p><strong>Theorem 5.1</strong> (Feature Completeness): The parallel decomposition captures all first-order permeability determinants.</p>
+<p><strong>Proof sketch:</strong>
+Permeability determinants include:</p>
+<ol>
+<li>Size/lipophilicity → captured by fragment features</li>
+<li>Hydrogen bonding → fragment-residue interactions</li>
+<li>Flexibility → residue sequence patterns</li>
+<li>Charge distribution → both levels contribute</li>
+</ol>
+<p>Each determinant maps to architectural components:</p>
+<ul>
+<li>Fragments encode chemical properties</li>
+<li>Residues encode conformational preferences</li>
+<li>Cross-attention captures shielding effects</li>
+</ul>
+<p>The parallel structure spans the space of permeability features. ∎</p>
+<h3 id="53-modified-residue-representation">5.3 Modified Residue Representation</h3>
+<p><strong>Example</strong>: N-methylated leucine</p>
+<p>Traditional hierarchy struggles:</p>
+<ul>
+<li>Is it a modified leucine? (residue view)</li>
+<li>Is it a specific chemical structure? (fragment view)</li>
+</ul>
+<p>Parallel hierarchy:</p>
+<ul>
+<li>Residue level: Leucine-like backbone position</li>
+<li>Fragment level: N-methyl modification, isobutyl side chain</li>
+<li>Cross-level: N-methylation at this position affects backbone flexibility</li>
+</ul>
+<p>This factorization enables generalization to novel modifications.</p>
+<h2 id="6-theoretical-implications">6. Theoretical Implications</h2>
+<h3 id="61-connection-to-multi-view-learning">6.1 Connection to Multi-View Learning</h3>
+<p>The parallel hierarchy implements a form of multi-view learning where views are:</p>
+<ol>
+<li><strong>Structurally coupled</strong> (share atomic foundation)</li>
+<li><strong>Semantically distinct</strong> (capture different chemical principles)</li>
+<li><strong>Mutually informative</strong> (cross-level interactions)</li>
+</ol>
+<p>This relates to co-training and multi-kernel learning theory.</p>
+<h3 id="62-inductive-biases">6.2 Inductive Biases</h3>
+<p>The architecture encodes strong but complementary biases:</p>
+<p><strong>Fragment bias</strong>: Local chemical environment determines properties</p>
+<ul>
+<li>Matches medicinal chemistry intuition</li>
+<li>Enables fragment-based drug design reasoning</li>
+</ul>
+<p><strong>Residue bias</strong>: Sequence patterns determine structure</p>
+<ul>
+<li>Matches peptide chemistry knowledge</li>
+<li>Enables sequence-based optimization</li>
+</ul>
+<p>By maintaining both biases simultaneously, the model avoids premature commitment to a single view.</p>
+<h3 id="63-theoretical-limitations">6.3 Theoretical Limitations</h3>
+<p><strong>Limitation 1</strong>: Not all molecules benefit from dual representation</p>
+<ul>
+<li>Small molecules may not have meaningful residue structure</li>
+<li>Proteins might need additional hierarchical levels</li>
+</ul>
+<p><strong>Limitation 2</strong>: Optimal decomposition is task-dependent</p>
+<ul>
+<li>Different partitions might suit different properties</li>
+<li>No universal “best” decomposition exists</li>
+</ul>
+<p><strong>Limitation 3</strong>: Computational overhead</p>
+<ul>
+<li>Maintains multiple feature sets</li>
+<li>Requires cross-level attention computation</li>
+</ul>
+<h2 id="7-experimental-directions">7. Experimental Directions</h2>
+<p>While this work focuses on theoretical foundations, the framework suggests several testable hypotheses:</p>
+<h3 id="71-compositional-generalization">7.1 Compositional Generalization</h3>
+<p><strong>Hypothesis</strong>: Models using parallel hierarchy should better generalize to:</p>
+<ul>
+<li>Novel combinations of known modifications</li>
+<li>Longer/shorter peptide sequences</li>
+<li>Different cyclization patterns</li>
+</ul>
+<h3 id="72-interpretability">7.2 Interpretability</h3>
+<p><strong>Hypothesis</strong>: Learned attention patterns should reveal:</p>
+<ul>
+<li>Which modifications affect permeability</li>
+<li>Critical fragment-residue interactions</li>
+<li>Structural motifs for permeability</li>
+</ul>
+<h3 id="73-transfer-learning">7.3 Transfer Learning</h3>
+<p><strong>Hypothesis</strong>: The factorized representation should enable:</p>
+<ul>
+<li>Transfer between peptide families</li>
+<li>Knowledge sharing across modification types</li>
+<li>Few-shot learning for novel residues</li>
+</ul>
+<h2 id="8-related-theoretical-frameworks">8. Related Theoretical Frameworks</h2>
+<h3 id="81-connection-to-category-theory">8.1 Connection to Category Theory</h3>
+<p>The parallel decomposition can be viewed as a <strong>span</strong> in the category of molecular representations:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>    F ← A → R</span></span></code></pre>
+<p>with the molecular level as the <strong>pushout</strong> combining both views.</p>
+<h3 id="82-connection-to-information-geometry">8.2 Connection to Information Geometry</h3>
+<p>The parallel hierarchy defines a <strong>product manifold</strong>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>M_molecule = M_fragment × M_residue</span></span></code></pre>
+<p>with the Riemannian metric incorporating both geometric structures.</p>
+<h3 id="83-connection-to-tensor-decomposition">8.3 Connection to Tensor Decomposition</h3>
+<p>The framework performs an implicit <strong>tensor factorization</strong>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>T_molecule ≈ T_atom ×₁ U_fragment ×₂ U_residue ×₃ U_interaction</span></span></code></pre>
+<p>similar to Tucker decomposition but with chemical constraints.</p>
+<h2 id="9-conclusions">9. Conclusions</h2>
+<h3 id="91-summary-of-contributions">9.1 Summary of Contributions</h3>
+<p>We presented a theoretical framework for molecular embeddings based on parallel hierarchical decomposition. Key theoretical results include:</p>
+<ol>
+<li><strong>Proof</strong> that parallel decomposition preserves more information than serial hierarchies</li>
+<li><strong>Analysis</strong> of gradient flow properties showing improved robustness</li>
+<li><strong>Framework</strong> for representing modified cyclic peptides with dual organization</li>
+<li><strong>Connection</strong> to permeability prediction requirements</li>
+</ol>
+<h3 id="92-implications-for-drug-discovery">9.2 Implications for Drug Discovery</h3>
+<p>The parallel hierarchy framework:</p>
+<ul>
+<li><strong>Addresses</strong> the unique challenges of modified cyclic peptides</li>
+<li><strong>Preserves</strong> both synthetic and biological information</li>
+<li><strong>Enables</strong> learning of compositional rules</li>
+<li><strong>Facilitates</strong> permeability prediction and optimization</li>
+</ul>
+<h3 id="93-future-theoretical-work">9.3 Future Theoretical Work</h3>
+<p>Open questions include:</p>
+<ol>
+<li><strong>Optimal decomposition</strong>: How to choose the best fragment/residue partitions?</li>
+<li><strong>Theoretical guarantees</strong>: Can we prove generalization bounds?</li>
+<li><strong>Extension to other modalities</strong>: Can this framework incorporate 3D structure?</li>
+<li><strong>Automated decomposition</strong>: Can we learn the hierarchical structure from data?</li>
+</ol>
+<p>The parallel hierarchical framework provides a theoretically grounded approach to molecular representation that aligns with the dual nature of cyclic peptides, offering a principled foundation for permeability prediction and molecular design.</p>
+<h2 id="references">References</h2>
+<p>[1] T. M. Cover and J. A. Thomas, Elements of Information Theory, 2nd ed. Hoboken, NJ: Wiley-Interscience, 2006.</p>
+<p>[2] G. C. Rota, “On the foundations of combinatorial theory I. Theory of Möbius functions,” Zeitschrift für Wahrscheinlichkeitstheorie, vol. 2, no. 4, pp. 340-368, 1964.</p>
+<p>[3] D. I. Shuman et al., “The emerging field of signal processing on graphs,” IEEE Signal Processing Magazine, vol. 30, no. 3, pp. 83-98, 2013.</p>
+<p>[4] P. G. Dougherty et al., “Understanding Cell Penetration of Cyclic Peptides,” Chemical Reviews, vol. 119, no. 17, pp. 10241-10287, 2019.</p>
+<p>[5] A. Furukawa et al., “Passive Membrane Permeability in Cyclic Peptomer Scaffolds,” ACS Chemical Biology, vol. 15, no. 10, pp. 2633-2640, 2020.</p>
+<p>[6] M. R. Naylor et al., “Cyclic peptide natural products chart the frontier of oral bioavailability,” Current Opinion in Chemical Biology, vol. 47, pp. 117-126, 2018.</p>
+<p>[7] J. Gilmer et al., “Neural Message Passing for Quantum Chemistry,” in Proc. ICML, 2017.</p>
+<p>[8] Z. Xu et al., “How Powerful are Graph Neural Networks?” in Proc. ICLR, 2019.</p>
+<p>[9] A. Blum and T. Mitchell, “Combining labeled and unlabeled data with co-training,” in Proc. COLT, 1998.</p>
+<p>[10] C. Xu et al., “A survey on multi-view learning,” arXiv preprint arXiv:1304.5634, 2013.</p>
+<hr/>
+<p><em>This theoretical framework is part of ongoing research in cyclic peptide drug discovery. A complete implementation with empirical validation is forthcoming.</em></p>  </article> </main> <footer class="border-t border-slate-200 py-10 text-sm text-slate-500"> <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6"> <span>© 2025 Adam Murray</span> </div> </footer> </body></html>

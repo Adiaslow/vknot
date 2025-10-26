@@ -1,0 +1,370 @@
+<!DOCTYPE html><html lang="en" class="bg-white text-slate-900"> <head><title>Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing</title><meta name="title" content="Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing"><meta name="description" content="A mathematically rigorous framework for validating DNA-encoded library synthesis using only one-dimensional chromatographic signals and graph-theoretic constraints, without requiring mass spectrometry or molecular structure information."><link rel="canonical" href="https://vknot.love/adam-murray/technical/posts/2025-10-validation-of-combinatorial-synthesis/"><meta property="og:type" content="website"><meta property="og:url" content="https://vknot.love/adam-murray/technical/posts/2025-10-validation-of-combinatorial-synthesis/"><meta property="og:title" content="Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing"><meta property="og:description" content="A mathematically rigorous framework for validating DNA-encoded library synthesis using only one-dimensional chromatographic signals and graph-theoretic constraints, without requiring mass spectrometry or molecular structure information."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing"><meta name="twitter:description" content="A mathematically rigorous framework for validating DNA-encoded library synthesis using only one-dimensional chromatographic signals and graph-theoretic constraints, without requiring mass spectrometry or molecular structure information."><script type="application/ld+json">{JSON.stringify(structuredData)}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><link rel="stylesheet" href="/adam-murray/technical/_astro/about.CwwzaQvw.css"></head> <body class="min-h-screen bg-white text-slate-900"> <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding-inline:32px;padding-block:18px;border-bottom:1px solid #f1f5f9;background:#ffffff;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)"><div style="display:flex;align-items:center;gap:12px"><a href="/adam-murray/technical" aria-label="Adam Murray - Research Explorations" style="display:flex;align-items:center;gap:8px;color:#0f172a;text-decoration:none;font-weight:600"><span style="font-size:1.1rem;letter-spacing:-0.01em">Adam Murray - Research Explorations</span></a></div><nav aria-label="Primary navigation" style="display:flex;align-items:center;gap:24px"><ul style="display:flex;align-items:center;gap:18px;list-style:none;margin:0;padding:0;font-size:0.95rem"><li style="display:block"><a href="/adam-murray/technical" style="color:#334155;text-decoration:none;font-weight:500">Posts</a></li><li style="display:block"><a href="/adam-murray/technical/about" style="color:#334155;text-decoration:none;font-weight:500">About</a></li></ul></nav></header> <main class="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 pb-24 pt-12">  <article class="prose prose-slate max-w-none">  <header class="flex flex-col gap-4"> <h1 class="text-4xl font-bold tracking-tight text-slate-900">Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing</h1> <time datetime="2024-10-13T00:00:00.000Z" class="text-sm text-slate-500"> October 13, 2024 </time> <p class="max-w-3xl text-lg text-slate-600">A mathematically rigorous framework for validating DNA-encoded library synthesis using only one-dimensional chromatographic signals and graph-theoretic constraints, without requiring mass spectrometry or molecular structure information.</p>   </header> <h1 id="graph-theoretic-validation-of-combinatorial-synthesis-via-signal-processing">Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing</h1>
+<h2 id="abstract">Abstract</h2>
+<p>This framework provides a mathematical approach for validating combinatorial chemical synthesis using minimal information inputs. By design, the system operates without mass spectrometry or molecular structure information, relying instead on rigorous application of graph theory, discrete Morse theory, and statistical inference to one-dimensional chromatographic signals. The framework proves that truncation relationships in combinatorial libraries form a directed acyclic graph (DAG), establishes the mathematical foundations for using discrete Morse theory in chromatographic peak detection, and demonstrates how global constraint propagation through the DAG enables robust peak classification. This approach achieves synthesis validation through mathematical rigor rather than information abundance, proving that careful application of pure mathematics can solve underdetermined chemical analysis problems.</p>
+<h2 id="1-introduction">1. Introduction</h2>
+<h3 id="11-the-synthesis-validation-problem">1.1 The Synthesis Validation Problem</h3>
+<p>DNA-encoded libraries (DELs) enable parallel synthesis of millions of compounds through combinatorial chemistry. Each synthesis position can either successfully add its intended building block or fail (truncation), creating a complex mixture of products and truncation byproducts. The validation challenge: determine which syntheses succeeded using analytical chemistry.</p>
+<p>Traditional approaches employ information-rich methods:</p>
+<ul>
+<li>Mass spectrometry for molecular weight confirmation</li>
+<li>Structure prediction for retention time modeling</li>
+<li>Machine learning on training datasets</li>
+</ul>
+<h3 id="12-the-minimalist-approach">1.2 The Minimalist Approach</h3>
+<p>This work takes a deliberately constrained approach, using only:</p>
+<ul>
+<li><strong>One-dimensional chromatographic signal</strong> (intensity vs. time)</li>
+<li><strong>Abstract synthesis relationships</strong> (which compounds are related by truncation)</li>
+<li><strong>No mass information</strong> (by design, not limitation)</li>
+<li><strong>No structural information</strong> (universally applicable)</li>
+</ul>
+<p>This constraint-by-design philosophy forces mathematical rigor to compensate for limited observables.</p>
+<h3 id="13-key-contributions">1.3 Key Contributions</h3>
+<p>This work establishes:</p>
+<ol>
+<li><strong>Proof</strong> that combinatorial truncation relationships form a DAG</li>
+<li><strong>Mathematical justification</strong> for discrete Morse theory in peak detection</li>
+<li><strong>Statistical framework</strong> using Poisson models for significance testing</li>
+<li><strong>Optimal assignment</strong> via the Hungarian algorithm</li>
+<li><strong>Convergence analysis</strong> of positional variants to chemical identities</li>
+</ol>
+<h2 id="2-mathematical-foundations">2. Mathematical Foundations</h2>
+<h3 id="21-the-truncation-graph-structure">2.1 The Truncation Graph Structure</h3>
+<p><strong>Definition 2.1</strong> (Truncation Relation): For compounds A and B in a combinatorial library, A ≼ B (A is a truncation of B) if A can be obtained from B by replacing one or more building blocks with null.</p>
+<p><strong>Theorem 2.1</strong> (DAG Structure): The truncation relation ≼ forms a directed acyclic graph.</p>
+<p><strong>Proof:</strong>
+The relation ≼ defines a strict partial order:</p>
+<p><em>Reflexivity</em>: A ≼ A (every compound truncates to itself)</p>
+<p><em>Antisymmetry</em>: If A ≼ B and B ≼ A, then A = B</p>
+<ul>
+<li>A ≼ B implies |A| ≤ |B| (length non-increasing)</li>
+<li>B ≼ A implies |B| ≤ |A|</li>
+<li>Therefore |A| = |B|</li>
+<li>With equal lengths and mutual truncation, A = B</li>
+</ul>
+<p><em>Transitivity</em>: If A ≼ B and B ≼ C, then A ≼ C</p>
+<ul>
+<li>Truncation operations compose</li>
+</ul>
+<p><em>Acyclicity</em>: Assume cycle A → B → … → A exists</p>
+<ul>
+<li>Each edge represents truncation (length decrease or null replacement)</li>
+<li>Following the cycle: |A| &gt; |B| &gt; … &gt; |A|</li>
+<li>Contradiction: |A| &gt; |A|</li>
+</ul>
+<p>Therefore, the truncation relation forms a DAG. ∎</p>
+<h3 id="22-chemical-identity-vs-positional-identity">2.2 Chemical Identity vs. Positional Identity</h3>
+<p><strong>Definition 2.2</strong> (Positional Sequence): An n-tuple where position i contains building block b_i or null.</p>
+<p><strong>Definition 2.3</strong> (Chemical Identity): The actual molecule, independent of synthesis position.</p>
+<p><strong>Example</strong>:</p>
+<ul>
+<li>Positional: [Val, Null, Null], [Null, Val, Null], [Null, Null, Val] (different)</li>
+<li>Chemical: All three are “Val” (same molecule)</li>
+</ul>
+<p><strong>Theorem 2.2</strong> (Convergence Property): Multiple positional sequences can represent the same chemical identity, creating convergence in the DAG.</p>
+<p><strong>Proof:</strong>
+Consider positional sequences P₁ = [b, Null, Null] and P₂ = [Null, b, Null].</p>
+<ul>
+<li>Chemically, both represent the single building block b</li>
+<li>In the DAG, both P₁ and P₂ are distinct vertices</li>
+<li>Both map to the same chemical entity b</li>
+<li>This creates convergence (diamond patterns) without violating acyclicity</li>
+</ul>
+<p>The convergence is not a cycle because edges only point toward simpler structures. ∎</p>
+<h3 id="23-equivalence-classes">2.3 Equivalence Classes</h3>
+<p><strong>Definition 2.4</strong> (Equivalence Class): The set of all positional sequences with the same chemical identity.</p>
+<p><strong>Theorem 2.3</strong> (Partition Property): Chemical equivalence partitions the positional sequence space into disjoint equivalence classes.</p>
+<p><strong>Proof:</strong>
+Define relation ~: P₁ ~ P₂ iff P₁ and P₂ have the same chemical identity.</p>
+<p><em>Reflexivity</em>: P ~ P (same chemical identity as itself)
+<em>Symmetry</em>: P₁ ~ P₂ ⟹ P₂ ~ P₁ (chemical identity is symmetric)
+<em>Transitivity</em>: P₁ ~ P₂ and P₂ ~ P₃ ⟹ P₁ ~ P₃</p>
+<p>Therefore ~ is an equivalence relation, partitioning the space into disjoint classes. ∎</p>
+<h2 id="3-signal-processing-framework">3. Signal Processing Framework</h2>
+<h3 id="31-discrete-morse-theory-for-peak-detection">3.1 Discrete Morse Theory for Peak Detection</h3>
+<p><strong>Definition 3.1</strong> (Discrete Morse Function): For discrete signal s: ℤ → ℝ, position i is a critical point if:</p>
+<ul>
+<li>Local maximum: s[i] &gt; s[i-1] and s[i] ≥ s[i+1]</li>
+<li>Local minimum: s[i] &lt; s[i-1] and s[i] ≤ s[i+1]</li>
+</ul>
+<p><strong>Theorem 3.1</strong> (Topological Invariance): Critical points of discrete Morse functions are invariant under monotonic transformations.</p>
+<p><strong>Proof:</strong>
+Let f: ℝ → ℝ be strictly monotonic and increasing.
+For signal s, consider transformed signal t = f ∘ s.</p>
+<p>At position i:</p>
+<ul>
+<li>s[i] &gt; s[i-1] ⟹ f(s[i]) &gt; f(s[i-1]) ⟹ t[i] &gt; t[i-1]</li>
+<li>s[i] ≥ s[i+1] ⟹ f(s[i]) ≥ f(s[i+1]) ⟹ t[i] ≥ t[i+1]</li>
+</ul>
+<p>Critical points are preserved. ∎</p>
+<p><strong>Corollary</strong>: Peak detection via discrete Morse theory is robust to monotonic noise and baseline drift.</p>
+<h3 id="32-poisson-statistical-model">3.2 Poisson Statistical Model</h3>
+<p><strong>Assumption</strong>: Chromatographic detector counts follow Poisson statistics (reasonable for photon/ion counting).</p>
+<p><strong>Definition 3.2</strong> (Poisson Z-score): For observed count x with background rate λ:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>Z = (x - λ) / √(λ + ε)</span></span></code></pre>
+<p>where ε prevents division by zero.</p>
+<p><strong>Theorem 3.2</strong> (False Positive Bound): For threshold Z_t, the false positive rate is bounded by:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>P(Z &gt; Z_t | H₀) ≤ Φ(-Z_t)</span></span></code></pre>
+<p>where Φ is the standard normal CDF and H₀ is the null hypothesis (no peak).</p>
+<p><strong>Proof:</strong>
+Under H₀, x ~ Poisson(λ).
+For large λ, Poisson(λ) ≈ N(λ, λ) by CLT.
+Therefore Z ≈ N(0, 1) under H₀.
+P(Z &gt; Z_t) = 1 - Φ(Z_t) = Φ(-Z_t). ∎</p>
+<h3 id="33-peak-detection-pipeline">3.3 Peak Detection Pipeline</h3>
+<p><strong>Algorithm</strong>: Combined Morse-Poisson Peak Detection</p>
+<ol>
+<li>Find all local maxima via discrete Morse theory</li>
+<li>Compute Poisson Z-scores for each maximum</li>
+<li>Retain peaks with Z &gt; Z_threshold</li>
+<li>Calculate prominence for chromatographic significance</li>
+</ol>
+<p><strong>Theorem 3.3</strong> (Completeness): The algorithm finds all statistically significant topological peaks.</p>
+<p><strong>Proof:</strong></p>
+<ul>
+<li>Morse theory finds all local maxima (complete enumeration)</li>
+<li>Poisson filtering removes only statistically insignificant peaks</li>
+<li>No true peaks are missed if they exceed noise threshold ∎</li>
+</ul>
+<h2 id="4-global-constraint-propagation">4. Global Constraint Propagation</h2>
+<h3 id="41-the-classification-problem">4.1 The Classification Problem</h3>
+<p>Given detected peaks in related compounds, classify each peak as:</p>
+<ul>
+<li><strong>NULL</strong>: Corresponds to the empty compound</li>
+<li><strong>TRUNCATION</strong>: Missing one or more building blocks</li>
+<li><strong>PUTATIVE_PRODUCT</strong>: Consistent with intended product</li>
+<li><strong>UNKNOWN</strong>: Cannot be determined</li>
+</ul>
+<h3 id="42-constraint-propagation-algorithm">4.2 Constraint Propagation Algorithm</h3>
+<p><strong>Definition 4.1</strong> (L₀): The minimal element of the DAG, representing the fully-null compound.</p>
+<p><strong>Theorem 4.1</strong> (NULL Peak Inheritance): All compounds must contain peaks corresponding to L₀’s peaks.</p>
+<p><strong>Proof:</strong>
+L₀ is a truncation of every compound (replace all blocks with null).
+Any chemical species in L₀ must also be present in all compounds.
+Therefore, L₀’s peaks appear in every chromatogram. ∎</p>
+<p><strong>Algorithm</strong>: Bottom-Up Constraint Propagation</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>1. Start from L₀ (minimal element)</span></span>
+<span class="line"><span>2. Identify NULL peaks (present in L₀)</span></span>
+<span class="line"><span>3. For each compound in topological order:</span></span>
+<span class="line"><span>   - Inherit NULL peaks from L₀</span></span>
+<span class="line"><span>   - Match peaks with descendants via Hungarian algorithm</span></span>
+<span class="line"><span>   - Classify based on retention time constraints</span></span></code></pre>
+<h3 id="43-the-hungarian-algorithm-application">4.3 The Hungarian Algorithm Application</h3>
+<p><strong>Problem</strong>: Optimally assign peaks between related compounds.</p>
+<p><strong>Formulation</strong>: Bipartite matching with cost matrix C[i,j] = |RT_i - RT_j|</p>
+<p><strong>Theorem 4.2</strong> (Optimal Assignment): The Hungarian algorithm finds the globally optimal peak assignment minimizing total retention time deviation in O(n³).</p>
+<p><strong>Proof:</strong>
+The Hungarian algorithm solves the assignment problem optimally.
+Our cost matrix satisfies requirements (non-negative, real-valued).
+The solution minimizes Σ C[i, π(i)] over all permutations π. ∎</p>
+<h2 id="5-chemical-assumptions-and-validity">5. Chemical Assumptions and Validity</h2>
+<h3 id="51-the-additivity-assumption">5.1 The Additivity Assumption</h3>
+<p><strong>Assumption 5.1</strong> (Retention Time Additivity):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>RT(compound) ≈ Σ RT(block_i) + ε</span></span></code></pre>
+<p>where ε is small noise.</p>
+<p><strong>Justification</strong>: Valid for:</p>
+<ul>
+<li>Peptides in reverse-phase LC (hydrophobicity is approximately additive)</li>
+<li>Building blocks without strong interactions</li>
+<li>Linear synthesis without cyclization</li>
+</ul>
+<p><strong>Theorem 5.1</strong> (Retention Order): Under additivity, products elute after their truncations.</p>
+<p><strong>Proof:</strong>
+For compound C with blocks <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>b</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>b</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\{b_1, \ldots, b_n\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span> and truncation T missing block <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">b_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span></span></span></span>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>RT(C) ≈ Σⱼ RT(bⱼ)</span></span>
+<span class="line"><span>RT(T) ≈ Σⱼ≠ᵢ RT(bⱼ)</span></span>
+<span class="line"><span>RT(C) - RT(T) ≈ RT(b_i) &gt; 0</span></span></code></pre>
+<p>Therefore RT(C) &gt; RT(T). ∎</p>
+<h3 id="52-pre-validation-assumption">5.2 Pre-validation Assumption</h3>
+<p><strong>Assumption 5.2</strong>: Building blocks are validated before library synthesis.</p>
+<p><strong>Implication</strong>: Intra-block truncations represent coupling failures, not defective blocks.</p>
+<p><strong>Consequence</strong>: Block-level analysis captures the primary failure modes.</p>
+<h2 id="6-complexity-analysis">6. Complexity Analysis</h2>
+<h3 id="61-graph-construction">6.1 Graph Construction</h3>
+<p><strong>Theorem 6.1</strong>: DAG construction has complexity O(N × 2^B) where N is the number of maximal compounds and B is the maximum number of blocks.</p>
+<p><strong>Proof:</strong>
+Each maximal compound generates at most 2^B truncations (each block present/absent).
+For N maximal compounds: O(N × 2^B) vertices.
+Edge construction: O(V²) worst case, but sparse in practice. ∎</p>
+<h3 id="62-signal-processing">6.2 Signal Processing</h3>
+<p><strong>Theorem 6.2</strong>: Peak detection complexity is O(n) per chromatogram where n is signal length.</p>
+<p><strong>Proof:</strong></p>
+<ul>
+<li>Discrete Morse theory: Single pass to find local maxima, O(n)</li>
+<li>Poisson Z-score: O(1) per peak, O(p) total where p ≪ n</li>
+<li>Prominence calculation: O(n) single pass</li>
+<li>Total: O(n) per signal ∎</li>
+</ul>
+<h3 id="63-constraint-propagation">6.3 Constraint Propagation</h3>
+<p><strong>Theorem 6.3</strong>: Global classification has complexity O(V × p³) where V is the number of compounds and p is the maximum peaks per compound.</p>
+<p><strong>Proof:</strong></p>
+<ul>
+<li>Topological sort: O(V + E)</li>
+<li>Per compound: Hungarian algorithm O(p³)</li>
+<li>Total: O(V × p³) ∎</li>
+</ul>
+<h2 id="7-theoretical-guarantees">7. Theoretical Guarantees</h2>
+<h3 id="71-soundness">7.1 Soundness</h3>
+<p><strong>Theorem 7.1</strong> (Classification Soundness): The constraint propagation algorithm never produces inconsistent classifications.</p>
+<p><strong>Proof:</strong>
+The algorithm only propagates constraints that must hold:</p>
+<ul>
+<li>NULL peaks inherited from L₀ (Theorem 4.1)</li>
+<li>Retention order constraints (Theorem 5.1)</li>
+<li>No conflicting assignments possible (Hungarian optimality)</li>
+</ul>
+<p>The DAG structure ensures no circular dependencies. ∎</p>
+<h3 id="72-completeness-under-assumptions">7.2 Completeness Under Assumptions</h3>
+<p><strong>Theorem 7.2</strong> (Conditional Completeness): Given perfect additivity and sufficient peak separation, the algorithm correctly classifies all peaks.</p>
+<p><strong>Proof sketch:</strong>
+Under perfect conditions:</p>
+<ul>
+<li>All peaks are detected (Morse completeness)</li>
+<li>Retention order is preserved (additivity)</li>
+<li>Optimal assignment is unique (Hungarian algorithm)</li>
+<li>Constraints determine unique classification ∎</li>
+</ul>
+<h3 id="73-robustness">7.3 Robustness</h3>
+<p><strong>Theorem 7.3</strong> (Graceful Degradation): Violations of assumptions lead to “UNKNOWN” classifications, not incorrect classifications.</p>
+<p><strong>Proof:</strong>
+When constraints conflict:</p>
+<ul>
+<li>Algorithm detects inconsistency</li>
+<li>Assigns “UNKNOWN” rather than forcing classification</li>
+<li>Never produces provably incorrect result ∎</li>
+</ul>
+<h2 id="8-information-theoretic-perspective">8. Information-Theoretic Perspective</h2>
+<h3 id="81-the-information-deficit">8.1 The Information Deficit</h3>
+<p><strong>Observation</strong>: The system operates with severe information constraints:</p>
+<ul>
+<li>1D signal instead of 2D (no mass dimension)</li>
+<li>No structural information (no retention prediction)</li>
+<li>Abstract relationships only (DAG structure)</li>
+</ul>
+<h3 id="82-information-recovery">8.2 Information Recovery</h3>
+<p><strong>Theorem 8.1</strong> (Information Sufficiency): The DAG structure plus 1D signals contain sufficient information for synthesis validation under the stated assumptions.</p>
+<p><strong>Proof sketch:</strong>
+Information sources:</p>
+<ol>
+<li>Topological peaks (presence/absence of compounds)</li>
+<li>Retention order (truncation relationships)</li>
+<li>Peak inheritance (NULL reference)</li>
+<li>DAG constraints (global consistency)</li>
+</ol>
+<p>Together, these constrain the solution space to enable validation. ∎</p>
+<h2 id="9-practical-implications">9. Practical Implications</h2>
+<h3 id="91-why-constraints-by-design">9.1 Why Constraints by Design?</h3>
+<p>The deliberate constraints achieve:</p>
+<ul>
+<li><strong>Universality</strong>: Works for any chemistry without modification</li>
+<li><strong>Robustness</strong>: Fewer dependencies, fewer failure modes</li>
+<li><strong>Efficiency</strong>: No structure prediction or mass matching needed</li>
+<li><strong>Mathematical elegance</strong>: Pure signal processing + graph theory</li>
+</ul>
+<h3 id="92-when-the-framework-applies">9.2 When the Framework Applies</h3>
+<p>This approach is suitable when:</p>
+<ul>
+<li>Building blocks have additive retention effects</li>
+<li>Truncations are primary failure mode</li>
+<li>Chromatographic separation is sufficient</li>
+<li>Graph structure is known (synthesis was designed)</li>
+</ul>
+<h3 id="93-limitations">9.3 Limitations</h3>
+<p>The framework assumes:</p>
+<ul>
+<li>Poisson statistics (count-based detectors)</li>
+<li>Retention time additivity (no strong interactions)</li>
+<li>Pre-validated building blocks</li>
+<li>Sufficient chromatographic resolution</li>
+</ul>
+<h2 id="10-related-work">10. Related Work</h2>
+<h3 id="101-traditional-approaches">10.1 Traditional Approaches</h3>
+<p>Most synthesis validation uses:</p>
+<ul>
+<li>Mass spectrometry (information-rich but complex)</li>
+<li>Machine learning (requires training data)</li>
+<li>Structure-based prediction (library-specific)</li>
+</ul>
+<p>This framework proves these are not necessary.</p>
+<h3 id="102-mathematical-innovations">10.2 Mathematical Innovations</h3>
+<p>The novel applications include:</p>
+<ul>
+<li>Discrete Morse theory for chromatography (unusual)</li>
+<li>DAG constraint propagation for peak classification</li>
+<li>Hungarian algorithm for chemical peak matching</li>
+<li>Dual representation (positional vs. chemical)</li>
+</ul>
+<h3 id="103-theoretical-connections">10.3 Theoretical Connections</h3>
+<p>The framework connects to:</p>
+<ul>
+<li>Compressed sensing (recovering structure from limited observations)</li>
+<li>Constraint satisfaction problems (global consistency)</li>
+<li>Quotient spaces (equivalence classes)</li>
+<li>Optimal transport (Hungarian algorithm)</li>
+</ul>
+<h2 id="11-open-problems">11. Open Problems</h2>
+<h3 id="111-theoretical-questions">11.1 Theoretical Questions</h3>
+<ol>
+<li>
+<p><strong>Optimal truncation boundary</strong>: Can chromatographic theory provide principled boundary settings?</p>
+</li>
+<li>
+<p><strong>Minimal information requirements</strong>: What is the information-theoretic minimum for synthesis validation?</p>
+</li>
+<li>
+<p><strong>Convergence rates</strong>: How quickly does constraint propagation converge?</p>
+</li>
+</ol>
+<h3 id="112-extensions">11.2 Extensions</h3>
+<ol>
+<li>
+<p><strong>Non-additive retention</strong>: How to handle strong molecular interactions?</p>
+</li>
+<li>
+<p><strong>Partial information</strong>: Can mass or structure information be incorporated when available?</p>
+</li>
+<li>
+<p><strong>Online analysis</strong>: Can the framework operate in streaming mode?</p>
+</li>
+</ol>
+<h2 id="12-conclusions">12. Conclusions</h2>
+<h3 id="121-summary">12.1 Summary</h3>
+<p>This framework demonstrates that rigorous mathematics can solve underdetermined chemical problems. By deliberately constraining available information, the approach forces mathematical rigor that paradoxically makes it more robust than information-rich approaches.</p>
+<p>Key insights:</p>
+<ul>
+<li>Truncation relationships necessarily form a DAG</li>
+<li>Discrete Morse theory provides parameter-free peak detection</li>
+<li>Graph constraints enable global consistency</li>
+<li>Chemical convergence creates natural equivalence classes</li>
+</ul>
+<h3 id="122-broader-implications">12.2 Broader Implications</h3>
+<p>This work exemplifies a philosophy: <strong>mathematical rigor over information abundance</strong>. Many chemical analysis problems may be solvable with less information but more mathematics.</p>
+<p>The framework proves that careful application of:</p>
+<ul>
+<li>Graph theory (structural relationships)</li>
+<li>Topology (signal features)</li>
+<li>Statistics (significance testing)</li>
+<li>Optimization (optimal assignment)</li>
+</ul>
+<p>Can extract sufficient information from minimal observations.</p>
+<h3 id="123-future-directions">12.3 Future Directions</h3>
+<p>The mathematical framework suggests extensions to:</p>
+<ul>
+<li>Other combinatorial libraries (not just DELs)</li>
+<li>Different analytical techniques (not just LC)</li>
+<li>Multi-dimensional signals (LC-MS, 2D-LC)</li>
+<li>Probabilistic frameworks (Bayesian networks on DAGs)</li>
+</ul>
+<p>The core insight—that mathematical structure compensates for limited observations—has broad applicability in analytical chemistry.</p>
+<h2 id="references">References</h2>
+<p>[1] R. Diestel, Graph Theory, 5th ed. Berlin: Springer, 2017.</p>
+<p>[2] T. H. Cormen et al., Introduction to Algorithms, 3rd ed. Cambridge, MA: MIT Press, 2009.</p>
+<p>[3] R. Forman, “Morse theory for cell complexes,” Advances in Mathematics, vol. 134, no. 1, pp. 90-145, 1998.</p>
+<p>[4] T. Lewiner et al., “Applications of Forman’s discrete Morse theory to topology visualization and mesh compression,” IEEE Transactions on Visualization and Computer Graphics, vol. 10, no. 5, pp. 499-508, 2003.</p>
+<p>[5] H. W. Kuhn, “The Hungarian method for the assignment problem,” Naval Research Logistics Quarterly, vol. 2, no. 1-2, pp. 83-97, 1955.</p>
+<p>[6] J. Munkres, “Algorithms for the assignment and transportation problems,” Journal of SIAM, vol. 5, no. 1, pp. 32-38, 1957.</p>
+<p>[7] F. J. Anscombe, “The transformation of Poisson, binomial and negative-binomial data,” Biometrika, vol. 35, no. 3-4, pp. 246-254, 1948.</p>
+<p>[8] S. Brenner and R. A. Lerner, “Encoded combinatorial chemistry,” Proceedings of the National Academy of Sciences, vol. 89, no. 12, pp. 5381-5383, 1992.</p>
+<p>[9] R. M. Franzini et al., “DNA-encoded chemical libraries: advancing beyond conventional small-molecule libraries,” Accounts of Chemical Research, vol. 47, no. 4, pp. 1247-1255, 2014.</p>
+<hr/>
+<p><em>This framework demonstrates that mathematical rigor can replace information abundance in chemical analysis, achieving robust synthesis validation through graph theory and signal processing alone.</em></p>  </article> </main> <footer class="border-t border-slate-200 py-10 text-sm text-slate-500"> <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6"> <span>© 2025 Adam Murray</span> </div> </footer> </body></html>

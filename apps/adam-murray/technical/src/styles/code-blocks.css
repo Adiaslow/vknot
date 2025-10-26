@@ -1,0 +1,47 @@
+/* Custom code block styling for better readability */
+
+/* Override Shiki syntax highlighting for better contrast */
+pre.astro-code {
+  background-color: #f6f8fa !important;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Ensure text is dark and readable */
+pre.astro-code code {
+  color: #24292e !important;
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  pre.astro-code {
+    background-color: #1e1e1e !important;
+    border-color: #404040;
+  }
+
+  pre.astro-code code {
+    color: #d4d4d4 !important;
+  }
+}
+
+/* Inline code styling */
+:not(pre) > code {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  color: #24292e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :not(pre) > code {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #d4d4d4;
+  }
+}

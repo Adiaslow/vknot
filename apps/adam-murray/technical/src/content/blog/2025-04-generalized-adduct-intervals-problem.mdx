@@ -11,6 +11,8 @@ tags:
 draft: false
 ---
 
+import AdductIntervalsVisualizer from '../../components/interactive/AdductIntervalsVisualizer.tsx';
+
 # Generalized Adduct Intervals Problem
 
 ## Abstract
@@ -44,6 +46,7 @@ During ionization, molecules acquire charge by forming **adducts**—complexes w
 **General phenomenon**:
 
 For adduct set $A = \{a_1, a_2, \ldots, a_k\}$:
+
 - Each peptide produces up to $k$ observable peaks
 - Peak $j$ appears at $m/z = m + a_j$
 - Adduct formation is **stochastic and uncontrollable**
@@ -52,6 +55,7 @@ For adduct set $A = \{a_1, a_2, \ldots, a_k\}$:
 **Example for clarification**:
 
 Consider two peptides with H⁺ adduct ($a_1 = 1.008$ Da):
+
 - Peptide A: bare mass $m_A = 500.0$ Da → observed at $501.008$ Da ✓
 - Peptide B: bare mass $m_B = 501.0$ Da → observed at $502.008$ Da ✓
 - Bare masses $m_A, m_B$: never observed (neutral) ✗
@@ -61,6 +65,7 @@ Even though $m_B = 501.0$ numerically equals the observable peak $m_A + a_1 = 50
 #### 1.2.3 Detection Uncertainty
 
 Each observed peak has intrinsic width $\pm T$ due to:
+
 - Instrumental resolution limits
 - Natural isotope distributions
 - Thermal/kinetic energy distributions
@@ -81,12 +86,12 @@ For a combinatorial library with $n$ peptides having bare masses $M = \{m_0, m_1
 
 Different ionization techniques produce characteristic adduct sets:
 
-| Method | Common Adducts | Typical k |
-|--------|----------------|-----------|
-| ESI | H⁺, Na⁺, K⁺, NH₄⁺ | 3-4 |
-| APCI | H⁺, (H₂O)H⁺ | 1-2 |
-| MALDI | H⁺, Na⁺, K⁺, matrix | 3-5 |
-| Multiply-charged | Various z states | Variable |
+| Method           | Common Adducts      | Typical k |
+| ---------------- | ------------------- | --------- |
+| ESI              | H⁺, Na⁺, K⁺, NH₄⁺   | 3-4       |
+| APCI             | H⁺, (H₂O)H⁺         | 1-2       |
+| MALDI            | H⁺, Na⁺, K⁺, matrix | 3-5       |
+| Multiply-charged | Various z states    | Variable  |
 
 The framework presented applies to **any** adduct set $A$, regardless of ionization method or chemical composition.
 
@@ -96,12 +101,9 @@ In designing combinatorial peptide libraries, multiple competing objectives must
 
 1. **Maximize library diversity** (number of unique peptides)
 2. **Maximize chemical space coverage** (structural diversity)
-3. **Minimize synthesis complexity** (cost and feasibility)
-4. **Ensure MS detectability** (analytical resolution)
-5. **Optimize cheminformatic descriptors** (e.g., logP, TPSA, rotatable bonds, hydrogen bond donors/acceptors)
-6. **Target property profiles** (e.g., molecular weight ranges, ring systems for macrocycles and BRoF drugs)
-7. **Maximize sequence diversity** (amino acid composition, stereochemistry)
-8. **Balance functional group distribution** (e.g., N-methylation for membrane permeability in BRoF contexts)
+3. **Maximize synthetic accessibility** (cost and feasibility)
+4. **Optimize cheminformatic descriptors** (e.g., logP, TPSA, rotatable bonds, hydrogen bond donors/acceptors)
+5. **Maximize sequence diversity** (residue composition, stereochemistry)
 
 The specific objectives and their relative importance depend on the therapeutic target, screening strategy, and development stage. For beyond Rule of Five (BRoF) drugs like cyclic peptides, objectives often emphasize chemical space exploration over traditional small molecule drug-likeness metrics. This mathematical framework provides the theoretical upper bound for library size (objective 1), which serves as a critical constraint in multi-objective evolutionary algorithms (MOEAs) such as NSGA-III, regardless of which additional objectives are included.
 
@@ -141,11 +143,13 @@ The core theoretical innovation of this work is the derivation of a formal mathe
 #### 2.2.1 Design Variables and Observables
 
 **Design Variables**: Bare (neutral) peptide masses $M = \{m_0, m_1, \ldots, m_n\}$
+
 - Controllable through peptide sequence selection
 - Never observed (neutral species undetectable)
 - Theoretical constructs for library design
 
 **Observable Quantities**: Peak intervals $I_j(m_i)$ for all $(i,j)$ pairs
+
 - Uncontrollable (adduct formation is stochastic)
 - Actually measured by the instrument
 - The only signals in experimental mass spectra
@@ -175,6 +179,7 @@ $$\forall i \in \{0, \ldots, n\}, \; \forall j \in \{1, \ldots, k\}, \quad I_j(m
 **Note on Bare Mass Overlaps**:
 
 The non-overlap constraint applies only to the $kn$ observable intervals, not the $n$ bare masses. Bare masses can overlap with:
+
 - Other bare masses (both never observed)
 - Adduct peaks from other peptides (bare mass never observed)
 
@@ -444,11 +449,18 @@ Given inputs $R = [L, U]$, $A = \{a_1, \ldots, a_k\}$, and $T$:
 
 The algorithm applies uniformly to any adduct set. We demonstrate with multiple realistic scenarios.
 
+**Interactive Exploration**: Use the visualizer below to explore how different ionization modes, methods, and parameters affect library size and interval spacing. Toggle adducts on/off to see real-time updates of the mass spectrum layout and computed parameters.
+
+<AdductIntervalsVisualizer client:load />
+
+The following sections provide detailed worked examples corresponding to common experimental scenarios.
+
 #### 5.3.1 Standard ESI-MS: The Three-Adduct Case
 
 **Experimental Context**: Electrospray ionization time-of-flight mass spectrometry for cyclic peptide libraries
 
 **Given Parameters**:
+
 - Adduct set: $A = \{1.008, 22.990, 38.964\}$ Da (H⁺, Na⁺, K⁺)
 - Interval half-width: $T = 0.5$ Da (typical TOF resolution)
 - Mass range: $R = [100, 1000]$ Da (peptide detection window)
@@ -486,18 +498,18 @@ $$\kappa = \left\lceil\frac{a_k - a_1}{2T} + 1\right\rceil = \left\lceil\frac{37
 
 Formula: $m_i = L + (2i+1)T - a_1 = 100 + (2i+1)(0.5) - 1.008$
 
-| Index $i$ | Calculation | Mass $m_i$ (Da) |
-|-----------|-------------|-----------------|
-| 0 | $100 + 1(0.5) - 1.008$ | 99.492 |
-| 1 | $100 + 3(0.5) - 1.008$ | 100.492 |
-| 2 | $100 + 5(0.5) - 1.008$ | 101.492 |
-| 3 | $100 + 7(0.5) - 1.008$ | 102.492 |
-| ... | ... | ... |
-| 38 | $100 + 77(0.5) - 1.008$ | 137.492 |
-| 39 | $100 + 79(0.5) - 1.008$ | 138.492 |
-| ... | ... | ... |
-| 860 | $100 + 1721(0.5) - 1.008$ | 959.492 |
-| 861 | $100 + 1723(0.5) - 1.008$ | 960.492 |
+| Index $i$ | Calculation               | Mass $m_i$ (Da) |
+| --------- | ------------------------- | --------------- |
+| 0         | $100 + 1(0.5) - 1.008$    | 99.492          |
+| 1         | $100 + 3(0.5) - 1.008$    | 100.492         |
+| 2         | $100 + 5(0.5) - 1.008$    | 101.492         |
+| 3         | $100 + 7(0.5) - 1.008$    | 102.492         |
+| ...       | ...                       | ...             |
+| 38        | $100 + 77(0.5) - 1.008$   | 137.492         |
+| 39        | $100 + 79(0.5) - 1.008$   | 138.492         |
+| ...       | ...                       | ...             |
+| 860       | $100 + 1721(0.5) - 1.008$ | 959.492         |
+| 861       | $100 + 1723(0.5) - 1.008$ | 960.492         |
 
 **Step 4: Demonstrate Observable Intervals**
 
@@ -518,6 +530,7 @@ $$I_3(m_1) = (138.956, 139.956)$$
 **Case A**: Same adduct, consecutive masses
 
 Compare $I_1(m_0)$ and $I_1(m_1)$:
+
 - Upper bound of $I_1(m_0)$: 101.000
 - Lower bound of $I_1(m_1)$: 101.000
 - Separation: 0 (boundary touch, non-overlapping) ✓
@@ -525,11 +538,13 @@ Compare $I_1(m_0)$ and $I_1(m_1)$:
 **Case B**: Different adducts, same mass
 
 Compare $I_1(m_0)$ and $I_2(m_0)$:
+
 - Gap: $121.982 - 101.000 = 20.982 > 0$ ✓
 
 **Case C**: Critical separation—extreme adducts
 
 Compare $I_3(m_0)$ and $I_1(m_{39})$ (at critical $\kappa = 39$ steps):
+
 - $I_3(m_0)$ upper: $99.492 + 38.964 + 0.5 = 138.956$
 - $I_1(m_{39})$ lower: $138.492 + 1.008 - 0.5 = 139.000$
 - Gap: $139.000 - 138.956 = 0.044$ Da ✓
@@ -537,6 +552,7 @@ Compare $I_3(m_0)$ and $I_1(m_{39})$ (at critical $\kappa = 39$ steps):
 This confirms masses separated by $\kappa$ steps have their extreme adduct intervals just barely non-overlapping.
 
 **Physical Interpretation**:
+
 - **862 distinct peptides** uniquely identifiable
 - **2,586 observable peaks** (862 × 3 adducts)
 - **1.0 Da spacing** optimal for 0.5 Da resolution
@@ -550,6 +566,7 @@ This confirms masses separated by $\kappa$ steps have their extreme adduct inter
 **Experimental Context**: Atmospheric pressure chemical ionization (fewer adduct types)
 
 **Given**:
+
 - $A = \{1.008, 18.034\}$ Da (H⁺, NH₄⁺ only)
 - $T = 0.3$ Da (higher resolution)
 - $R = [200, 800]$ Da
@@ -571,6 +588,7 @@ $$\kappa = \left\lceil\frac{17.026}{0.6} + 1\right\rceil = 30$$
 **Experimental Context**: Orbitrap mass spectrometry with extended adduct set
 
 **Given**:
+
 - $A = \{1.008, 18.034, 22.990, 38.964, 54.938\}$ Da (H⁺, NH₄⁺, Na⁺, K⁺, 2Na⁺-H⁺)
 - $T = 0.01$ Da (R = 100,000 at m/z 1000)
 - $R = [500, 1500]$ Da
@@ -587,11 +605,11 @@ $$n_{\max} = \left\lfloor\frac{1000 - 53.930 - 0.02}{0.02}\right\rfloor = 47,303
 
 #### 5.3.4 Comparative Analysis
 
-| Method | k | T (Da) | Range (Da) | n_max | Peaks | Limiting Factor |
-|--------|---|--------|------------|-------|-------|-----------------|
-| ESI-TOF | 3 | 0.5 | 900 | 862 | 2,586 | Resolution |
-| APCI | 2 | 0.3 | 600 | 971 | 1,942 | Range |
-| Orbitrap | 5 | 0.01 | 1000 | 47,304 | 236,520 | Range |
+| Method   | k   | T (Da) | Range (Da) | n_max  | Peaks   | Limiting Factor |
+| -------- | --- | ------ | ---------- | ------ | ------- | --------------- |
+| ESI-TOF  | 3   | 0.5    | 900        | 862    | 2,586   | Resolution      |
+| APCI     | 2   | 0.3    | 600        | 971    | 1,942   | Range           |
+| Orbitrap | 5   | 0.01   | 1000       | 47,304 | 236,520 | Range           |
 
 **Key Insights**:
 

@@ -98,8 +98,6 @@ $$n \times \log|U| \geq |U|H(P)$$
 
 Rearranging gives the bound.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### 3.2 Adaptive vs. Uniform Sampling
 
 ### Definition 3.1 (Information Gain)
@@ -124,8 +122,6 @@ Uniform sampling has probability $(|U| - \text{observed})/|U|$ of discovering ne
 
 Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing $\log(\text{remaining})$ bits deterministically.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### Corollary
 
 Adaptive sampling requires $O(|U|)$ samples versus $O(|U| \log |U|)$ for uniform sampling.
@@ -145,8 +141,6 @@ With partial knowledge $\kappa$:
 - Known structure reduces search space by factor $(1 + \kappa(R-1)/R)$
 - Unknown structure requires additional $(1-\kappa)\log R$ samples
 - Combines multiplicatively due to information independence
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ## 4. Phase Transitions
 
@@ -189,8 +183,6 @@ $$P(\text{uncovered} > 2\varepsilon|U|) \leq \exp(-\varepsilon|U|/8)$$
 
 As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### 4.2 Multi-Scale Transitions
 
 ### Theorem 4.2 (Hierarchical Phase Transitions)
@@ -222,8 +214,6 @@ Above $\alpha_{\text{perc}}$: Giant component containing $\Theta(|U|)$ chemicals
 Proof sketch:
 Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. Giant component emerges when $p > \log d/d$.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ## 5. Optimal Experimental Design
 
 ### 5.1 Multi-Modal Sampling
@@ -250,8 +240,6 @@ $$
 
 Each additional sample has probability $p$ of discovering new entity. With more samples, fewer entities remain undiscovered, so $p$ decreases. Therefore marginal benefit decreases.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### Corollary
 
 Greedy allocation achieves $(1-1/e)$ approximation of optimal coverage.
@@ -274,8 +262,6 @@ $$P(r) \propto \sqrt{\text{value}(r) \times \text{uncertainty}(r)}$$
 ### Proof
 
 Uses upper confidence bound (UCB) framework. Optimal exploration bonus is proportional to √(uncertainty), while exploitation weight is proportional to value. Product gives optimal trade-off.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### 5.3 Batch Optimization
 
@@ -308,8 +294,6 @@ $$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per:sample:c
 
 Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### 5.4 Temporal Optimization
 
 **Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
@@ -330,8 +314,6 @@ $$L = \int[I_0\exp(-\lambda t)n(t) - \mu Cn(t)]dt$$
 
 First-order condition: $I_0\exp(-\lambda t) = \mu C$.
 Solving for $n(t)$ gives the result.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ## 6. Algorithmic Implementations
 

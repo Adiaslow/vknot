@@ -180,8 +180,6 @@ Initial:  ...     After 1 gen:  ...
 
 Both cells die due to competitive pressure (Rule 4), permanently removing mass from the system. No local rearrangement can recover this loss. This breaks time-reversibility and prevents conservation laws.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### 3.2 Territorial Pressure Dynamics
 
 ### Definition 3.1 (Pressure)
@@ -203,8 +201,6 @@ From the evolution rules:
 - If $P_{i,j} = 0$: Cell dies or remains empty
 
 This creates a flow from high to low pressure regions, analogous to fluid dynamics. The boundary between territories acts as an interface with surface tension proportional to the pressure differential.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### 3.3 Pattern Stability Under Competition
 
@@ -233,8 +229,6 @@ Sufficiency: If all conditions hold:
 - Interior cells satisfy Conway stability
 - Boundary cells maintain ownership through majority
 - Pattern structure is preserved
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### Corollary
 
@@ -266,8 +260,6 @@ For each cell:
 - Pattern remains stable indefinitely
 
 A pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion. The chimeric pattern has $P = 0$ everywhere, achieving superior stability.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 **Strategic Implications**:
 
@@ -330,8 +322,6 @@ The chaotic evolution (Lyapunov exponent $\lambda > 0$) means small placement ch
 
 Therefore, no pure strategy can be a best response to itself.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### Theorem 4.2 (Mixed Strategy Equilibrium)
 
 A mixed strategy equilibrium exists.
@@ -345,8 +335,6 @@ The game satisfies conditions for Nash's existence theorem:
 3. Continuous payoff functions (population counts)
 
 By Nash's theorem, a mixed strategy equilibrium exists.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### 4.4 Information Theory of Hidden Placement
 
@@ -396,8 +384,6 @@ $$R(t) = 10t + 8\alpha \cdot t(t+1)/2 = O(t^2)$$
 
 Quadratic growth dominates linear strategies asymptotically.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ### 5.3 Optimal Pattern Packing
 
 **Problem**: Maximize resource generation in area $A$.
@@ -419,8 +405,6 @@ $$\text{Density}_{\text{honey}} = 8A/100 = 0.08A \text{ units/round}$$
 Ratio: $0.08A / (A/25) = 2.0$
 
 Honey farms are twice as space-efficient when defended.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ## 6. Dynamical Systems Analysis
 
@@ -479,8 +463,6 @@ Discretized territories naturally approximate Voronoi cells.
 Proof sketch:
 The evolution rules create pressure away from boundaries (conflict zones have higher death rates). The discretized influence field creates a step-function approximation of continuous Voronoi cells. Over time, territorial boundaries minimize interface length at the cell level, converging toward discrete Voronoi-like patterns which minimize perimeter for given areas. The quantization creates "jagged" boundaries that approximate smooth Voronoi boundaries at larger scales.
 
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
-
 ## 7. Computational Complexity
 
 ### 7.1 Decision Complexity
@@ -500,8 +482,6 @@ PSPACE-hardness: Reduction from Generalized Geography:
 3. Winning Geography strategy $\leftrightarrow$ winning Cloth of Gold strategy
 
 Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### 7.2 Pattern Recognition Complexity
 
@@ -541,8 +521,6 @@ $$\text{Economic} \to \text{Defensive} \to \text{Aggressive} \to \text{Economic}
 - Aggressive > Economic: Disrupts high-value economic patterns
 
 No single strategy dominates all others.
-
-<div class="text-right text-slate-500 dark:text-slate-400">■</div>
 
 ### 8.2 Opening Theory
 

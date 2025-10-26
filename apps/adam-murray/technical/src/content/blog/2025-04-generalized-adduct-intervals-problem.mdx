@@ -25,7 +25,72 @@ Cyclic peptides have emerged as powerful therapeutic candidates due to their hig
 
 The fundamental question this work addresses is: **Given mass spectrometry detection constraints, what is the maximum number of distinct cyclic peptides that can be included in a combinatorial library while ensuring each can be uniquely identified?**
 
-### 1.2 Multi-Objective Optimization Context
+### 1.2 Mass Spectrometry Detection: The Physical Foundation
+
+#### 1.2.1 Fundamental Principle
+
+Mass spectrometry detects charged species by measuring their mass-to-charge ratios in electromagnetic fields. **Neutral molecules cannot be detected**—ionization is mandatory, not optional.
+
+**Critical Implication**: For a molecule with bare (neutral) mass $m$:
+
+- Probability of observing bare mass: $P(m) = 0$
+- Observable masses: Only ionized adduct forms $m + a_j$ for $j \in \{1, \ldots, k\}$
+- Design parameter vs. observable: Bare mass $m$ is synthesized but never measured
+
+#### 1.2.2 Adduct Formation Process
+
+During ionization, molecules acquire charge by forming **adducts**—complexes with charged species from the ionization environment. A single molecule with bare mass $m$ can form multiple distinct adduct species simultaneously, each appearing at a different mass-to-charge ratio.
+
+**General phenomenon**:
+
+For adduct set $A = \{a_1, a_2, \ldots, a_k\}$:
+- Each peptide produces up to $k$ observable peaks
+- Peak $j$ appears at $m/z = m + a_j$
+- Adduct formation is **stochastic and uncontrollable**
+- Multiple adducts form simultaneously from the same molecule
+
+**Example for clarification**:
+
+Consider two peptides with H⁺ adduct ($a_1 = 1.008$ Da):
+- Peptide A: bare mass $m_A = 500.0$ Da → observed at $501.008$ Da ✓
+- Peptide B: bare mass $m_B = 501.0$ Da → observed at $502.008$ Da ✓
+- Bare masses $m_A, m_B$: never observed (neutral) ✗
+
+Even though $m_B = 501.0$ numerically equals the observable peak $m_A + a_1 = 501.008$, no ambiguity arises because $m_B$ itself is invisible to the instrument.
+
+#### 1.2.3 Detection Uncertainty
+
+Each observed peak has intrinsic width $\pm T$ due to:
+- Instrumental resolution limits
+- Natural isotope distributions
+- Thermal/kinetic energy distributions
+- Digital sampling and signal processing
+
+#### 1.2.4 The Library Identification Challenge
+
+For a combinatorial library with $n$ peptides having bare masses $M = \{m_0, m_1, \ldots, m_{n-1}\}$:
+
+- **Observable peaks**: up to $kn$ (k adducts × n peptides)
+- **Design variables**: the $n$ bare masses $m_i$
+- **Observables**: the $kn$ peak intervals $I_j(m_i)$
+- **Constraint**: All $kn$ observable intervals must be non-overlapping
+
+**Challenge**: Maximize $n$ subject to non-overlapping detection intervals for all adduct peaks.
+
+#### 1.2.5 Ionization Method Examples
+
+Different ionization techniques produce characteristic adduct sets:
+
+| Method | Common Adducts | Typical k |
+|--------|----------------|-----------|
+| ESI | H⁺, Na⁺, K⁺, NH₄⁺ | 3-4 |
+| APCI | H⁺, (H₂O)H⁺ | 1-2 |
+| MALDI | H⁺, Na⁺, K⁺, matrix | 3-5 |
+| Multiply-charged | Various z states | Variable |
+
+The framework presented applies to **any** adduct set $A$, regardless of ionization method or chemical composition.
+
+### 1.3 Multi-Objective Optimization Context
 
 In designing combinatorial peptide libraries, multiple competing objectives must be balanced:
 
@@ -36,7 +101,7 @@ In designing combinatorial peptide libraries, multiple competing objectives must
 
 This mathematical framework provides the theoretical upper bound for objective 1, which serves as a critical constraint in multi-objective evolutionary algorithms (MOEAs) such as NSGA-III.
 
-### 1.3 Novel Contributions
+### 1.4 Novel Contributions
 
 This work uniquely:
 
@@ -56,20 +121,79 @@ The core theoretical innovation of this work is the derivation of a formal mathe
 - Interval half-width $T > 0$
 - **Critical Assumption**: Adducts are well-separated: $\forall j < j', \; a_{j'} - a_j > 2T$
 
-### 2.2 Objective
+**Physical Interpretation of Inputs:**
 
-Construct a set of masses $M = \{m_0, m_1, \ldots, m_n\}$ to maximize $|M|$ while ensuring:
+- **Range $R = [L, U]$**: The instrument's detectable mass-to-charge window, determined by instrument design and settings
+- **Adduct set $A = \{a_1, \ldots, a_k\}$**: Mass shifts caused by ionization, ordered $a_1 < a_2 < \cdots < a_k$
+  - Examples: $\{1.008, 22.990, 38.964\}$ Da for H⁺/Na⁺/K⁺ in ESI
+- **Interval half-width $T$**: Instrumental mass resolution representing peak width
+  - Example: $T = 0.5$ Da corresponds to ~500 ppm at 1000 Da
+- **Critical Assumption**: $\forall j < j', \; a_{j'} - a_j > 2T$
+  - Physical justification: Different adduct peaks of the same peptide must not overlap
+  - Ensures $I_j(m_i) \cap I_{j'}(m_i) = \emptyset$ for same mass, different adducts
 
-1. **Interval Definition**: For each $m_i \in M$, define intervals $I_j(m_i) = (m_i + a_j - T, m_i + a_j + T)$ for $j = 1, 2, \ldots, k$
+### 2.2 Mathematical Formulation
 
-2. **Non-Overlap Constraint**: $\forall (i,j) \neq (i',j'), \; I_j(m_i) \cap I_{j'}(m_{i'}) = \emptyset$
+#### 2.2.1 Design Variables and Observables
 
-3. **Range Constraint**: $\forall i,j, \; I_j(m_i) \subseteq R$
+**Design Variables**: Bare (neutral) peptide masses $M = \{m_0, m_1, \ldots, m_n\}$
+- Controllable through peptide sequence selection
+- Never observed (neutral species undetectable)
+- Theoretical constructs for library design
+
+**Observable Quantities**: Peak intervals $I_j(m_i)$ for all $(i,j)$ pairs
+- Uncontrollable (adduct formation is stochastic)
+- Actually measured by the instrument
+- The only signals in experimental mass spectra
+
+#### 2.2.2 Objective and Constraints
+
+**Objective**: Construct mass set $M$ to maximize $|M|$ (library size)
+
+**Constraint 1 (Interval Definition)**: Each designed mass $m_i$ produces $k$ observable peaks. Peak $j$ from mass $i$ creates interval:
+
+$$I_j(m_i) = (m_i + a_j - T, m_i + a_j + T)$$
+
+**Physical meaning**: Any signal detected in this interval could be peptide $i$ with adduct $j$.
+
+**Constraint 2 (Non-Overlap)**: All observable intervals must be pairwise disjoint:
+
+$$\forall (i,j) \neq (i',j'), \quad I_j(m_i) \cap I_{j'}(m_{i'}) = \emptyset$$
+
+**Physical meaning**: Unique identification—no ambiguity about which peptide-adduct pair produced each observed peak.
+
+**Constraint 3 (Range Coverage)**: All observable peaks must fall within detection range:
+
+$$\forall i \in \{0, \ldots, n\}, \; \forall j \in \{1, \ldots, k\}, \quad I_j(m_i) \subseteq R$$
+
+**Physical meaning**: All adduct forms of all peptides are detectable by the instrument.
+
+**Note on Bare Mass Overlaps**:
+
+The non-overlap constraint applies only to the $kn$ observable intervals, not the $n$ bare masses. Bare masses can overlap with:
+- Other bare masses (both never observed)
+- Adduct peaks from other peptides (bare mass never observed)
+
+This is permissible because $P(\text{observing } m_i) = 0$ for all $i$.
 
 ### 2.3 Validity Conditions
 
 For the construction to accommodate at least one mass, we require:
 $$U - L > a_k - a_1 + 2T$$
+
+**Proof of Necessity**:
+
+If $U - L \leq a_k - a_1 + 2T$, consider any mass $m$ that could fit both its smallest and largest adduct intervals within $R$.
+
+The span required for all adduct intervals of mass $m$ is:
+$$\text{Span} = [m + a_1 - T, m + a_k + T]$$
+$$\text{Width} = (m + a_k + T) - (m + a_1 - T) = a_k - a_1 + 2T$$
+
+For this to fit in $R = [L, U]$:
+$$U - L \geq a_k - a_1 + 2T$$
+
+Strict inequality ensures at least one mass can be accommodated:
+$$U - L > a_k - a_1 + 2T \quad \square$$
 
 ### 2.4 Applicability
 
@@ -99,6 +223,16 @@ Let $\delta = m_{i+1} - m_i$ be the spacing between consecutive masses. Then $\d
 
 For optimal density (maximum number of masses), we choose the minimum allowable spacing:
 $$\boxed{\delta = 2T}$$
+
+**Optimality Argument**:
+
+The spacing $\delta = 2T$ is not merely necessary but also sufficient:
+
+- **Necessity**: Any $\delta' < 2T$ causes consecutive same-adduct intervals to overlap
+- **Sufficiency**: With $\delta = 2T$, same-adduct intervals exactly touch at boundaries
+- **Uniqueness**: Any $\delta' > 2T$ wastes space, reducing maximum library size
+
+Therefore, $\delta = 2T$ is the unique optimal spacing for maximizing density under same-adduct constraints. ■
 
 ### Theorem 3.2 (Critical Constraint for Cross-Adduct Non-Overlap)
 
@@ -302,20 +436,172 @@ Given inputs $R = [L, U]$, $A = \{a_1, \ldots, a_k\}$, and $T$:
 - **Space Complexity**: $O(n_{\max})$ for storing masses
 - **Verification Complexity**: $O(n_{\max}^2 \cdot k^2)$ for checking all interval pairs
 
-### 5.3 Example Application
+### 5.3 Application Examples Across Ionization Methods
 
-For a typical ESI-MS system with:
+The algorithm applies uniformly to any adduct set. We demonstrate with multiple realistic scenarios.
 
-- $A = \{1.008, 22.990, 38.964\}$ ($\text{H}^+$, $\text{Na}^+$, $\text{K}^+$ adducts in Da)
-- $T = 0.5$ Da (interval half-width)
-- $R = [100, 1000]$ Da (mass range)
+#### 5.3.1 Standard ESI-MS: The Three-Adduct Case
 
-The algorithm would:
+**Experimental Context**: Electrospray ionization time-of-flight mass spectrometry for cyclic peptide libraries
 
-1. Verify: $900 > 37.956 + 1 = 38.956$ ✓
-2. Compute: $\delta = 1$ Da, $\varepsilon = -0.508$ Da
-3. Find: $n_{\max} = \lfloor\frac{900 - 37.956}{1}\rfloor = 862$
-4. Generate $863$ optimally spaced masses
+**Given Parameters**:
+- Adduct set: $A = \{1.008, 22.990, 38.964\}$ Da (H⁺, Na⁺, K⁺)
+- Interval half-width: $T = 0.5$ Da (typical TOF resolution)
+- Mass range: $R = [100, 1000]$ Da (peptide detection window)
+- Derived: $a_1 = 1.008$, $a_k = 38.964$, $L = 100$, $U = 1000$
+
+**Step 1: Verify Validity Conditions**
+
+Range check:
+$$U - L > a_k - a_1 + 2T$$
+$$1000 - 100 > 38.964 - 1.008 + 2(0.5)$$
+$$900 > 37.956 + 1.0 = 38.956 \quad \checkmark$$
+
+Adduct separation check:
+$$\min_{j<j'}(a_{j'} - a_j) = \min\{21.982, 15.974\} = 15.974 > 2T = 1.0 \quad \checkmark$$
+
+**Step 2: Compute Algorithm Parameters**
+
+Spacing:
+$$\delta = 2T = 2(0.5) = 1.0 \text{ Da}$$
+
+Offset:
+$$\varepsilon = T - a_1 = 0.5 - 1.008 = -0.508 \text{ Da}$$
+
+Maximum count:
+$$n_{\max} = \left\lfloor\frac{U - L - a_k + a_1 - 2T}{2T}\right\rfloor$$
+$$= \left\lfloor\frac{1000 - 100 - 38.964 + 1.008 - 1.0}{1.0}\right\rfloor$$
+$$= \left\lfloor\frac{861.044}{1.0}\right\rfloor = 861$$
+
+Total masses: $n_{\max} + 1 = 862$ (indexed from $i=0$ to $i=861$)
+
+Critical separation:
+$$\kappa = \left\lceil\frac{a_k - a_1}{2T} + 1\right\rceil = \left\lceil\frac{37.956}{1.0} + 1\right\rceil = \lceil 38.956 \rceil = 39$$
+
+**Step 3: Generate Mass Values**
+
+Formula: $m_i = L + (2i+1)T - a_1 = 100 + (2i+1)(0.5) - 1.008$
+
+| Index $i$ | Calculation | Mass $m_i$ (Da) |
+|-----------|-------------|-----------------|
+| 0 | $100 + 1(0.5) - 1.008$ | 99.492 |
+| 1 | $100 + 3(0.5) - 1.008$ | 100.492 |
+| 2 | $100 + 5(0.5) - 1.008$ | 101.492 |
+| 3 | $100 + 7(0.5) - 1.008$ | 102.492 |
+| ... | ... | ... |
+| 38 | $100 + 77(0.5) - 1.008$ | 137.492 |
+| 39 | $100 + 79(0.5) - 1.008$ | 138.492 |
+| ... | ... | ... |
+| 860 | $100 + 1721(0.5) - 1.008$ | 959.492 |
+| 861 | $100 + 1723(0.5) - 1.008$ | 960.492 |
+
+**Step 4: Demonstrate Observable Intervals**
+
+For $m_0 = 99.492$ Da, the three adduct peaks appear at:
+
+$$I_1(m_0) = (99.492 + 1.008 - 0.5, 99.492 + 1.008 + 0.5) = (100.000, 101.000)$$
+$$I_2(m_0) = (99.492 + 22.990 - 0.5, 99.492 + 22.990 + 0.5) = (121.982, 122.982)$$
+$$I_3(m_0) = (99.492 + 38.964 - 0.5, 99.492 + 38.964 + 0.5) = (137.956, 138.956)$$
+
+For $m_1 = 100.492$ Da:
+
+$$I_1(m_1) = (101.000, 102.000)$$
+$$I_2(m_1) = (122.982, 123.982)$$
+$$I_3(m_1) = (138.956, 139.956)$$
+
+**Step 5: Verify Non-Overlap (Sample Cases)**
+
+**Case A**: Same adduct, consecutive masses
+
+Compare $I_1(m_0)$ and $I_1(m_1)$:
+- Upper bound of $I_1(m_0)$: 101.000
+- Lower bound of $I_1(m_1)$: 101.000
+- Separation: 0 (boundary touch, non-overlapping) ✓
+
+**Case B**: Different adducts, same mass
+
+Compare $I_1(m_0)$ and $I_2(m_0)$:
+- Gap: $121.982 - 101.000 = 20.982 > 0$ ✓
+
+**Case C**: Critical separation—extreme adducts
+
+Compare $I_3(m_0)$ and $I_1(m_{39})$ (at critical $\kappa = 39$ steps):
+- $I_3(m_0)$ upper: $99.492 + 38.964 + 0.5 = 138.956$
+- $I_1(m_{39})$ lower: $138.492 + 1.008 - 0.5 = 139.000$
+- Gap: $139.000 - 138.956 = 0.044$ Da ✓
+
+This confirms masses separated by $\kappa$ steps have their extreme adduct intervals just barely non-overlapping.
+
+**Physical Interpretation**:
+- **862 distinct peptides** uniquely identifiable
+- **2,586 observable peaks** (862 × 3 adducts)
+- **1.0 Da spacing** optimal for 0.5 Da resolution
+- **39-step separation** required for K⁺/H⁺ distinction
+- **899.956 Da coverage** of 900 Da available range (99.995% utilization)
+
+---
+
+#### 5.3.2 Reduced Adduct Set: APCI with Two Adducts
+
+**Experimental Context**: Atmospheric pressure chemical ionization (fewer adduct types)
+
+**Given**:
+- $A = \{1.008, 18.034\}$ Da (H⁺, NH₄⁺ only)
+- $T = 0.3$ Da (higher resolution)
+- $R = [200, 800]$ Da
+
+**Calculation**:
+$$\delta = 2(0.3) = 0.6 \text{ Da}$$
+$$\varepsilon = 0.3 - 1.008 = -0.708 \text{ Da}$$
+$$n_{\max} = \left\lfloor\frac{600 - 17.026 - 0.6}{0.6}\right\rfloor = 970$$
+$$\kappa = \left\lceil\frac{17.026}{0.6} + 1\right\rceil = 30$$
+
+**Result**: 971 peptides (13% increase over ESI case)
+
+**Analysis**: Fewer adducts + better resolution → larger library capacity
+
+---
+
+#### 5.3.3 Ultra-High Resolution: Orbitrap with Multiple Adducts
+
+**Experimental Context**: Orbitrap mass spectrometry with extended adduct set
+
+**Given**:
+- $A = \{1.008, 18.034, 22.990, 38.964, 54.938\}$ Da (H⁺, NH₄⁺, Na⁺, K⁺, 2Na⁺-H⁺)
+- $T = 0.01$ Da (R = 100,000 at m/z 1000)
+- $R = [500, 1500]$ Da
+
+**Calculation**:
+$$\delta = 2(0.01) = 0.02 \text{ Da}$$
+$$n_{\max} = \left\lfloor\frac{1000 - 53.930 - 0.02}{0.02}\right\rfloor = 47,303$$
+
+**Result**: 47,304 peptides (55× improvement over standard ESI!)
+
+**Analysis**: Resolution dominates capacity—ultra-high resolution enables massive libraries despite more adducts
+
+---
+
+#### 5.3.4 Comparative Analysis
+
+| Method | k | T (Da) | Range (Da) | n_max | Peaks | Limiting Factor |
+|--------|---|--------|------------|-------|-------|-----------------|
+| ESI-TOF | 3 | 0.5 | 900 | 862 | 2,586 | Resolution |
+| APCI | 2 | 0.3 | 600 | 971 | 1,942 | Range |
+| Orbitrap | 5 | 0.01 | 1000 | 47,304 | 236,520 | Range |
+
+**Key Insights**:
+
+1. **Resolution impact**: Halving $T$ approximately doubles capacity (inverse linear relationship)
+2. **Adduct count**: More adducts reduce capacity, but effect is sublinear
+3. **Range size**: Direct linear impact on capacity
+4. **Optimization trade-off**: High resolution compensates for many adducts
+
+**Practical Implications**:
+
+- Standard ESI-TOF: ~1,000 peptide libraries feasible
+- High-resolution instruments: ~50,000 peptide libraries achievable
+- Method selection: Balance resolution, range, and adduct complexity
+- Cost-benefit: Instrument resolution is the highest-leverage parameter
 
 ## 6. Connections to Existing Theory
 

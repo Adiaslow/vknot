@@ -96,7 +96,7 @@ Each sample provides at most $\log|U|$ bits of information. Total information ne
 
 $$n \times \log|U| \geq |U|H(P)$$
 
-Rearranging gives the bound. ∎
+Rearranging gives the bound. $\blacksquare$
 
 ### 3.2 Adaptive vs. Uniform Sampling
 
@@ -120,7 +120,7 @@ $$E[I(s_n)] = O(\log(|U| - \text{observed}))$$
 
 Uniform sampling has probability $(|U| - \text{observed})/|U|$ of discovering new entity, providing $\log|U|$ bits when successful.
 
-Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing $\log(\text{remaining})$ bits deterministically. ∎
+Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing $\log(\text{remaining})$ bits deterministically. $\blacksquare$
 
 ### Corollary
 
@@ -140,7 +140,7 @@ With partial knowledge $\kappa$:
 
 - Known structure reduces search space by factor $(1 + \kappa(R-1)/R)$
 - Unknown structure requires additional $(1-\kappa)\log R$ samples
-- Combines multiplicatively due to information independence ∎
+- Combines multiplicatively due to information independence $\blacksquare$
 
 ## 4. Phase Transitions
 
@@ -181,7 +181,7 @@ Similarly:
 
 $$P(\text{uncovered} > 2\varepsilon|U|) \leq \exp(-\varepsilon|U|/8)$$
 
-As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
+As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. $\blacksquare$
 
 ### 4.2 Multi-Scale Transitions
 
@@ -212,7 +212,7 @@ Below $\alpha_{\text{perc}}$: Isolated clusters of discovered chemicals.
 Above $\alpha_{\text{perc}}$: Giant component containing $\Theta(|U|)$ chemicals forms.
 
 Proof sketch:
-Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. Giant component emerges when $p > \log d/d$. ∎
+Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. Giant component emerges when $p > \log d/d$. $\blacksquare$
 
 ## 5. Optimal Experimental Design
 
@@ -238,7 +238,7 @@ $$
 C(n_1,\ldots,n_i+1,\ldots) - C(n_1,\ldots,n_i,\ldots) \geq C(n_1,\ldots,n_i+1,\ldots,n_j+1,\ldots) - C(n_1,\ldots,n_i,\ldots,n_j+1,\ldots)
 $$
 
-Each additional sample has probability $p$ of discovering new entity. With more samples, fewer entities remain undiscovered, so $p$ decreases. Therefore marginal benefit decreases. ∎
+Each additional sample has probability $p$ of discovering new entity. With more samples, fewer entities remain undiscovered, so $p$ decreases. Therefore marginal benefit decreases. $\blacksquare$
 
 ### Corollary
 
@@ -261,7 +261,7 @@ $$P(r) \propto \sqrt{\text{value}(r) \times \text{uncertainty}(r)}$$
 
 ### Proof
 
-Uses upper confidence bound (UCB) framework. Optimal exploration bonus is proportional to √(uncertainty), while exploitation weight is proportional to value. Product gives optimal trade-off. ∎
+Uses upper confidence bound (UCB) framework. Optimal exploration bonus is proportional to √(uncertainty), while exploitation weight is proportional to value. Product gives optimal trade-off. $\blacksquare$
 
 ### 5.3 Batch Optimization
 
@@ -292,7 +292,7 @@ Minimizing with respect to b:
 
 $$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per:sample:cost} = 0$$
 
-Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$. ∎
+Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$. $\blacksquare$
 
 ### 5.4 Temporal Optimization
 
@@ -313,7 +313,7 @@ Lagrangian for maximizing $\int I(t)n(t)dt$ subject to $\int Cn(t)dt \leq B$:
 $$L = \int[I_0\exp(-\lambda t)n(t) - \mu Cn(t)]dt$$
 
 First-order condition: $I_0\exp(-\lambda t) = \mu C$.
-Solving for $n(t)$ gives the result. ∎
+Solving for $n(t)$ gives the result. $\blacksquare$
 
 ## 6. Algorithmic Implementations
 

@@ -123,7 +123,7 @@ Since any serial hierarchy $H$ can be viewed as either $F$ or $R$ alone:
 
 $$I(A; M|F,R) \geq I(A; M|H)$$
 
-Therefore, parallel decomposition preserves at least as much information. ∎
+Therefore, parallel decomposition preserves at least as much information. $\blacksquare$
 
 ### 2.2 Graph-Theoretic Framework
 
@@ -159,7 +159,7 @@ Therefore:
 
 $$H(\pi_F \wedge \pi_R) \geq \max(H(\pi_F), H(\pi_R))$$
 
-The finer partition captures more structural information. ∎
+The finer partition captures more structural information. $\blacksquare$
 
 ### 2.3 Attention-Based Long-Range Interactions
 
@@ -191,7 +191,7 @@ With attention mechanism:
 - Information flows directly between any pair
 - Time complexity: $O(|V|^2)$ but depth $O(1)$
 
-For cyclic peptides, $\text{diameter}(G) \approx n/2$ for $n$ residues, making attention significantly more efficient for long-range interactions. ∎
+For cyclic peptides, $\text{diameter}(G) \approx n/2$ for $n$ residues, making attention significantly more efficient for long-range interactions. $\blacksquare$
 
 ## 3. The Parallel Hierarchical Framework
 
@@ -275,7 +275,7 @@ Therefore:
 
 $$\dim(F \times R) > \dim(H) \text{ for any } H \text{ with comparable complexity}$$
 
-Therefore, the parallel hierarchy has higher representational capacity. ∎
+Therefore, the parallel hierarchy has higher representational capacity. $\blacksquare$
 
 ### 4.2 Gradient Flow Properties
 
@@ -304,7 +304,7 @@ Since $p \in (0,1)$:
 
 $$1 - p^2 > 1 - p$$
 
-The parallel structure provides gradient flow redundancy. ∎
+The parallel structure provides gradient flow redundancy. $\blacksquare$
 
 ### 4.3 Compositional Learning
 
@@ -375,7 +375,7 @@ Each determinant maps to architectural components:
 - Residues encode conformational preferences
 - Cross-attention captures shielding effects
 
-The parallel structure spans the space of permeability features. ∎
+The parallel structure spans the space of permeability features. $\blacksquare$
 
 ### 5.3 Modified Residue Representation
 
@@ -473,9 +473,7 @@ While this work focuses on theoretical foundations, the framework suggests sever
 
 The parallel decomposition can be viewed as a **span** in the category of molecular representations:
 
-```
-    F ← A → R
-```
+$$F \leftarrow A \rightarrow R$$
 
 with the molecular level as the **pushout** combining both views.
 
@@ -483,9 +481,7 @@ with the molecular level as the **pushout** combining both views.
 
 The parallel hierarchy defines a **product manifold**:
 
-```
-M_molecule = M_fragment × M_residue
-```
+$$\text{M}_\text{molecule} = \text{M}_\text{fragment} \times \text{M}_\text{residue}$$
 
 with the Riemannian metric incorporating both geometric structures.
 
@@ -493,9 +489,7 @@ with the Riemannian metric incorporating both geometric structures.
 
 The framework performs an implicit **tensor factorization**:
 
-```
-T_molecule ≈ T_atom ×₁ U_fragment ×₂ U_residue ×₃ U_interaction
-```
+$$\text{T}_\text{molecule} \approx \text{T}_\text{atom} \times_1 \text{U}_\text{fragment} \times_2 \text{U}_{residue} \times_3 \text{U}_\text{interaction}$$
 
 similar to Tucker decomposition but with chemical constraints.
 

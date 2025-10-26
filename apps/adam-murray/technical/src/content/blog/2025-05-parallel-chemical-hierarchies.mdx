@@ -91,7 +91,7 @@ Atoms (A) → {Fragments (F), Residues (R)} → Molecule (M)
 **Theorem 2.1** (Information Preservation): Parallel decomposition preserves at least as much information as any serial decomposition.
 
 **Proof:**
-Let I(A; M) be the mutual information between atoms and molecular properties.
+Let $I(A; M)$ be the mutual information between atoms and molecular properties.
 
 For serial decomposition:
 By the data processing inequality:
@@ -108,7 +108,7 @@ I(A; M|F,R) = I(A; M,F,R) - I(A; F,R)
              = I(A; M) + I(A; F,R|M) - I(A; F,R)
 ```
 
-Since F and R are both functions of A:
+Since $F$ and $R$ are both functions of $A$:
 
 ```
 I(A; F,R) = H(F,R) - H(F,R|A) = H(F,R)
@@ -120,7 +120,7 @@ By conditioning reduces entropy:
 I(A; M|F,R) ≥ max(I(A; M|F), I(A; M|R))
 ```
 
-Since any serial hierarchy H can be viewed as either F or R alone:
+Since any serial hierarchy $H$ can be viewed as either $F$ or $R$ alone:
 
 ```
 I(A; M|F,R) ≥ I(A; M|H)
@@ -130,24 +130,24 @@ Therefore, parallel decomposition preserves at least as much information. ∎
 
 ### 2.2 Graph-Theoretic Framework
 
-**Definition 2.3** (Molecular Partition): A partition π of atomic set A groups atoms into disjoint subsets.
+**Definition 2.3** (Molecular Partition): A partition $\pi$ of atomic set $A$ groups atoms into disjoint subsets.
 
-**Definition 2.4** (Fragment Partition): π_F groups atoms by synthetic building blocks (e.g., BRICS decomposition).
+**Definition 2.4** (Fragment Partition): $\pi_F$ groups atoms by synthetic building blocks (e.g., BRICS decomposition).
 
-**Definition 2.5** (Residue Partition): π_R groups atoms by biological units (amino acid residues).
+**Definition 2.5** (Residue Partition): $\pi_R$ groups atoms by biological units (amino acid residues).
 
 **Lemma 2.2** (Partition Refinement): The meet (intersection) of two partitions provides finer granularity than either partition alone.
 
 **Proof:**
-For partitions π_F and π_R, their meet π_F ∧ π_R is defined as:
+For partitions $\pi_F$ and $\pi_R$, their meet $\pi_F \wedge \pi_R$ is defined as:
 
 ```
 π_F ∧ π_R = {B_i ∩ B_j | B_i ∈ π_F, B_j ∈ π_R, B_i ∩ B_j ≠ ∅}
 ```
 
-The entropy of a partition H(π) = -Σ_i (|B_i|/n) log(|B_i|/n).
+The entropy of a partition $H(\pi) = -\sum_i (|B_i|/n) \log(|B_i|/n)$.
 
-Since each block in π_F ∧ π_R is a subset of blocks in both π_F and π_R:
+Since each block in $\pi_F \wedge \pi_R$ is a subset of blocks in both $\pi_F$ and $\pi_R$:
 
 ```
 |blocks(π_F ∧ π_R)| ≥ max(|blocks(π_F)|, |blocks(π_R)|)
@@ -163,7 +163,7 @@ The finer partition captures more structural information. ∎
 
 ### 2.3 Attention-Based Long-Range Interactions
 
-**Definition 2.6** (Graph Distance): In a molecular graph G, d(i,j) is the shortest path between atoms i and j.
+**Definition 2.6** (Graph Distance): In a molecular graph $G$, $d(i,j)$ is the shortest path between atoms $i$ and $j$.
 
 **Definition 2.7** (Attention Mechanism): Attention computes pairwise relevance scores:
 
@@ -171,40 +171,40 @@ The finer partition captures more structural information. ∎
 Attention(i,j) = softmax(Q_i · K_j^T / √d)
 ```
 
-**Theorem 2.3** (Information Flow Complexity): Message passing requires O(diameter(G)) steps for global information flow, while attention requires O(1) steps.
+**Theorem 2.3** (Information Flow Complexity): Message passing requires $O(\text{diameter}(G))$ steps for global information flow, while attention requires $O(1)$ steps.
 
 **Proof:**
-In message passing with k iterations:
+In message passing with $k$ iterations:
 
-- Information from node i reaches nodes within distance k
-- Full propagation requires k = diameter(G) iterations
-- Time complexity: O(diameter(G) × |E|)
+- Information from node $i$ reaches nodes within distance $k$
+- Full propagation requires $k = \text{diameter}(G)$ iterations
+- Time complexity: $O(\text{diameter}(G) \times |E|)$
 
 With attention mechanism:
 
 - All pairs compute attention scores simultaneously
 - Information flows directly between any pair
-- Time complexity: O(|V|²) but depth O(1)
+- Time complexity: $O(|V|^2)$ but depth $O(1)$
 
-For cyclic peptides, diameter(G) ≈ n/2 for n residues, making attention significantly more efficient for long-range interactions. ∎
+For cyclic peptides, $\text{diameter}(G) \approx n/2$ for $n$ residues, making attention significantly more efficient for long-range interactions. ∎
 
 ## 3. The Parallel Hierarchical Framework
 
 ### 3.1 Formal Construction
 
-**Definition 3.1** (Parallel Hierarchical Molecular Graph): A tuple (A, F, R, M, φ_F, φ_R, ψ) where:
+**Definition 3.1** (Parallel Hierarchical Molecular Graph): A tuple $(A, F, R, M, \varphi_F, \varphi_R, \psi)$ where:
 
-- A = atomic features ∈ ℝ^(n × d_a)
-- F = fragment features ∈ ℝ^(k_f × d_f)
-- R = residue features ∈ ℝ^(k_r × d_r)
-- M = molecular features ∈ ℝ^d_m
-- φ_F: A → F (fragment assignment)
-- φ_R: A → R (residue assignment)
-- ψ: F × R → M (molecular composition)
+- $A$ = atomic features $\in \mathbb{R}^{n \times d_a}$
+- $F$ = fragment features $\in \mathbb{R}^{k_f \times d_f}$
+- $R$ = residue features $\in \mathbb{R}^{k_r \times d_r}$
+- $M$ = molecular features $\in \mathbb{R}^{d_m}$
+- $\varphi_F: A \to F$ (fragment assignment)
+- $\varphi_R: A \to R$ (residue assignment)
+- $\psi: F \times R \to M$ (molecular composition)
 
 ### 3.2 Cross-Level Interactions
 
-**Definition 3.2** (Fragment-Residue Interaction Tensor): T ∈ ℝ^(k_f × k_r × d_c) captures interactions between fragments and residues.
+**Definition 3.2** (Fragment-Residue Interaction Tensor): $T \in \mathbb{R}^{k_f \times k_r \times d_c}$ captures interactions between fragments and residues.
 
 For cyclic peptides, this captures critical relationships:
 

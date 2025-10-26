@@ -132,7 +132,7 @@ This rule enables mixed-ownership stable patterns where cells from both players 
 
 Territory is determined by discretized metaball influence fields:
 
-**Definition 2.2** (Influence Field): For player P with cells at positions $\{x_k\}$, the influence at cell $c$ is:
+**Definition 2.2** (Influence Field): For player $P$ with cells at positions $\{x_k\}$, the influence at cell $c$ is:
 
 ```
 I_P(c) = Σ_k f(||c - x_k||)
@@ -174,7 +174,7 @@ Both cells die due to competitive pressure (Rule 4), permanently removing mass f
 
 ### 3.2 Territorial Pressure Dynamics
 
-**Definition 3.1** (Pressure): The competitive pressure at position (i,j) is:
+**Definition 3.1** (Pressure): The competitive pressure at position $(i,j)$ is:
 
 ```
 P_{i,j} = N_A[w_{i,j}] - N_B[w_{i,j}]
@@ -193,19 +193,19 @@ This creates a flow from high to low pressure regions, analogous to fluid dynami
 
 ### 3.3 Pattern Stability Under Competition
 
-**Definition 3.2** (Competitive Stability): A pattern P is competitively stable if it maintains structure when surrounded by opponent cells.
+**Definition 3.2** (Competitive Stability): A pattern $P$ is competitively stable if it maintains structure when surrounded by opponent cells.
 
-**Theorem 3.3** (Stability Criteria): A pattern P is competitively stable iff:
+**Theorem 3.3** (Stability Criteria): A pattern $P$ is competitively stable iff:
 
 1. All interior cells have 2-3 friendly neighbors
-2. All boundary cells have ≥ 3 friendly neighbors
+2. All boundary cells have $\geq$ 3 friendly neighbors
 3. No boundary cell has majority enemy neighbors
 
 **Proof:**
 Necessity: If any condition fails:
 
-1. Interior cells with ≠ 2-3 neighbors die (standard rules)
-2. Boundary cells with < 3 friendly neighbors lose majority
+1. Interior cells with $\neq$ 2-3 neighbors die (standard rules)
+2. Boundary cells with $<$ 3 friendly neighbors lose majority
 3. Boundary cells with enemy majority convert or die
 
 Sufficiency: If all conditions hold:
@@ -218,7 +218,7 @@ Sufficiency: If all conditions hold:
 
 ### 3.4 Chimeric Patterns and Emergent Cooperation
 
-**Definition 3.3** (Chimeric Pattern): A stable structure containing cells from both players where N_A = N_B at each position.
+**Definition 3.3** (Chimeric Pattern): A stable structure containing cells from both players where $N_A = N_B$ at each position.
 
 **Theorem 3.4** (Chimeric Stability): Mixed-ownership patterns can achieve stability impossible for single-player patterns.
 
@@ -232,11 +232,11 @@ ba    N_A = N_B = 1 or 2 for each position
 
 For each cell:
 
-- Total neighbors N = 3 (survival condition met)
-- N_A = N_B (stalemate preservation rule applies)
+- Total neighbors $N = 3$ (survival condition met)
+- $N_A = N_B$ (stalemate preservation rule applies)
 - Pattern remains stable indefinitely
 
-A pure pattern at a contested boundary faces pressure P ≠ 0, causing erosion. The chimeric pattern has P = 0 everywhere, achieving superior stability. ∎
+A pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion. The chimeric pattern has $P = 0$ everywhere, achieving superior stability. ∎
 
 **Strategic Implications**:
 
@@ -264,7 +264,7 @@ For an $m \times n$ board, this exceeds $10^{mn}$ possible strategies.
 
 ### 4.2 Boundary Conditions
 
-**Definition 4.2** (Boundary Treatment): Cells outside the m×n board are treated as permanently empty (state 0) for all calculations.
+**Definition 4.2** (Boundary Treatment): Cells outside the $m \times n$ board are treated as permanently empty (state 0) for all calculations.
 
 This creates edge effects:
 
@@ -277,18 +277,18 @@ Strategic implications: Board edges act as natural barriers, creating "coastal" 
 
 ### 4.3 Nash Equilibrium Analysis
 
-**Theorem 4.1** (No Pure Strategy Equilibrium): For non-trivial boards (m,n ≥ 10), no pure strategy Nash equilibrium exists.
+**Theorem 4.1** (No Pure Strategy Equilibrium): For non-trivial boards ($m,n \geq 10$), no pure strategy Nash equilibrium exists.
 
 **Proof:**
-Suppose pure strategy s* is a Nash equilibrium. Then s* must be a best response to itself.
+Suppose pure strategy $s^*$ is a Nash equilibrium. Then $s^*$ must be a best response to itself.
 
-Consider the placement phase. If player A plays deterministic placement s\*, player B can:
+Consider the placement phase. If player A plays deterministic placement $s^*$, player B can:
 
 1. Identify A's placement pattern
 2. Design a counter-placement targeting A's structures
 3. Achieve advantage through targeted disruption
 
-The chaotic evolution (Lyapunov exponent λ > 0) means small placement changes cascade unpredictably, preventing stable best responses for any pure strategy.
+The chaotic evolution (Lyapunov exponent $\lambda > 0$) means small placement changes cascade unpredictably, preventing stable best responses for any pure strategy.
 
 Therefore, no pure strategy can be a best response to itself. ∎
 
@@ -311,7 +311,7 @@ By Nash's theorem, a mixed strategy equilibrium exists. ∎
 H(opponent_placement | my_placement) = log₂(C(available_cells, 10))
 ```
 
-For a 100×100 board with 50% available cells:
+For a $100 \times 100$ board with 50% available cells:
 
 ```
 H ≈ log₂(C(5000, 10)) ≈ 33 bits
@@ -340,7 +340,7 @@ R(t+1) = R(t) + 10 + Σ_{p ∈ patterns(t)} value(p)
 **Theorem 5.1** (Compound Growth): Successful economic strategies achieve super-linear resource growth.
 
 **Proof:**
-Let n(t) be the number of honey farms at round t.
+Let $n(t)$ be the number of honey farms at round $t$.
 
 Best case (no disruption):
 
@@ -348,7 +348,7 @@ Best case (no disruption):
 R(t) = 10t + 8·Σ_{i=1}^t n(i)
 ```
 
-If n(t) grows linearly: n(t) = αt
+If $n(t)$ grows linearly: $n(t) = \alpha t$
 
 ```
 R(t) = 10t + 8α·t(t+1)/2 = O(t²)
@@ -358,24 +358,24 @@ Quadratic growth dominates linear strategies asymptotically. ∎
 
 ### 5.3 Optimal Pattern Packing
 
-**Problem**: Maximize resource generation in area A.
+**Problem**: Maximize resource generation in area $A$.
 
-**Theorem 5.2** (Packing Density): Honey farms achieve 2× better resource density than distributed beehives.
+**Theorem 5.2** (Packing Density): Honey farms achieve $2 \times$ better resource density than distributed beehives.
 
 **Proof:**
-Beehive + 2 blocks requires ≈25 cells, generates 1 unit:
+Beehive + 2 blocks requires $\approx 25$ cells, generates 1 unit:
 
 ```
 Density_distributed = A/25 units/round
 ```
 
-Honey farm + 8 blocks requires ≈100 cells, generates 8 units:
+Honey farm + 8 blocks requires $\approx 100$ cells, generates 8 units:
 
 ```
 Density_honey = 8A/100 = 0.08A units/round
 ```
 
-Ratio: 0.08A / (A/25) = 2.0
+Ratio: $0.08A / (A/25) = 2.0$
 
 Honey farms are twice as space-efficient when defended. ∎
 
@@ -393,12 +393,12 @@ Honey farms are twice as space-efficient when defended. ∎
 
 **Analysis:**
 
-- Conway's Game of Life: λ ≈ 0.2-0.5
+- Conway's Game of Life: $\lambda \approx 0.2 - 0.5$
 - Competition adds stochastic elements through placement
 - Territorial pressure creates additional instabilities
-- Combined: λ_CG ≈ 0.3-0.8
+- Combined: $\lambda_{CG} \approx 0.3 - 0.8$
 
-Higher λ implies:
+Higher $\lambda$ implies:
 
 1. Reduced prediction horizon
 2. Greater strategic uncertainty
@@ -406,7 +406,7 @@ Higher λ implies:
 
 ### 6.2 Phase Transitions
 
-**Definition 6.2** (Density): ρ = (|A| + |B|)/(mn)
+**Definition 6.2** (Density): $\rho = (|A| + |B|)/(mn)$
 
 **Theorem 6.2** (Phase Structure): The system exhibits distinct phases:
 
@@ -417,7 +417,7 @@ Higher λ implies:
 ρ ∈ [0.5, 1.0]: Overcrowded - mutual destruction
 ```
 
-**Critical point**: ρ_c ≈ 0.35 where largest sustainable populations exist.
+**Critical point**: $\rho_c \approx 0.35$ where largest sustainable populations exist.
 
 ### 6.3 Territorial Crystallization
 
@@ -433,13 +433,13 @@ The evolution rules create pressure away from boundaries (conflict zones have hi
 **Theorem 7.1** (PSPACE-completeness): Determining optimal placement is PSPACE-complete.
 
 **Proof:**
-Membership in PSPACE: Simulating t generations requires O(mn) space.
+Membership in PSPACE: Simulating $t$ generations requires $O(mn)$ space.
 
 PSPACE-hardness: Reduction from Generalized Geography:
 
 1. Encode graph vertices as board regions
 2. Encode edges as possible cellular transitions
-3. Winning Geography strategy ↔ winning Cloth of Gold strategy
+3. Winning Geography strategy $\leftrightarrow$ winning Cloth of Gold strategy
 
 Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play. ∎
 
@@ -447,9 +447,9 @@ Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play
 
 **Lemma 7.1**: Identifying all valuable patterns requires:
 
-- Naive: O(mn·|pattern_library|)
-- With hashing: O(mn) expected time
-- Via convolution: O(mn·log(mn)) using FFT
+- Naive: $O(mn \cdot |pattern\_library|)$
+- With hashing: $O(mn)$ expected time
+- Via convolution: $O(mn \cdot \log(mn))$ using FFT
 
 **Optimization via Quadtrees**: The implementation uses quadtree spatial indexing:
 
@@ -460,7 +460,7 @@ Space complexity: O(min(k log n, mn))
 
 Quadtrees provide significant speedup for:
 
-- Sparse boards (early game): O(k) ≪ O(mn)
+- Sparse boards (early game): $O(k) \ll O(mn)$
 - Localized conflicts: Only affected quadrants need updating
 - Pattern detection: Hierarchical search pruning
 
@@ -496,7 +496,7 @@ Empirical validation required.
 
 ### 8.3 Endgame Convergence
 
-**Theorem 8.2** (Convergence): As t → ∞, one of four outcomes occurs:
+**Theorem 8.2** (Convergence): As $t \to \infty$, one of four outcomes occurs:
 
 1. Extinction of one/both players
 2. Stable territorial division

@@ -48,19 +48,19 @@ We establish:
 
 ### 2.1 Quotient Space Structure
 
-**Definition 2.1** (Chemical Quotient Space): A combinatorial library forms a quotient space (S, U, π) where:
+**Definition 2.1** (Chemical Quotient Space): A combinatorial library forms a quotient space $(S, U, \pi)$ where:
 
-- S = synthesis space (all synthesized instances)
-- U = chemical space (unique chemical entities)
-- π: S → U is the canonical projection
+- $S$ = synthesis space (all synthesized instances)
+- $U$ = chemical space (unique chemical entities)
+- $\pi: S \to U$ is the canonical projection
 
-The equivalence relation s₁ ~ s₂ ⟺ π(s₁) = π(s₂) partitions S into equivalence classes.
+The equivalence relation $s_1 \sim s_2 \iff \pi(s_1) = \pi(s_2)$ partitions $S$ into equivalence classes.
 
-**Definition 2.2** (Redundancy): The redundancy factor R = |S|/|U| measures average equivalence class size.
+**Definition 2.2** (Redundancy): The redundancy factor $R = |S|/|U|$ measures average equivalence class size.
 
 ### 2.2 The Sampling Problem
 
-**Problem** (Coverage with Minimal Sampling): Given quotient space (S, U, π) and coverage requirement C ∈ [0,1], find minimal n such that:
+**Problem** (Coverage with Minimal Sampling): Given quotient space $(S, U, \pi)$ and coverage requirement $C \in [0,1]$, find minimal $n$ such that:
 
 ```
 P(|{π(s₁), ..., π(sₙ)}| ≥ C|U|) ≥ 1 - δ
@@ -68,28 +68,28 @@ P(|{π(s₁), ..., π(sₙ)}| ≥ C|U|) ≥ 1 - δ
 
 ### 2.3 Building Block Structure
 
-For combinatorial libraries with N positions and Bᵢ choices at position i:
+For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$:
 
 **Definition 2.3** (Compositional Space):
 
-- Maximum diversity: |U|\_max = ∏ᵢ Bᵢ
-- Chemical redundancy: ρ = |U|\_max/|U|
-- Synthesis redundancy: R = |S|/|U|
+- Maximum diversity: $|U|_{max} = \prod_i B_i$
+- Chemical redundancy: $\rho = |U|_{max}/|U|$
+- Synthesis redundancy: $R = |S|/|U|$
 
 ## 3. Information-Theoretic Bounds
 
 ### 3.1 Fundamental Limits
 
-**Theorem 3.1** (Information-Theoretic Lower Bound): For any sampling strategy with n samples and unknown |U|:
+**Theorem 3.1** (Information-Theoretic Lower Bound): For any sampling strategy with $n$ samples and unknown $|U|$:
 
 ```
 E[samples needed] ≥ |U|H(P)/log|U|
 ```
 
-where H(P) is the entropy of the distribution of equivalence class sizes.
+where $H(P)$ is the entropy of the distribution of equivalence class sizes.
 
 **Proof:**
-Each sample provides at most log|U| bits of information. Total information needed is |U|H(P) bits to reconstruct the quotient structure. Therefore:
+Each sample provides at most $\log|U|$ bits of information. Total information needed is $|U|H(P)$ bits to reconstruct the quotient structure. Therefore:
 
 ```
 n × log|U| ≥ |U|H(P)
@@ -119,63 +119,63 @@ E[I(sₙ)] = O(log(|U| - observed))
 ```
 
 **Proof:**
-Uniform sampling has probability (|U| - observed)/|U| of discovering new entity, providing log|U| bits when successful.
+Uniform sampling has probability $(|U| - \text{observed})/|U|$ of discovering new entity, providing $\log|U|$ bits when successful.
 
-Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing log(remaining) bits deterministically. ∎
+Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing $\log(\text{remaining})$ bits deterministically. ∎
 
-**Corollary**: Adaptive sampling requires O(|U|) samples versus O(|U| log |U|) for uniform sampling.
+**Corollary**: Adaptive sampling requires $O(|U|)$ samples versus $O(|U| \log |U|)$ for uniform sampling.
 
 ### 3.3 Partial Information Regimes
 
 **Theorem 3.3** (Sample Complexity with Partial Information):
-Given knowledge level κ ∈ [0,1] about quotient structure:
+Given knowledge level $\kappa \in [0,1]$ about quotient structure:
 
 ```
 n*(κ) = |U|(log|U| + (1-κ)log R)/(1 + κ(R-1)/R)
 ```
 
 **Proof:**
-With partial knowledge κ:
+With partial knowledge $\kappa$:
 
-- Known structure reduces search space by factor (1 + κ(R-1)/R)
-- Unknown structure requires additional (1-κ)log R samples
+- Known structure reduces search space by factor $(1 + \kappa(R-1)/R)$
+- Unknown structure requires additional $(1-\kappa)\log R$ samples
 - Combines multiplicatively due to information independence ∎
 
 ## 4. Phase Transitions
 
 ### 4.1 Coverage Phase Transition
 
-**Definition 4.1** (Sampling Fraction): α = n/|S| where n is number of samples.
+**Definition 4.1** (Sampling Fraction): $\alpha = n/|S|$ where $n$ is number of samples.
 
-**Definition 4.2** (Coverage Function): C(α) = E[|observed unique|/|U|].
+**Definition 4.2** (Coverage Function): $C(\alpha) = E[|\text{observed unique}|/|U|]$.
 
-**Theorem 4.1** (Sharp Phase Transition): For combinatorial libraries with redundancy R = |S|/|U|, there exists critical α_c such that:
+**Theorem 4.1** (Sharp Phase Transition): For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
 
 ```
 lim_{|U|→∞} P(C(α) > 1-ε) = {0 if α < α_c(ε)
                                  {1 if α > α_c(ε)
 ```
 
-where α_c(ε) = log(1/ε)/(R × |U|/|S|).
+where $\alpha_c(\varepsilon) = \log(1/\varepsilon)/(R \times |U|/|S|)$.
 
 **Proof:**
-Model as coupon collector with R copies per coupon.
+Model as coupon collector with $R$ copies per coupon.
 
-For α < α_c: Expected uncovered coupons is |U|exp(-αR) > ε|U|.
+For $\alpha < \alpha_c$: Expected uncovered coupons is $|U|\exp(-\alpha R) > \varepsilon|U|$.
 By concentration inequalities:
 
 ```
 P(uncovered < ε|U|/2) ≤ exp(-ε|U|/8)
 ```
 
-For α > α_c: Expected uncovered is < ε|U|.
+For $\alpha > \alpha_c$: Expected uncovered is $< \varepsilon|U|$.
 Similarly:
 
 ```
 P(uncovered > 2ε|U|) ≤ exp(-ε|U|/8)
 ```
 
-As |U| → ∞, these probabilities → 0, giving sharp transition. ∎
+As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
 
 ### 4.2 Multi-Scale Transitions
 

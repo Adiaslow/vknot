@@ -145,8 +145,8 @@ export default function AdductIntervalsVisualizer() {
     }
 
     // Calculate kappa (critical separation)
-    // κ = ceil((a_k - a_1 + 2T) / (2T)) from Section 3.2
-    const kappa = Math.ceil((ak - a1 + 2 * T) / delta);
+    // Per Lemma 3.3: κ = ceil((a_k - a_1)/(2T) + 1)
+    const kappa = Math.ceil((ak - a1) / delta + 1);
 
     return { intervals, overlaps, n, delta, kappa };
   };

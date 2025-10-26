@@ -92,14 +92,18 @@ The framework presented applies to **any** adduct set $A$, regardless of ionizat
 
 ### 1.3 Multi-Objective Optimization Context
 
-In designing combinatorial peptide libraries, multiple competing objectives must be balanced:
+In designing combinatorial peptide libraries, multiple competing objectives must be balanced. Example objectives include:
 
 1. **Maximize library diversity** (number of unique peptides)
 2. **Maximize chemical space coverage** (structural diversity)
 3. **Minimize synthesis complexity** (cost and feasibility)
 4. **Ensure MS detectability** (analytical resolution)
+5. **Optimize cheminformatic descriptors** (e.g., logP, TPSA, rotatable bonds, hydrogen bond donors/acceptors)
+6. **Target property profiles** (e.g., molecular weight ranges, ring systems for macrocycles and BRoF drugs)
+7. **Maximize sequence diversity** (amino acid composition, stereochemistry)
+8. **Balance functional group distribution** (e.g., N-methylation for membrane permeability in BRoF contexts)
 
-This mathematical framework provides the theoretical upper bound for objective 1, which serves as a critical constraint in multi-objective evolutionary algorithms (MOEAs) such as NSGA-III.
+The specific objectives and their relative importance depend on the therapeutic target, screening strategy, and development stage. For beyond Rule of Five (BRoF) drugs like cyclic peptides, objectives often emphasize chemical space exploration over traditional small molecule drug-likeness metrics. This mathematical framework provides the theoretical upper bound for library size (objective 1), which serves as a critical constraint in multi-objective evolutionary algorithms (MOEAs) such as NSGA-III, regardless of which additional objectives are included.
 
 ### 1.4 Novel Contributions
 
@@ -232,7 +236,7 @@ The spacing $\delta = 2T$ is not merely necessary but also sufficient:
 - **Sufficiency**: With $\delta = 2T$, same-adduct intervals exactly touch at boundaries
 - **Uniqueness**: Any $\delta' > 2T$ wastes space, reducing maximum library size
 
-Therefore, $\delta = 2T$ is the unique optimal spacing for maximizing density under same-adduct constraints. ■
+Therefore, $\delta = 2T$ is the unique optimal spacing for maximizing density under same-adduct constraints.
 
 ### Theorem 3.2 (Critical Constraint for Cross-Adduct Non-Overlap)
 

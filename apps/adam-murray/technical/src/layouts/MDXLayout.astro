@@ -1,0 +1,27 @@
+---
+// This layout provides math components globally to all MDX files
+import Theorem from '../components/math/Theorem.astro';
+import Definition from '../components/math/Definition.astro';
+import Proof from '../components/math/Proof.astro';
+import Lemma from '../components/math/Lemma.astro';
+import Corollary from '../components/math/Corollary.astro';
+import Remark from '../components/math/Remark.astro';
+import Example from '../components/math/Example.astro';
+import Conjecture from '../components/math/Conjecture.astro';
+
+const components = {
+  Theorem,
+  Definition,
+  Proof,
+  Lemma,
+  Corollary,
+  Remark,
+  Example,
+  Conjecture,
+};
+
+// Make components available to MDX
+Astro.props.components = components;
+---
+
+<slot />

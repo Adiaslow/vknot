@@ -2,6 +2,14 @@
 import { getCollection } from "astro:content";
 import BlogLayout from "../../layouts/BlogLayout.astro";
 import ArticleHeader from "../../components/ArticleHeader.astro";
+import Theorem from "../../components/math/Theorem.astro";
+import Definition from "../../components/math/Definition.astro";
+import Proof from "../../components/math/Proof.astro";
+import Lemma from "../../components/math/Lemma.astro";
+import Corollary from "../../components/math/Corollary.astro";
+import Remark from "../../components/math/Remark.astro";
+import Example from "../../components/math/Example.astro";
+import Conjecture from "../../components/math/Conjecture.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -12,7 +20,20 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content, components: mdxComponents } = await post.render();
+
+// Provide math components to MDX
+const components = {
+  ...mdxComponents,
+  Theorem,
+  Definition,
+  Proof,
+  Lemma,
+  Corollary,
+  Remark,
+  Example,
+  Conjecture,
+};
 ---
 
 <BlogLayout
@@ -27,5 +48,5 @@ const { Content } = await post.render();
     tags={post.data.tags}
     readingTimeMinutes={post.data.readingTimeMinutes}
   />
-  <Content />
+  <Content {components} />
 </BlogLayout>

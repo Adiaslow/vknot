@@ -1,0 +1,9 @@
+// Export all math components for easy importing
+export { default as Theorem } from './Theorem.astro';
+export { default as Definition } from './Definition.astro';
+export { default as Proof } from './Proof.astro';
+export { default as Lemma } from './Lemma.astro';
+export { default as Corollary } from './Corollary.astro';
+export { default as Remark } from './Remark.astro';
+export { default as Example } from './Example.astro';
+export { default as Conjecture } from './Conjecture.astro';

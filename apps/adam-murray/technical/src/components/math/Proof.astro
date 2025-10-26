@@ -1,0 +1,19 @@
+---
+export interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="my-6 ml-4 rounded-lg border-l-4 border-slate-400 bg-slate-50 p-5 dark:bg-slate-900/20 dark:border-slate-600">
+  <div class="flex items-baseline gap-2 mb-2">
+    <strong class="font-semibold text-slate-700 dark:text-slate-300 italic">
+      {title || "Proof"}:
+    </strong>
+  </div>
+  <div class="text-slate-600 dark:text-slate-400 leading-relaxed">
+    <slot />
+  </div>
+  <div class="mt-4 text-right text-slate-500 dark:text-slate-500">∎</div>
+</div>

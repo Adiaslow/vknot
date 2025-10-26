@@ -32,7 +32,7 @@ The name "Cloth of Gold" references both the Conus textile (cloth of gold cone s
 
 ### 1.2 Game Overview
 
-The game proceeds in rounds, each representing one week (168 generations of cellular evolution):
+The game proceeds in rounds, each representing one week (168 generations of cellular evolution)
 
 1. **Placement Phase**: Players simultaneously place up to 10 units (plus bonus units from patterns)
 2. **Evolution Phase**: The cellular automaton runs for 168 generations
@@ -59,7 +59,7 @@ This work provides:
 
 ### 2.1 State Space Definition
 
-Definition 2.1 (Game State):
+### Definition 2.1 (Game State)
 
 The state space consists of:
 
@@ -92,11 +92,11 @@ $$N[w_{i,j}] = N_A[w_{i,j}] + N_B[w_{i,j}] + N_C[w_{i,j}]$$
 
 The competitive cellular automaton evolves according to:
 
-**Rule 1** (Death by isolation/overcrowding):
+**Rule 1** (Death by isolation/overcrowding)
 
 $$w_{i,j}(t+1) = 0 \text{ if } N[w_{i,j}] < 2 \text{ or } N[w_{i,j}] > 3$$
 
-**Rule 2** (Competitive birth/survival for Player A):
+**Rule 2** (Competitive birth/survival for Player A)
 
 $$w_{i,j}(t+1) = a \text{ if:}$$
 
@@ -107,7 +107,7 @@ $$
 \end{aligned}
 $$
 
-**Rule 3** (Competitive birth/survival for Player B):
+**Rule 3** (Competitive birth/survival for Player B)
 
 $$w_{i,j}(t+1) = b \text{ if:}$$
 
@@ -118,7 +118,7 @@ $$
 \end{aligned}
 $$
 
-**Rule 4** (Stalemate preservation):
+**Rule 4** (Stalemate preservation)
 
 $$w_{i,j}(t+1) = w_{i,j}(t) \text{ if:}$$
 
@@ -135,7 +135,7 @@ This rule enables mixed-ownership stable patterns where cells from both players 
 
 Territory is determined by discretized metaball influence fields:
 
-Definition 2.2 (Influence Field):
+### Definition 2.2 (Influence Field)
 
 For player $P$ with cells at positions $\{x_k\}$, the influence at cell $c$ is:
 
@@ -143,7 +143,7 @@ $$I_P(c) = \sum_k f(\|c - x_k\|)$$
 
 where $f(r) = \max(0, 1 - r^2/R^2)$ for influence radius $R$.
 
-Definition 2.3 (Discretized Territory):
+### Definition 2.3 (Discretized Territory)
 
 Each cell has a discrete territorial state:
 
@@ -162,11 +162,12 @@ This discretization creates territorial quantization - territory expands in disc
 
 ### 3.1 Breaking Conservation Laws
 
-Theorem 3.1 (Non-conservation):
+### Theorem 3.1 (Non-conservation)
 
 Unlike Conway's Game of Life, the competitive variant does not conserve any local quantity.
 
-Proof:
+### Proof
+
 In Conway's Game of Life, patterns can be designed to conserve various quantities locally (e.g., glider guns maintain population through cyclic behavior).
 
 In Cloth of Gold, consider two adjacent cells owned by different players with appropriate surrounding densities:
@@ -181,17 +182,18 @@ Both cells die due to competitive pressure (Rule 4), permanently removing mass f
 
 ### 3.2 Territorial Pressure Dynamics
 
-Definition 3.1 (Pressure):
+### Definition 3.1 (Pressure)
 
 The competitive pressure at position $(i,j)$ is:
 
 $$P_{i,j} = N_A[w_{i,j}] - N_B[w_{i,j}]$$
 
-Theorem 3.2 (Pressure-driven flow):
+### Theorem 3.2 (Pressure-driven flow)
 
 Cells flow down the pressure gradient.
 
-Proof:
+### Proof
+
 From the evolution rules:
 
 - If $P_{i,j} > 0$: Cell becomes/remains type a
@@ -202,11 +204,11 @@ This creates a flow from high to low pressure regions, analogous to fluid dynami
 
 ### 3.3 Pattern Stability Under Competition
 
-Definition 3.2 (Competitive Stability):
+### Definition 3.2 (Competitive Stability)
 
 A pattern $P$ is competitively stable if it maintains structure when surrounded by opponent cells.
 
-Theorem 3.3 (Stability Criteria):
+### Theorem 3.3 (Stability Criteria)
 
 A pattern $P$ is competitively stable iff:
 
@@ -214,7 +216,8 @@ A pattern $P$ is competitively stable iff:
 2. All boundary cells have $\geq$ 3 friendly neighbors
 3. No boundary cell has majority enemy neighbors
 
-Proof:
+### Proof
+
 Necessity: If any condition fails:
 
 1. Interior cells with $\neq 2$-$3$ neighbors die (standard rules)
@@ -227,19 +230,22 @@ Sufficiency: If all conditions hold:
 - Boundary cells maintain ownership through majority
 - Pattern structure is preserved ∎
 
-Corollary: Most Conway stable patterns (blocks, beehives) are NOT competitively stable.
+### Corollary
+
+Most Conway stable patterns (blocks, beehives) are NOT competitively stable.
 
 ### 3.4 Chimeric Patterns and Emergent Cooperation
 
-Definition 3.3 (Chimeric Pattern):
+### Definition 3.3 (Chimeric Pattern)
 
 A stable structure containing cells from both players where $N_A = N_B$ at each position.
 
-Theorem 3.4 (Chimeric Stability):
+### Theorem 3.4 (Chimeric Stability)
 
 Mixed-ownership patterns can achieve stability impossible for single-player patterns.
 
-Proof:
+### Proof
+
 Consider a mixed 2×2 block:
 
 ```
@@ -267,7 +273,7 @@ This emergence of cooperation from competitive rules represents a fascinating ph
 
 ### 4.1 Strategy Space
 
-Definition 4.1 (Strategy):
+### Definition 4.1 (Strategy)
 
 A player's strategy consists of:
 
@@ -283,7 +289,7 @@ For an $m \times n$ board, this exceeds $10^{mn}$ possible strategies.
 
 ### 4.2 Boundary Conditions
 
-Definition 4.2 (Boundary Treatment):
+### Definition 4.2 (Boundary Treatment)
 
 Cells outside the $m \times n$ board are treated as permanently empty (state $0$) for all calculations.
 
@@ -298,11 +304,12 @@ Strategic implications: Board edges act as natural barriers, creating "coastal" 
 
 ### 4.3 Nash Equilibrium Analysis
 
-Theorem 4.1 (No Pure Strategy Equilibrium):
+### Theorem 4.1 (No Pure Strategy Equilibrium)
 
 For non-trivial boards ($m, n \geq 10$), no pure strategy Nash equilibrium exists.
 
-Proof:\*_
+### Proof
+
 Suppose pure strategy $s^_$ is a Nash equilibrium. Then $s^*$ must be a best response to itself.
 
 Consider the placement phase. If player A plays deterministic placement $s^*$, player B can:
@@ -315,11 +322,12 @@ The chaotic evolution (Lyapunov exponent $\lambda > 0$) means small placement ch
 
 Therefore, no pure strategy can be a best response to itself. ∎
 
-Theorem 4.2 (Mixed Strategy Equilibrium):
+### Theorem 4.2 (Mixed Strategy Equilibrium)
 
 A mixed strategy equilibrium exists.
 
-Proof:
+### Proof
+
 The game satisfies conditions for Nash's existence theorem:
 
 1. Finite action space per round (finite board positions)
@@ -334,7 +342,7 @@ By Nash's theorem, a mixed strategy equilibrium exists. ∎
 
 With simultaneous hidden placement, each player faces uncertainty:
 
-$$H(\text{opponent\_placement} \mid \text{my\_placement}) = \log_2\binom{\text{available\_cells}}{10}$$
+$$H(\text{opponent:placement} \mid \text{my:placement}) = \log_2\binom{\text{available:cells}}{10}$$
 
 For a $100 \times 100$ board with $50\%$ available cells:
 
@@ -346,7 +354,7 @@ This information deficit forces probabilistic reasoning and prevents perfect pla
 
 ### 5.1 Resource Generation
 
-Definition 5.1 (Pattern Values):
+### Definition 5.1 (Pattern Values)
 
 - Beehive + 2 blocks = 1 bonus unit
 - Honey farm + 8 blocks = 8 bonus units
@@ -358,14 +366,15 @@ $$R(t+1) = R(t) + 10 + \sum_{p \in \text{patterns}(t)} \text{value}(p)$$
 
 ### 5.2 Economic Growth Models
 
-Theorem 5.1 (Compound Growth):
+### Theorem 5.1 (Compound Growth)
 
 Successful economic strategies achieve super-linear resource growth.
 
-Proof:
+### Proof
+
 Let $n(t)$ be the number of honey farms at round $t$.
 
-Best case (no disruption):
+Best case (no disruption)
 
 $$R(t) = 10t + 8 \cdot \sum_{i=1}^t n(i)$$
 
@@ -379,11 +388,12 @@ Quadratic growth dominates linear strategies asymptotically. ∎
 
 **Problem**: Maximize resource generation in area $A$.
 
-Theorem 5.2 (Packing Density):
+### Theorem 5.2 (Packing Density)
 
 Honey farms achieve $2 \times$ better resource density than distributed beehives.
 
-Proof:
+### Proof
+
 Beehive $+ 2$ blocks requires $\approx 25$ cells, generates $1$ unit:
 
 $$\text{Density}_{\text{distributed}} = A/25 \text{ units/round}$$
@@ -400,13 +410,13 @@ Honey farms are twice as space-efficient when defended. ∎
 
 ### 6.1 Lyapunov Exponents
 
-Definition 6.1 (Lyapunov Exponent):
+### Definition 6.1 (Lyapunov Exponent)
 
 Measures sensitivity to initial conditions:
 
 $$\lambda = \lim_{t \to \infty} \frac{1}{t} \log\left(\frac{|\delta W(t)|}{|\delta W(0)|}\right)$$
 
-Theorem 6.1 (Increased Chaos):
+### Theorem 6.1 (Increased Chaos)
 
 Competitive rules increase the Lyapunov exponent.
 
@@ -425,11 +435,11 @@ Higher $\lambda$ implies:
 
 ### 6.2 Phase Transitions
 
-Definition 6.2 (Density):
+### Definition 6.2 (Density)
 
 $\rho = (|A| + |B|)/(mn)$
 
-Theorem 6.2 (Phase Structure):
+### Theorem 6.2 (Phase Structure)
 
 The system exhibits distinct phases:
 
@@ -446,7 +456,7 @@ $$
 
 ### 6.3 Territorial Crystallization
 
-Theorem 6.3 (Discrete Voronoi Emergence):
+### Theorem 6.3 (Discrete Voronoi Emergence)
 
 Discretized territories naturally approximate Voronoi cells.
 
@@ -457,11 +467,12 @@ The evolution rules create pressure away from boundaries (conflict zones have hi
 
 ### 7.1 Decision Complexity
 
-Theorem 7.1 (PSPACE-completeness):
+### Theorem 7.1 (PSPACE-completeness)
 
 Determining optimal placement is PSPACE-complete.
 
-Proof:
+### Proof
+
 Membership in PSPACE: Simulating $t$ generations requires $O(mn)$ space.
 
 PSPACE-hardness: Reduction from Generalized Geography:
@@ -476,7 +487,7 @@ Since Generalized Geography is PSPACE-complete, so is optimal Cloth of Gold play
 
 **Lemma 7.1**: Identifying all valuable patterns requires:
 
-- Naive: $O(mn \cdot |pattern\_library|)$
+- Naive: $O(mn \cdot |pattern:library|)$
 - With hashing: $O(mn)$ expected time
 - Via convolution: $O(mn \cdot \log(mn))$ using FFT
 
@@ -499,13 +510,13 @@ Real-time pattern recognition is computationally feasible even for large boards.
 
 ### 8.1 Rock-Paper-Scissors Structure
 
-Theorem 8.1 (Cyclic Dominance):
+### Theorem 8.1 (Cyclic Dominance)
 
 The strategy space exhibits cyclic dominance:
 
 $$\text{Economic} \to \text{Defensive} \to \text{Aggressive} \to \text{Economic}$$
 
-Proof:
+### Proof
 
 - Economic > Defensive: Resource advantage eventually overwhelms static defense
 - Defensive > Aggressive: Attacks waste resources against fortified positions
@@ -515,7 +526,7 @@ No single strategy dominates all others. ∎
 
 ### 8.2 Opening Theory
 
-Conjecture 8.1\*\*: Optimal openings follow principles:
+### Conjecture 8.1: Optimal openings follow principles:
 
 1. Claim territory near board center
 2. Establish one honey farm by round 5
@@ -525,7 +536,7 @@ Empirical validation required.
 
 ### 8.3 Endgame Convergence
 
-Theorem 8.2 (Convergence):
+### Theorem 8.2 (Convergence)
 
 As $t \to \infty$, one of four outcomes occurs:
 
@@ -596,7 +607,7 @@ The formation of chimeric patterns suggests that competitive cellular automata c
 
 ### 10.1 Victory Hierarchy
 
-Definition 10.1 (Victory Precedence):
+### Definition 10.1 (Victory Precedence)
 
 1. **Extinction**: Immediate win when opponent reaches 0 population
 2. **Territory**: Control >75% for 10+ consecutive rounds
@@ -616,7 +627,7 @@ This creates multiple viable paths to victory.
 
 ### 10.3 Expected Game Length
 
-Theorem 10.1 (Game Duration):
+### Theorem 10.1 (Game Duration)
 
 Expected game length:
 

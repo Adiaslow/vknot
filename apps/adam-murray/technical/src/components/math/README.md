@@ -111,12 +111,12 @@ Proof component only uses `title` (no numbering).
 ## Color Scheme
 
 - **Theorem**: Blue (scientific, formal)
-- Definition\*\*: Amber (foundational, important)
-- Proof\*\*: Gray (supporting, detailed)
+- Definition: Amber (foundational, important)
+- Proof: Gray (supporting, detailed)
 - **Lemma**: Green (auxiliary result)
 - Corollary: Cyan (derived result)
 - **Remark**: Purple (observation, note)
 - Example: Teal (illustration)
-- Conjecture\*\*: Rose (hypothesis)
+- Conjecture: Rose (hypothesis)
 
 All components support dark mode with appropriate color adjustments.

@@ -54,15 +54,16 @@ This work establishes:
 
 ### 2.1 The Truncation Graph Structure
 
-Definition 2.1 (Truncation Relation):
+### Definition 2.1 (Truncation Relation)
 
 For compounds $A$ and $B$ in a combinatorial library, $A \preceq B$ ($A$ is a truncation of $B$) if $A$ can be obtained from $B$ by replacing one or more building blocks with null.
 
-Theorem 2.1 (DAG Structure):
+### Theorem 2.1 (DAG Structure)
 
 The truncation relation $\preceq$ forms a directed acyclic graph.
 
-Proof:
+### Proof
+
 The relation $\preceq$ defines a strict partial order:
 
 _Reflexivity_: $A \preceq A$ (every compound truncates to itself)
@@ -88,24 +89,25 @@ Therefore, the truncation relation forms a DAG. ∎
 
 ### 2.2 Chemical Identity vs. Positional Identity
 
-Definition 2.2 (Positional Sequence):
+### Definition 2.2 (Positional Sequence)
 
 An $n$-tuple where position $i$ contains building block $b_i$ or null.
 
-Definition 2.3 (Chemical Identity):
+### Definition 2.3 (Chemical Identity)
 
 The actual molecule, independent of synthesis position.
 
-Example:
+### Example
 
 - Positional: [Val, Null, Null], [Null, Val, Null], [Null, Null, Val] (different)
 - Chemical: All three are "Val" (same molecule)
 
-Theorem 2.2 (Convergence Property):
+### Theorem 2.2 (Convergence Property)
 
 Multiple positional sequences can represent the same chemical identity, creating convergence in the DAG.
 
-Proof:
+### Proof
+
 Consider positional sequences $P_1 = [b, \text{Null}, \text{Null}]$ and $P_2 = [\text{Null}, b, \text{Null}]$.
 
 - Chemically, both represent the single building block $b$
@@ -117,15 +119,16 @@ The convergence is not a cycle because edges only point toward simpler structure
 
 ### 2.3 Equivalence Classes
 
-Definition 2.4 (Equivalence Class):
+### Definition 2.4 (Equivalence Class)
 
 The set of all positional sequences with the same chemical identity.
 
-Theorem 2.3 (Partition Property):
+### Theorem 2.3 (Partition Property)
 
 Chemical equivalence partitions the positional sequence space into disjoint equivalence classes.
 
-Proof:
+### Proof
+
 Define relation $\sim$: $P_1 \sim P_2$ iff $P_1$ and $P_2$ have the same chemical identity.
 
 _Reflexivity_: $P \sim P$ (same chemical identity as itself)
@@ -138,18 +141,19 @@ Therefore $\sim$ is an equivalence relation, partitioning the space into disjoin
 
 ### 3.1 Discrete Morse Theory for Peak Detection
 
-Definition 3.1 (Discrete Morse Function):
+### Definition 3.1 (Discrete Morse Function)
 
 For discrete signal $s: \mathbb{Z} \to \mathbb{R}$, position $i$ is a critical point if:
 
 - Local maximum: $s[i] > s[i-1]$ and $s[i] \geq s[i+1]$
 - Local minimum: $s[i] < s[i-1]$ and $s[i] \leq s[i+1]$
 
-Theorem 3.1 (Topological Invariance):
+### Theorem 3.1 (Topological Invariance)
 
 Critical points of discrete Morse functions are invariant under monotonic transformations.
 
-Proof:
+### Proof
+
 Let $f: \mathbb{R} \to \mathbb{R}$ be strictly monotonic and increasing.
 For signal $s$, consider transformed signal $t = f \circ s$.
 
@@ -160,13 +164,15 @@ At position $i$:
 
 Critical points are preserved. ∎
 
-Corollary: Peak detection via discrete Morse theory is robust to monotonic noise and baseline drift.
+### Corollary
+
+Peak detection via discrete Morse theory is robust to monotonic noise and baseline drift.
 
 ### 3.2 Poisson Statistical Model
 
 Assumption: Chromatographic detector counts follow Poisson statistics (reasonable for photon/ion counting).
 
-Definition 3.2 (Poisson Z-score):
+### Definition 3.2 (Poisson Z-score)
 
 For observed count $x$ with background rate $\lambda$:
 
@@ -174,7 +180,7 @@ $$Z = (x - \lambda) / \sqrt{\lambda + \varepsilon}$$
 
 where $\varepsilon$ prevents division by zero.
 
-Theorem 3.2 (False Positive Bound):
+### Theorem 3.2 (False Positive Bound)
 
 For threshold $Z_t$, the false positive rate is bounded by:
 
@@ -182,7 +188,8 @@ $$P(Z > Z_t | H_0) \leq \Phi(-Z_t)$$
 
 where $\Phi$ is the standard normal CDF and $H_0$ is the null hypothesis (no peak).
 
-Proof:
+### Proof
+
 Under $H_0$, $x \sim \text{Poisson}(\lambda)$.
 For large $\lambda$, $\text{Poisson}(\lambda) \approx N(\lambda, \lambda)$ by CLT.
 Therefore $Z \approx N(0, 1)$ under $H_0$.
@@ -197,11 +204,11 @@ $P(Z > Z_t) = 1 - \Phi(Z_t) = \Phi(-Z_t)$. ∎
 3. Retain peaks with Z > Z_threshold
 4. Calculate prominence for chromatographic significance
 
-Theorem 3.3 (Completeness):
+### Theorem 3.3 (Completeness)
 
 The algorithm finds all statistically significant topological peaks.
 
-Proof:
+### Proof
 
 - Morse theory finds all local maxima (complete enumeration)
 - Poisson filtering removes only statistically insignificant peaks
@@ -220,15 +227,16 @@ Given detected peaks in related compounds, classify each peak as:
 
 ### 4.2 Constraint Propagation Algorithm
 
-Definition 4.1 ($L_0$):
+### Definition 4.1 ($L_0$)
 
 The minimal element of the DAG, representing the fully-null compound.
 
-Theorem 4.1 (NULL Peak Inheritance):
+### Theorem 4.1 (NULL Peak Inheritance)
 
 All compounds must contain peaks corresponding to $L_0$'s peaks.
 
-Proof:
+### Proof
+
 $L_0$ is a truncation of every compound (replace all blocks with null).
 Any chemical species in $L_0$ must also be present in all compounds.
 Therefore, $L_0$'s peaks appear in every chromatogram. ∎
@@ -252,11 +260,12 @@ $$
 
 **Formulation**: Bipartite matching with cost matrix $C[i,j] = |RT_i - RT_j|$
 
-Theorem 4.2 (Optimal Assignment):
+### Theorem 4.2 (Optimal Assignment)
 
 The Hungarian algorithm finds the globally optimal peak assignment minimizing total retention time deviation in $O(n^3)$.
 
-Proof:
+### Proof
+
 The Hungarian algorithm solves the assignment problem optimally.
 Our cost matrix satisfies requirements (non-negative, real-valued).
 The solution minimizes $\sum C[i, \pi(i)]$ over all permutations $\pi$. ∎
@@ -265,7 +274,7 @@ The solution minimizes $\sum C[i, \pi(i)]$ over all permutations $\pi$. ∎
 
 ### 5.1 The Additivity Assumption
 
-**Assumption 5.1** (Retention Time Additivity):
+**Assumption 5.1** (Retention Time Additivity)
 
 $$\text{RT}(\text{compound}) \approx \sum \text{RT}(\text{block}_i) + \varepsilon$$
 
@@ -277,11 +286,12 @@ where $\varepsilon$ is small noise.
 - Building blocks without strong interactions
 - Linear synthesis without cyclization
 
-Theorem 5.1 (Retention Order):
+### Theorem 5.1 (Retention Order)
 
 Under additivity, products elute after their truncations.
 
-Proof:
+### Proof
+
 For compound C with blocks $\{b_1, \ldots, b_n\}$ and truncation T missing block $b_i$:
 
 $$
@@ -306,18 +316,19 @@ Therefore RT(C) > RT(T). ∎
 
 ### 6.1 Graph Construction
 
-Theorem 6.1\*\*: DAG construction has complexity $O(N \times 2^B)$ where $N$ is the number of maximal compounds and $B$ is the maximum number of blocks.
+### Theorem 6.1: DAG construction has complexity $O(N \times 2^B)$ where $N$ is the number of maximal compounds and $B$ is the maximum number of blocks.
 
-Proof:
+### Proof
+
 Each maximal compound generates at most $2^B$ truncations (each block present/absent).
 For $N$ maximal compounds: $O(N \times 2^B)$ vertices.
 Edge construction: $O(V^2)$ worst case, but sparse in practice. ∎
 
 ### 6.2 Signal Processing
 
-Theorem 6.2\*\*: Peak detection complexity is $O(n)$ per chromatogram where $n$ is signal length.
+### Theorem 6.2: Peak detection complexity is $O(n)$ per chromatogram where $n$ is signal length.
 
-Proof:
+### Proof
 
 - Discrete Morse theory: Single pass to find local maxima, $O(n)$
 - Poisson Z-score: $O(1)$ per peak, $O(p)$ total where $p \ll n$
@@ -326,9 +337,9 @@ Proof:
 
 ### 6.3 Constraint Propagation
 
-Theorem 6.3\*\*: Global classification has complexity $O(V \times p^3)$ where $V$ is the number of compounds and $p$ is the maximum peaks per compound.
+### Theorem 6.3: Global classification has complexity $O(V \times p^3)$ where $V$ is the number of compounds and $p$ is the maximum peaks per compound.
 
-Proof:
+### Proof
 
 - Topological sort: $O(V + E)$
 - Per compound: Hungarian algorithm $O(p^3)$
@@ -338,11 +349,12 @@ Proof:
 
 ### 7.1 Soundness
 
-Theorem 7.1 (Classification Soundness):
+### Theorem 7.1 (Classification Soundness)
 
 The constraint propagation algorithm never produces inconsistent classifications.
 
-Proof:
+### Proof
+
 The algorithm only propagates constraints that must hold:
 
 - NULL peaks inherited from $L_0$ (Theorem 4.1)
@@ -353,7 +365,7 @@ The DAG structure ensures no circular dependencies. ∎
 
 ### 7.2 Completeness Under Assumptions
 
-Theorem 7.2 (Conditional Completeness):
+### Theorem 7.2 (Conditional Completeness)
 
 Given perfect additivity and sufficient peak separation, the algorithm correctly classifies all peaks.
 
@@ -367,11 +379,12 @@ Under perfect conditions:
 
 ### 7.3 Robustness
 
-Theorem 7.3 (Graceful Degradation):
+### Theorem 7.3 (Graceful Degradation)
 
 Violations of assumptions lead to "UNKNOWN" classifications, not incorrect classifications.
 
-Proof:
+### Proof
+
 When constraints conflict:
 
 - Algorithm detects inconsistency
@@ -390,7 +403,7 @@ When constraints conflict:
 
 ### 8.2 Information Recovery
 
-Theorem 8.1 (Information Sufficiency):
+### Theorem 8.1 (Information Sufficiency)
 
 The DAG structure plus 1D signals contain sufficient information for synthesis validation under the stated assumptions.
 

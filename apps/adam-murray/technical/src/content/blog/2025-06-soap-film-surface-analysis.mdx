@@ -58,8 +58,8 @@ When a soap film spans a wire loop, surface tension drives it to minimize area, 
 
 **Mathematical Translation:**
 
-- Boundary curve γ(s) → Backbone atom positions
-- Minimal surface S → Conformational descriptor space
+- Boundary curve $\gamma$(s) → Backbone atom positions
+- Minimal surface $S$ → Conformational descriptor space
 - Surface properties → Geometric invariants
 
 ## 2. Mathematical Foundations
@@ -70,19 +70,19 @@ Given a cyclic peptide with backbone atoms at positions $\mathbf{p}_1, \mathbf{p
 
 $$\gamma: S^1 \rightarrow \mathbb{R}^3$$
 
-We seek the surface S that minimizes area:
+We seek the surface $S$ that minimizes area:
 
 $$\min_{S} \mathcal{A}[S] = \iint_S dA$$
 
-subject to: ∂S = γ
+subject to: $\partial S = \gamma$
 
 This is **Plateau's problem** applied to molecular geometry.
 
 ### 2.2 Existence and Uniqueness Considerations
 
-Theorem 2.1 (Existence via Douglas-Radó)\*\*
+### Theorem 2.1 (Existence via Douglas-Radó)
 
-_For any Jordan curve γ in ℝ³ (simple, closed, rectifiable), there exists at least one surface of minimal area spanning γ._
+_For any Jordan curve $\gamma$ in $\mathbb{R}^3$ (simple, closed, rectifiable), there exists at least one surface of minimal area spanning $\gamma$._
 
 **Application**: Since cyclic peptide backbones form Jordan curves by construction, minimal surfaces exist mathematically.
 
@@ -121,9 +121,9 @@ The surface curvature encodes local geometry:
 
 The Laplace-Beltrami operator $\Delta$ on the surface yields eigenvalues $\{\lambda_0, \lambda_1, \lambda_2, \ldots\}$ that could serve as shape fingerprints.
 
-Theorem (Weyl's Law)\*\*
+### Theorem (Weyl's Law)
 
-_The eigenvalue asymptotics encode geometric properties:_
+The eigenvalue asymptotics encode geometric properties:
 
 $$\lambda_n \sim \frac{4\pi n}{\mathcal{A}[S]} \quad \text{as } n \rightarrow \infty$$
 
@@ -154,7 +154,7 @@ Proposed chirality index combining:
 
 #### Dimensional Reduction
 
-Conjecture\*\*: High-dimensional atomic coordinates ($3N$ values) could be meaningfully compressed to $\sim 10$-$20$ geometric descriptors while preserving conformational information.
+### Conjecture: High-dimensional atomic coordinates ($3N$ values) could be meaningfully compressed to $\sim 10$-$20$ geometric descriptors while preserving conformational information.
 
 #### Intrinsic Geometry
 
@@ -174,7 +174,7 @@ The framework naturally provides descriptors at multiple scales:
 
 ### 4.2 Key Conjectures
 
-Conjecture 4.1 (Conformational Discrimination)\*\*
+### Conjecture 4.1 (Conformational Discrimination)
 
 _Conformationally distinct cyclic peptides will have distinguishable minimal surface descriptors._
 
@@ -186,7 +186,7 @@ _Conformationally distinct cyclic peptides will have distinguishable minimal sur
 - Uniqueness of descriptor mapping?
 - Metric structure of descriptor space?
 
-Conjecture 4.2 (Stability Correlation)\*\*
+### Conjecture 4.2 (Stability Correlation)
 
 _The Willmore energy $\mathcal{E}_W$ of the surface might correlate with conformational stability._
 
@@ -197,7 +197,7 @@ _The Willmore energy $\mathcal{E}_W$ of the surface might correlate with conform
 
 **To investigate**: Relationship to molecular mechanics energies?
 
-Conjecture 4.3 (Permeability Prediction)\*\*
+### Conjecture 4.3 (Permeability Prediction)
 
 _Surface compactness measures could correlate with membrane permeability._
 
@@ -344,7 +344,7 @@ This framework is:
 
 Development priorities:
 
-1. Proof-of-concept implementation\*\*: Test on simple cyclic peptides
+1. Proof-of-concept implementation: Test on simple cyclic peptides
 2. **Theoretical development**: Prove key properties and bounds
 3. **Validation studies**: Correlate with experimental data
 4. **Algorithm optimization**: Improve computational efficiency

@@ -48,7 +48,7 @@ We establish:
 
 ### 2.1 Quotient Space Structure
 
-Definition 2.1 (Chemical Quotient Space):
+### Definition 2.1 (Chemical Quotient Space)
 
 A combinatorial library forms a quotient space $(S, U, \pi)$ where:
 
@@ -58,7 +58,7 @@ A combinatorial library forms a quotient space $(S, U, \pi)$ where:
 
 The equivalence relation $s_1 \sim s_2 \iff \pi(s_1) = \pi(s_2)$ partitions $S$ into equivalence classes.
 
-Definition 2.2 (Redundancy):
+### Definition 2.2 (Redundancy)
 
 The redundancy factor $R = |S|/|U|$ measures average equivalence class size.
 
@@ -72,7 +72,7 @@ $$P(|\{\pi(s_1), \ldots, \pi(s_n)\}| \geq C|U|) \geq 1 - \delta$$
 
 For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$:
 
-Definition 2.3 (Compositional Space):
+### Definition 2.3 (Compositional Space)
 
 - Maximum diversity: $|U|_{max} = \prod_i B_i$
 - Chemical redundancy: $\rho = |U|_{max}/|U|$
@@ -82,7 +82,7 @@ Definition 2.3 (Compositional Space):
 
 ### 3.1 Fundamental Limits
 
-Theorem 3.1 (Information-Theoretic Lower Bound):
+### Theorem 3.1 (Information-Theoretic Lower Bound)
 
 For any sampling strategy with $n$ samples and unknown $|U|$:
 
@@ -90,7 +90,8 @@ $$E[\text{samples needed}] \geq \frac{|U|H(P)}{\log|U|}$$
 
 where $H(P)$ is the entropy of the distribution of equivalence class sizes.
 
-Proof:
+### Proof
+
 Each sample provides at most $\log|U|$ bits of information. Total information needed is $|U|H(P)$ bits to reconstruct the quotient structure. Therefore:
 
 $$n \times \log|U| \geq |U|H(P)$$
@@ -99,13 +100,13 @@ Rearranging gives the bound. ∎
 
 ### 3.2 Adaptive vs. Uniform Sampling
 
-Definition 3.1 (Information Gain):
+### Definition 3.1 (Information Gain)
 
 The information gain from sample $s_n$ given previous samples $S_{n-1}$:
 
 $$I(s_n) = H(U|S_{n-1}) - H(U|S_{n-1} \cup \{s_n\})$$
 
-Theorem 3.2 (Logarithmic Advantage of Adaptivity):
+### Theorem 3.2 (Logarithmic Advantage of Adaptivity)
 
 For uniform sampling:
 
@@ -115,22 +116,26 @@ For optimal adaptive sampling:
 
 $$E[I(s_n)] = O(\log(|U| - \text{observed}))$$
 
-Proof:
+### Proof
+
 Uniform sampling has probability $(|U| - \text{observed})/|U|$ of discovering new entity, providing $\log|U|$ bits when successful.
 
 Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery until coverage is complete, providing $\log(\text{remaining})$ bits deterministically. ∎
 
-Corollary: Adaptive sampling requires $O(|U|)$ samples versus $O(|U| \log |U|)$ for uniform sampling.
+### Corollary
+
+Adaptive sampling requires $O(|U|)$ samples versus $O(|U| \log |U|)$ for uniform sampling.
 
 ### 3.3 Partial Information Regimes
 
-Theorem 3.3 (Sample Complexity with Partial Information):
+### Theorem 3.3 (Sample Complexity with Partial Information)
 
 Given knowledge level $\kappa \in [0,1]$ about quotient structure:
 
 $$n^*(\kappa) = \frac{|U|(\log|U| + (1-\kappa)\log R)}{1 + \kappa(R-1)/R}$$
 
-Proof:
+### Proof
+
 With partial knowledge $\kappa$:
 
 - Known structure reduces search space by factor $(1 + \kappa(R-1)/R)$
@@ -141,15 +146,15 @@ With partial knowledge $\kappa$:
 
 ### 4.1 Coverage Phase Transition
 
-Definition 4.1 (Sampling Fraction):
+### Definition 4.1 (Sampling Fraction)
 
 $\alpha = n/|S|$ where $n$ is number of samples.
 
-Definition 4.2 (Coverage Function):
+### Definition 4.2 (Coverage Function)
 
 $C(\alpha) = E[|\text{observed unique}|/|U|]$.
 
-Theorem 4.1 (Sharp Phase Transition):
+### Theorem 4.1 (Sharp Phase Transition)
 
 For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
 
@@ -162,7 +167,8 @@ $$
 
 where $\alpha_c(\varepsilon) = \log(1/\varepsilon)/(R \times |U|/|S|)$.
 
-Proof:
+### Proof
+
 Model as coupon collector with $R$ copies per coupon.
 
 For $\alpha < \alpha_c$: Expected uncovered coupons is $|U|\exp(-\alpha R) > \varepsilon|U|$.
@@ -179,7 +185,7 @@ As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
 
 ### 4.2 Multi-Scale Transitions
 
-Theorem 4.2 (Hierarchical Phase Transitions):
+### Theorem 4.2 (Hierarchical Phase Transitions)
 
 For libraries with building blocks B, fragments F, and molecules U:
 
@@ -196,7 +202,7 @@ Each transition enables qualitatively different chemical insights.
 
 ### 4.3 Percolation in Chemical Space
 
-Theorem 4.3 (Chemical Percolation):
+### Theorem 4.3 (Chemical Percolation)
 
 When chemicals form a similarity graph G with average degree d:
 
@@ -220,11 +226,12 @@ Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. 
 
 Maximize coverage subject to budget B.
 
-Theorem 5.1 (Submodular Coverage):
+### Theorem 5.1 (Submodular Coverage)
 
 The joint coverage function C(n₁,...,n_K) is submodular.
 
-Proof:
+### Proof
+
 For submodularity, must show diminishing returns:
 
 $$
@@ -233,33 +240,36 @@ $$
 
 Each additional sample has probability $p$ of discovering new entity. With more samples, fewer entities remain undiscovered, so $p$ decreases. Therefore marginal benefit decreases. ∎
 
-Corollary: Greedy allocation achieves $(1-1/e)$ approximation of optimal coverage.
+### Corollary
+
+Greedy allocation achieves $(1-1/e)$ approximation of optimal coverage.
 
 ### 5.2 Adaptive Experimental Design
 
-Definition 5.1 (Exploration-Exploitation Trade-off):
+### Definition 5.1 (Exploration-Exploitation Trade-off)
 
 At each step, choose between:
 
 - Exploration: Sample from high-uncertainty regions
 - Exploitation: Sample from high-value regions
 
-Theorem 5.2 (Optimal Sampling Policy):
+### Theorem 5.2 (Optimal Sampling Policy)
 
 The optimal policy samples region r with probability:
 
 $$P(r) \propto \sqrt{\text{value}(r) \times \text{uncertainty}(r)}$$
 
-Proof:
+### Proof
+
 Uses upper confidence bound (UCB) framework. Optimal exploration bonus is proportional to √(uncertainty), while exploitation weight is proportional to value. Product gives optimal trade-off. ∎
 
 ### 5.3 Batch Optimization
 
-Definition 5.2 (Batch Economy):
+### Definition 5.2 (Batch Economy)
 
 β = setup_cost/per_sample_cost.
 
-Theorem 5.3 (Optimal Batch Size):
+### Theorem 5.3 (Optimal Batch Size)
 
 The cost-minimizing batch size is:
 
@@ -267,19 +277,20 @@ $$b^* = \sqrt{\beta \times |U| \times \log|U|}$$
 
 independent of $|S|$ when $R \gg \log|U|$.
 
-Proof:
+### Proof
+
 Total cost for coverage:
 
 $$
 \begin{aligned}
-C(b) &= \frac{|U|\log|U|}{b} \times \text{setup\_cost} + |U|\log|U| \times \text{per\_sample\_cost} \\
-&= |U|\log|U| \times \left(\frac{\beta}{b} + 1\right) \times \text{per\_sample\_cost}
+C(b) &= \frac{|U|\log|U|}{b} \times \text{setup:cost} + |U|\log|U| \times \text{per:sample:cost} \\
+&= |U|\log|U| \times \left(\frac{\beta}{b} + 1\right) \times \text{per:sample:cost}
 \end{aligned}
 $$
 
 Minimizing with respect to b:
 
-$$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per\_sample\_cost} = 0$$
+$$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per:sample:cost} = 0$$
 
 Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$. ∎
 
@@ -287,13 +298,14 @@ Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redun
 
 **Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
 
-Theorem 5.4 (Front-Loading Principle):
+### Theorem 5.4 (Front-Loading Principle)
 
 Optimal sampling rate is:
 
 $$n^*(t) \propto \exp(-\lambda t/2)$$
 
-Proof:
+### Proof
+
 Information per sample at time $t$: $I(t) = I_0\exp(-\lambda t)$.
 Cost per sample: constant $C$.
 Lagrangian for maximizing $\int I(t)n(t)dt$ subject to $\int Cn(t)dt \leq B$:
@@ -307,7 +319,7 @@ Solving for $n(t)$ gives the result. ∎
 
 ### 6.1 Coverage Estimation Algorithm
 
-**Algorithm** (Adaptive Coverage Estimator):
+**Algorithm** (Adaptive Coverage Estimator)
 
 ```
 1. Sample batch of size √|S|
@@ -319,13 +331,13 @@ Solving for $n(t)$ gives the result. ∎
 4. Return coverage estimate
 ```
 
-Theorem 6.1\*\*: This algorithm achieves target coverage with probability 1-δ using O(|U|log(|U|/δ)) samples.
+### Theorem 6.1: This algorithm achieves target coverage with probability 1-δ using O(|U|log(|U|/δ)) samples.
 
 ### 6.2 Stratified Sampling
 
 For files F₁,...,F_m with unknown unique counts:
 
-**Algorithm** (Stratified Sampler):
+**Algorithm** (Stratified Sampler)
 
 ```
 1. Initial: Sample √|Fᵢ| from each file
@@ -334,9 +346,9 @@ For files F₁,...,F_m with unknown unique counts:
 4. Sample according to allocation
 ```
 
-Theorem 6.2\*\*: Stratified sampling reduces variance by factor:
+### Theorem 6.2: Stratified sampling reduces variance by factor:
 
-$$\text{Var\_reduction} = \frac{(\sum|F_i||U_i|)^2}{\sum|F_i|^2 \times |U_i|}$$
+$$\text{Var:reduction} = \frac{(\sum|F_i||U_i|)^2}{\sum|F_i|^2 \times |U_i|}$$
 
 ## 7. Practical Applications
 
@@ -363,13 +375,13 @@ Need to sample only $0.092\%$ of the library for complete coverage!
 
 ### 7.3 Confidence Bounds
 
-Theorem 7.1 (Finite Sample Bounds):
+### Theorem 7.1 (Finite Sample Bounds)
 
 For n samples with $n = |U|(\log|U| + \log(1/\delta))$:
 
 $$P(\text{complete coverage}) \geq 1 - \delta$$
 
-For $99.9\%$ confidence ($\delta = 0.001$):
+For $99.9\%$ confidence ($\delta = 0.001$)
 
 $$n = 10^4(\log(10^4) + \log(1000)) = 10^4 \times 16.1 \approx 161{,}000$$
 
@@ -385,7 +397,7 @@ The analysis assumes uniform distribution of equivalence classes. For non-unifor
 
 ### 8.2 Correlated Samples
 
-When samples are correlated (e.g., similar molecules appear together):
+When samples are correlated (e.g., similar molecules appear together)
 
 **Open Problem**: How does correlation structure affect optimal sampling strategies?
 
@@ -395,7 +407,7 @@ When samples are correlated (e.g., similar molecules appear together):
 
 ### 8.4 Quantum Speedup
 
-Conjecture\*\*: Quantum sampling could achieve O(√|U|) sample complexity using amplitude amplification.
+### Conjecture: Quantum sampling could achieve O(√|U|) sample complexity using amplitude amplification.
 
 ## 9. Connections to Related Work
 

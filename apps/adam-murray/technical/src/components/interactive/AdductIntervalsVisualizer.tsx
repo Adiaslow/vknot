@@ -87,7 +87,25 @@ export default function AdductIntervalsVisualizer() {
 
     // Calculate spacing and number of peptides
     const delta = 2 * T;
+
+    // Validity check 1: Range must be large enough (Section 2.3)
+    if (U - L <= ak - a1 + 2 * T) {
+      return { intervals: [], overlaps: new Set(), n: 0, delta, kappa: 0 };
+    }
+
+    // Validity check 2: Adducts must be well-separated (Section 2.1)
+    for (let i = 0; i < sortedAdducts.length - 1; i++) {
+      if (sortedAdducts[i + 1].mass - sortedAdducts[i].mass <= 2 * T) {
+        return { intervals: [], overlaps: new Set(), n: 0, delta, kappa: 0 };
+      }
+    }
+
     const n = Math.floor((U - L - (ak - a1) - 2 * T) / delta) + 1;
+
+    // Additional safety check: ensure n is positive
+    if (n <= 0) {
+      return { intervals: [], overlaps: new Set(), n: 0, delta, kappa: 0 };
+    }
 
     // Generate masses
     const masses: number[] = [];
@@ -110,13 +128,16 @@ export default function AdductIntervalsVisualizer() {
       });
     });
 
-    // Detect overlaps
+    // Detect overlaps (with small numerical tolerance for floating point errors)
+    const EPSILON = 1e-6; // tolerance for touching intervals
     const overlaps = new Set<string>();
     for (let i = 0; i < intervals.length; i++) {
       for (let j = i + 1; j < intervals.length; j++) {
         const int1 = intervals[i];
         const int2 = intervals[j];
-        if (int1.upper > int2.lower && int1.lower < int2.upper) {
+        // Two intervals overlap if: int1.upper > int2.lower AND int1.lower < int2.upper
+        // We add EPSILON tolerance to avoid false positives from floating point errors
+        if (int1.upper > int2.lower + EPSILON && int1.lower < int2.upper - EPSILON) {
           overlaps.add(`${i}`);
           overlaps.add(`${j}`);
         }
@@ -124,7 +145,8 @@ export default function AdductIntervalsVisualizer() {
     }
 
     // Calculate kappa (critical separation)
-    const kappa = Math.ceil((ak - a1) / delta);
+    // κ = ceil((a_k - a_1 + 2T) / (2T)) from Section 3.2
+    const kappa = Math.ceil((ak - a1 + 2 * T) / delta);
 
     return { intervals, overlaps, n, delta, kappa };
   };

@@ -62,9 +62,7 @@ The equivalence relation $s_1 \sim s_2 \iff \pi(s_1) = \pi(s_2)$ partitions $S$ 
 
 **Problem** (Coverage with Minimal Sampling): Given quotient space $(S, U, \pi)$ and coverage requirement $C \in [0,1]$, find minimal $n$ such that:
 
-```
-P(|{π(s₁), ..., π(sₙ)}| ≥ C|U|) ≥ 1 - δ
-```
+$$P(|\{\pi(s_1), \ldots, \pi(s_n)\}| \geq C|U|) \geq 1 - \delta$$
 
 ### 2.3 Building Block Structure
 
@@ -82,18 +80,14 @@ For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$
 
 **Theorem 3.1** (Information-Theoretic Lower Bound): For any sampling strategy with $n$ samples and unknown $|U|$:
 
-```
-E[samples needed] ≥ |U|H(P)/log|U|
-```
+$$E[\text{samples needed}] \geq \frac{|U|H(P)}{\log|U|}$$
 
 where $H(P)$ is the entropy of the distribution of equivalence class sizes.
 
 **Proof:**
 Each sample provides at most $\log|U|$ bits of information. Total information needed is $|U|H(P)$ bits to reconstruct the quotient structure. Therefore:
 
-```
-n × log|U| ≥ |U|H(P)
-```
+$$n \times \log|U| \geq |U|H(P)$$
 
 Rearranging gives the bound. ∎
 
@@ -101,22 +95,16 @@ Rearranging gives the bound. ∎
 
 **Definition 3.1** (Information Gain): The information gain from sample $s_n$ given previous samples $S_{n-1}$:
 
-```
-I(sₙ) = H(U|S_{n-1}) - H(U|S_{n-1} ∪ {sₙ})
-```
+$$I(s_n) = H(U|S_{n-1}) - H(U|S_{n-1} \cup \{s_n\})$$
 
 **Theorem 3.2** (Logarithmic Advantage of Adaptivity):
 For uniform sampling:
 
-```
-E[I(sₙ)] = O((|U| - observed)/|U| × log|U|)
-```
+$$E[I(s_n)] = O\left(\frac{|U| - \text{observed}}{|U|} \times \log|U|\right)$$
 
 For optimal adaptive sampling:
 
-```
-E[I(sₙ)] = O(log(|U| - observed))
-```
+$$E[I(s_n)] = O(\log(|U| - \text{observed}))$$
 
 **Proof:**
 Uniform sampling has probability $(|U| - \text{observed})/|U|$ of discovering new entity, providing $\log|U|$ bits when successful.
@@ -130,9 +118,7 @@ Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery
 **Theorem 3.3** (Sample Complexity with Partial Information):
 Given knowledge level $\kappa \in [0,1]$ about quotient structure:
 
-```
-n*(κ) = |U|(log|U| + (1-κ)log R)/(1 + κ(R-1)/R)
-```
+$$n^*(\kappa) = \frac{|U|(\log|U| + (1-\kappa)\log R)}{1 + \kappa(R-1)/R}$$
 
 **Proof:**
 With partial knowledge $\kappa$:
@@ -164,16 +150,12 @@ Model as coupon collector with $R$ copies per coupon.
 For $\alpha < \alpha_c$: Expected uncovered coupons is $|U|\exp(-\alpha R) > \varepsilon|U|$.
 By concentration inequalities:
 
-```
-P(uncovered < ε|U|/2) ≤ exp(-ε|U|/8)
-```
+$$P(\text{uncovered} < \varepsilon|U|/2) \leq \exp(-\varepsilon|U|/8)$$
 
 For $\alpha > \alpha_c$: Expected uncovered is $< \varepsilon|U|$.
 Similarly:
 
-```
-P(uncovered > 2ε|U|) ≤ exp(-ε|U|/8)
-```
+$$P(\text{uncovered} > 2\varepsilon|U|) \leq \exp(-\varepsilon|U|/8)$$
 
 As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
 
@@ -181,12 +163,12 @@ As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
 
 **Theorem 4.2** (Hierarchical Phase Transitions): For libraries with building blocks B, fragments F, and molecules U:
 
-```
-α₁ = 1/|S| (first discovery)
-α₂ = log|B|/(R_B × |B|/|S|) (building block coverage)
-α₃ = log|F|/(R_F × |F|/|S|) (fragment coverage)
-α₄ = log|U|/(R × |U|/|S|) (molecular coverage)
-```
+$$\begin{aligned}
+\alpha_1 &= 1/|S| && \text{(first discovery)} \\
+\alpha_2 &= \log|B|/(R_B \times |B|/|S|) && \text{(building block coverage)} \\
+\alpha_3 &= \log|F|/(R_F \times |F|/|S|) && \text{(fragment coverage)} \\
+\alpha_4 &= \log|U|/(R \times |U|/|S|) && \text{(molecular coverage)}
+\end{aligned}$$
 
 Each transition enables qualitatively different chemical insights.
 
@@ -194,12 +176,10 @@ Each transition enables qualitatively different chemical insights.
 
 **Theorem 4.3** (Chemical Percolation): When chemicals form a similarity graph G with average degree d:
 
-```
-α_perc = log d/(d × R × |U|/|S|)
-```
+$$\alpha_{\text{perc}} = \frac{\log d}{d \times R \times |U|/|S|}$$
 
-Below α_perc: Isolated clusters of discovered chemicals.
-Above α_perc: Giant component containing Θ(|U|) chemicals forms.
+Below $\alpha_{\text{perc}}$: Isolated clusters of discovered chemicals.
+Above $\alpha_{\text{perc}}$: Giant component containing $\Theta(|U|)$ chemicals forms.
 
 **Proof sketch:**
 Maps to Erdős-Rényi random graph with edge probability p = αR|U|/|S|. Giant component emerges when p > log d/d. ∎
@@ -239,9 +219,7 @@ Each additional sample has probability p of discovering new entity. With more sa
 
 **Theorem 5.2** (Optimal Sampling Policy): The optimal policy samples region r with probability:
 
-```
-P(r) ∝ √(value(r) × uncertainty(r))
-```
+$$P(r) \propto \sqrt{\text{value}(r) \times \text{uncertainty}(r)}$$
 
 **Proof:**
 Uses upper confidence bound (UCB) framework. Optimal exploration bonus is proportional to √(uncertainty), while exploitation weight is proportional to value. Product gives optimal trade-off. ∎
@@ -252,27 +230,23 @@ Uses upper confidence bound (UCB) framework. Optimal exploration bonus is propor
 
 **Theorem 5.3** (Optimal Batch Size): The cost-minimizing batch size is:
 
-```
-b* = √(β × |U| × log|U|)
-```
+$$b^* = \sqrt{\beta \times |U| \times \log|U|}$$
 
-independent of |S| when R >> log|U|.
+independent of $|S|$ when $R >> \log|U|$.
 
 **Proof:**
 Total cost for coverage:
 
-```
-C(b) = (|U|log|U|/b) × setup_cost + |U|log|U| × per_sample_cost
-     = |U|log|U| × (β/b + 1) × per_sample_cost
-```
+$$\begin{aligned}
+C(b) &= \frac{|U|\log|U|}{b} \times \text{setup\_cost} + |U|\log|U| \times \text{per\_sample\_cost} \\
+&= |U|\log|U| \times \left(\frac{\beta}{b} + 1\right) \times \text{per\_sample\_cost}
+\end{aligned}$$
 
 Minimizing with respect to b:
 
-```
-dC/db = -|U|log|U| × β/b² × per_sample_cost = 0
-```
+$$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per\_sample\_cost} = 0$$
 
-Since coverage requirement |U|log|U| is independent of |S| under high redundancy, so is b\*. ∎
+Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$. ∎
 
 ### 5.4 Temporal Optimization
 
@@ -280,21 +254,17 @@ Since coverage requirement |U|log|U| is independent of |S| under high redundancy
 
 **Theorem 5.4** (Front-Loading Principle): Optimal sampling rate is:
 
-```
-n*(t) ∝ exp(-λt/2)
-```
+$$n^*(t) \propto \exp(-\lambda t/2)$$
 
 **Proof:**
-Information per sample at time t: I(t) = I₀exp(-λt).
+Information per sample at time t: $I(t) = I_0\exp(-\lambda t)$.
 Cost per sample: constant C.
-Lagrangian for maximizing ∫I(t)n(t)dt subject to ∫Cn(t)dt ≤ B:
+Lagrangian for maximizing $\int I(t)n(t)dt$ subject to $\int Cn(t)dt \leq B$:
 
-```
-L = ∫[I₀exp(-λt)n(t) - μCn(t)]dt
-```
+$$L = \int[I_0\exp(-\lambda t)n(t) - \mu Cn(t)]dt$$
 
-First-order condition: I₀exp(-λt) = μC.
-Solving for n(t) gives the result. ∎
+First-order condition: $I_0\exp(-\lambda t) = \mu C$.
+Solving for $n(t)$ gives the result. ∎
 
 ## 6. Algorithmic Implementations
 
@@ -329,9 +299,7 @@ For files F₁,...,F_m with unknown unique counts:
 
 **Theorem 6.2**: Stratified sampling reduces variance by factor:
 
-```
-Var_reduction = (Σ|Fᵢ||Uᵢ|)² / (Σ|Fᵢ|² × |Uᵢ|)
-```
+$$\text{Var\_reduction} = \frac{(\sum|F_i||U_i|)^2}{\sum|F_i|^2 \times |U_i|}$$
 
 ## 7. Practical Applications
 
@@ -352,25 +320,19 @@ For a typical DEL with:
 
 For the DEL example:
 
-```
-α_c = log(10⁴)/(10⁵ × 10⁴/10⁹) = 9.2 × 10⁻⁴
-```
+$$\alpha_c = \frac{\log(10^4)}{10^5 \times 10^4/10^9} = 9.2 \times 10^{-4}$$
 
 Need to sample only 0.092% of the library for complete coverage!
 
 ### 7.3 Confidence Bounds
 
-**Theorem 7.1** (Finite Sample Bounds): For n samples with n = |U|(log|U| + log(1/δ)):
+**Theorem 7.1** (Finite Sample Bounds): For n samples with $n = |U|(\log|U| + \log(1/\delta))$:
 
-```
-P(complete coverage) ≥ 1 - δ
-```
+$$P(\text{complete coverage}) \geq 1 - \delta$$
 
-For 99.9% confidence (δ = 0.001):
+For 99.9% confidence ($\delta = 0.001$):
 
-```
-n = 10⁴(log(10⁴) + log(1000)) = 10⁴ × 16.1 ≈ 161,000
-```
+$$n = 10^4(\log(10^4) + \log(1000)) = 10^4 \times 16.1 \approx 161,000$$
 
 Still 6000× fewer than complete enumeration.
 

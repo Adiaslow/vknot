@@ -76,21 +76,15 @@ For cell position (i,j), define:
 
 **Player A neighbors**:
 
-```
-N_A[w_{i,j}] = Σ_{k=i-1}^{i+1} Σ_{l=j-1}^{j+1} 𝟙[w_{k,l} = a], (k,l) ≠ (i,j)
-```
+$$N_A[w_{i,j}] = \sum_{k=i-1}^{i+1} \sum_{l=j-1}^{j+1} \mathbb{1}[w_{k,l} = a], \quad (k,l) \neq (i,j)$$
 
 **Player B neighbors**:
 
-```
-N_B[w_{i,j}] = Σ_{k=i-1}^{i+1} Σ_{l=j-1}^{j+1} 𝟙[w_{k,l} = b], (k,l) ≠ (i,j)
-```
+$$N_B[w_{i,j}] = \sum_{k=i-1}^{i+1} \sum_{l=j-1}^{j+1} \mathbb{1}[w_{k,l} = b], \quad (k,l) \neq (i,j)$$
 
 **Total neighbors**:
 
-```
-N[w_{i,j}] = N_A[w_{i,j}] + N_B[w_{i,j}] + N_C[w_{i,j}]
-```
+$$N[w_{i,j}] = N_A[w_{i,j}] + N_B[w_{i,j}] + N_C[w_{i,j}]$$
 
 ### 2.3 Evolution Rules
 
@@ -98,33 +92,31 @@ The competitive cellular automaton evolves according to:
 
 **Rule 1** (Death by isolation/overcrowding):
 
-```
-w_{i,j}(t+1) = 0 if N[w_{i,j}] < 2 or N[w_{i,j}] > 3
-```
+$$w_{i,j}(t+1) = 0 \text{ if } N[w_{i,j}] < 2 \text{ or } N[w_{i,j}] > 3$$
 
 **Rule 2** (Competitive birth/survival for Player A):
 
-```
-w_{i,j}(t+1) = a if:
-  - (w_{i,j} ∈ {a,c} and N[w_{i,j}] ∈ {2,3}) OR (w_{i,j} = 0 and N[w_{i,j}] = 3)
-  - AND N_A[w_{i,j}] > N_B[w_{i,j}]
-```
+$$w_{i,j}(t+1) = a \text{ if:}$$
+$$\begin{aligned}
+&\text{- } (w_{i,j} \in \{a,c\} \text{ and } N[w_{i,j}] \in \{2,3\}) \text{ OR } (w_{i,j} = 0 \text{ and } N[w_{i,j}] = 3) \\
+&\text{- AND } N_A[w_{i,j}] > N_B[w_{i,j}]
+\end{aligned}$$
 
 **Rule 3** (Competitive birth/survival for Player B):
 
-```
-w_{i,j}(t+1) = b if:
-  - (w_{i,j} ∈ {b,c} and N[w_{i,j}] ∈ {2,3}) OR (w_{i,j} = 0 and N[w_{i,j}] = 3)
-  - AND N_B[w_{i,j}] > N_A[w_{i,j}]
-```
+$$w_{i,j}(t+1) = b \text{ if:}$$
+$$\begin{aligned}
+&\text{- } (w_{i,j} \in \{b,c\} \text{ and } N[w_{i,j}] \in \{2,3\}) \text{ OR } (w_{i,j} = 0 \text{ and } N[w_{i,j}] = 3) \\
+&\text{- AND } N_B[w_{i,j}] > N_A[w_{i,j}]
+\end{aligned}$$
 
 **Rule 4** (Stalemate preservation):
 
-```
-w_{i,j}(t+1) = w_{i,j}(t) if:
-  - N_A[w_{i,j}] = N_B[w_{i,j}]
-  - AND 2 ≤ N[w_{i,j}] ≤ 3
-```
+$$w_{i,j}(t+1) = w_{i,j}(t) \text{ if:}$$
+$$\begin{aligned}
+&\text{- } N_A[w_{i,j}] = N_B[w_{i,j}] \\
+&\text{- AND } 2 \leq N[w_{i,j}] \leq 3
+\end{aligned}$$
 
 This rule enables mixed-ownership stable patterns where cells from both players contribute to mutual stability.
 
@@ -134,22 +126,18 @@ Territory is determined by discretized metaball influence fields:
 
 **Definition 2.2** (Influence Field): For player $P$ with cells at positions $\{x_k\}$, the influence at cell $c$ is:
 
-```
-I_P(c) = Σ_k f(||c - x_k||)
-```
+$$I_P(c) = \sum_k f(\|c - x_k\|)$$
 
 where $f(r) = \max(0, 1 - r^2/R^2)$ for influence radius $R$.
 
 **Definition 2.3** (Discretized Territory): Each cell has a discrete territorial state:
 
-```
-Territory(c) = {
-    A's territory:    if I_A(c) > 1.0 AND I_A(c) > I_B(c)
-    B's territory:    if I_B(c) > 1.0 AND I_B(c) > I_A(c)
-    Contested:        if I_A(c) > 1.0 AND I_B(c) > 1.0 AND |I_A(c) - I_B(c)| < ε
-    Neutral:          if max(I_A(c), I_B(c)) < 1.0
-}
-```
+$$\text{Territory}(c) = \begin{cases}
+\text{A's territory} & \text{if } I_A(c) > 1.0 \text{ AND } I_A(c) > I_B(c) \\
+\text{B's territory} & \text{if } I_B(c) > 1.0 \text{ AND } I_B(c) > I_A(c) \\
+\text{Contested} & \text{if } I_A(c) > 1.0 \text{ AND } I_B(c) > 1.0 \text{ AND } |I_A(c) - I_B(c)| < \varepsilon \\
+\text{Neutral} & \text{if } \max(I_A(c), I_B(c)) < 1.0
+\end{cases}$$
 
 This discretization creates territorial quantization - territory expands in discrete cell-by-cell jumps rather than continuous gradients.
 
@@ -176,9 +164,7 @@ Both cells die due to competitive pressure (Rule 4), permanently removing mass f
 
 **Definition 3.1** (Pressure): The competitive pressure at position $(i,j)$ is:
 
-```
-P_{i,j} = N_A[w_{i,j}] - N_B[w_{i,j}]
-```
+$$P_{i,j} = N_A[w_{i,j}] - N_B[w_{i,j}]$$
 
 **Theorem 3.2** (Pressure-driven flow): Cells flow down the pressure gradient.
 
@@ -307,15 +293,11 @@ By Nash's theorem, a mixed strategy equilibrium exists. ∎
 
 **Lemma 4.1** (Information Deficit): With simultaneous hidden placement, each player faces uncertainty:
 
-```
-H(opponent_placement | my_placement) = log₂(C(available_cells, 10))
-```
+$$H(\text{opponent\_placement} \mid \text{my\_placement}) = \log_2\binom{\text{available\_cells}}{10}$$
 
 For a $100 \times 100$ board with 50% available cells:
 
-```
-H ≈ log₂(C(5000, 10)) ≈ 33 bits
-```
+$$H \approx \log_2\binom{5000}{10} \approx 33 \text{ bits}$$
 
 This information deficit forces probabilistic reasoning and prevents perfect play.
 
@@ -331,9 +313,7 @@ This information deficit forces probabilistic reasoning and prevents perfect pla
 
 The resource function:
 
-```
-R(t+1) = R(t) + 10 + Σ_{p ∈ patterns(t)} value(p)
-```
+$$R(t+1) = R(t) + 10 + \sum_{p \in \text{patterns}(t)} \text{value}(p)$$
 
 ### 5.2 Economic Growth Models
 
@@ -344,15 +324,11 @@ Let $n(t)$ be the number of honey farms at round $t$.
 
 Best case (no disruption):
 
-```
-R(t) = 10t + 8·Σ_{i=1}^t n(i)
-```
+$$R(t) = 10t + 8 \cdot \sum_{i=1}^t n(i)$$
 
 If $n(t)$ grows linearly: $n(t) = \alpha t$
 
-```
-R(t) = 10t + 8α·t(t+1)/2 = O(t²)
-```
+$$R(t) = 10t + 8\alpha \cdot t(t+1)/2 = O(t^2)$$
 
 Quadratic growth dominates linear strategies asymptotically. ∎
 
@@ -365,15 +341,11 @@ Quadratic growth dominates linear strategies asymptotically. ∎
 **Proof:**
 Beehive + 2 blocks requires $\approx 25$ cells, generates 1 unit:
 
-```
-Density_distributed = A/25 units/round
-```
+$$\text{Density}_{\text{distributed}} = A/25 \text{ units/round}$$
 
 Honey farm + 8 blocks requires $\approx 100$ cells, generates 8 units:
 
-```
-Density_honey = 8A/100 = 0.08A units/round
-```
+$$\text{Density}_{\text{honey}} = 8A/100 = 0.08A \text{ units/round}$$
 
 Ratio: $0.08A / (A/25) = 2.0$
 
@@ -385,9 +357,7 @@ Honey farms are twice as space-efficient when defended. ∎
 
 **Definition 6.1** (Lyapunov Exponent): Measures sensitivity to initial conditions:
 
-```
-λ = lim_{t→∞} (1/t) log(|δW(t)|/|δW(0)|)
-```
+$$\lambda = \lim_{t \to \infty} \frac{1}{t} \log\left(\frac{|\delta W(t)|}{|\delta W(0)|}\right)$$
 
 **Theorem 6.1** (Increased Chaos): Competitive rules increase the Lyapunov exponent.
 
@@ -410,12 +380,12 @@ Higher $\lambda$ implies:
 
 **Theorem 6.2** (Phase Structure): The system exhibits distinct phases:
 
-```
-ρ ∈ [0, 0.1): Sparse - patterns evolve independently
-ρ ∈ [0.1, 0.3): Percolation - local interactions begin
-ρ ∈ [0.3, 0.5): Competition - territorial warfare
-ρ ∈ [0.5, 1.0]: Overcrowded - mutual destruction
-```
+$$\begin{aligned}
+\rho \in [0, 0.1) &: \text{ Sparse - patterns evolve independently} \\
+\rho \in [0.1, 0.3) &: \text{ Percolation - local interactions begin} \\
+\rho \in [0.3, 0.5) &: \text{ Competition - territorial warfare} \\
+\rho \in [0.5, 1.0] &: \text{ Overcrowded - mutual destruction}
+\end{aligned}$$
 
 **Critical point**: $\rho_c \approx 0.35$ where largest sustainable populations exist.
 
@@ -472,9 +442,7 @@ Real-time pattern recognition is computationally feasible even for large boards.
 
 **Theorem 8.1** (Cyclic Dominance): The strategy space exhibits cyclic dominance:
 
-```
-Economic → Defensive → Aggressive → Economic
-```
+$$\text{Economic} \to \text{Defensive} \to \text{Aggressive} \to \text{Economic}$$
 
 **Proof:**
 
@@ -587,9 +555,7 @@ This creates multiple viable paths to victory.
 
 **Theorem 10.1** (Game Duration): Expected game length:
 
-```
-E[duration] = 52·P(no early victory) + Σ_{t<52} t·P(victory at t)
-```
+$$E[\text{duration}] = 52 \cdot P(\text{no early victory}) + \sum_{t<52} t \cdot P(\text{victory at } t)$$
 
 With balanced players: E[duration] ≈ 35-45 rounds.
 

@@ -150,17 +150,13 @@ Critical points are preserved. ∎
 
 **Definition 3.2** (Poisson Z-score): For observed count $x$ with background rate $\lambda$:
 
-```
-Z = (x - λ) / √(λ + ε)
-```
+$$Z = (x - \lambda) / \sqrt{\lambda + \varepsilon}$$
 
 where $\varepsilon$ prevents division by zero.
 
 **Theorem 3.2** (False Positive Bound): For threshold $Z_t$, the false positive rate is bounded by:
 
-```
-P(Z > Z_t | H₀) ≤ Φ(-Z_t)
-```
+$$P(Z > Z_t | H_0) \leq \Phi(-Z_t)$$
 
 where $\Phi$ is the standard normal CDF and $H_0$ is the null hypothesis (no peak).
 
@@ -211,14 +207,14 @@ Therefore, $L_0$'s peaks appear in every chromatogram. ∎
 
 **Algorithm**: Bottom-Up Constraint Propagation
 
-```
-1. Start from L₀ (minimal element)
-2. Identify NULL peaks (present in L₀)
-3. For each compound in topological order:
-   - Inherit NULL peaks from L₀
-   - Match peaks with descendants via Hungarian algorithm
-   - Classify based on retention time constraints
-```
+$$\begin{aligned}
+&1. \text{ Start from } L_0 \text{ (minimal element)} \\
+&2. \text{ Identify NULL peaks (present in } L_0\text{)} \\
+&3. \text{ For each compound in topological order:} \\
+&\quad \text{- Inherit NULL peaks from } L_0 \\
+&\quad \text{- Match peaks with descendants via Hungarian algorithm} \\
+&\quad \text{- Classify based on retention time constraints}
+\end{aligned}$$
 
 ### 4.3 The Hungarian Algorithm Application
 
@@ -239,9 +235,7 @@ The solution minimizes $\sum C[i, \pi(i)]$ over all permutations $\pi$. ∎
 
 **Assumption 5.1** (Retention Time Additivity):
 
-```
-RT(compound) ≈ Σ RT(block_i) + ε
-```
+$$\text{RT}(\text{compound}) \approx \sum \text{RT}(\text{block}_i) + \varepsilon$$
 
 where $\varepsilon$ is small noise.
 
@@ -256,11 +250,11 @@ where $\varepsilon$ is small noise.
 **Proof:**
 For compound C with blocks $\{b_1, \ldots, b_n\}$ and truncation T missing block $b_i$:
 
-```
-RT(C) ≈ Σⱼ RT(bⱼ)
-RT(T) ≈ Σⱼ≠ᵢ RT(bⱼ)
-RT(C) - RT(T) ≈ RT(b_i) > 0
-```
+$$\begin{aligned}
+\text{RT}(C) &\approx \sum_j \text{RT}(b_j) \\
+\text{RT}(T) &\approx \sum_{j \neq i} \text{RT}(b_j) \\
+\text{RT}(C) - \text{RT}(T) &\approx \text{RT}(b_i) > 0
+\end{aligned}$$
 
 Therefore RT(C) > RT(T). ∎
 

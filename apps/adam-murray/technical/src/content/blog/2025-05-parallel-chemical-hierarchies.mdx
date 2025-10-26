@@ -78,15 +78,11 @@ This structure:
 
 **Definition 2.1** (Serial Hierarchical Decomposition): A serial hierarchy processes information through a single intermediate level:
 
-```
-Atoms (A) → Hierarchy (H) → Molecule (M)
-```
+$$\text{Atoms } (A) \to \text{Hierarchy } (H) \to \text{Molecule } (M)$$
 
 **Definition 2.2** (Parallel Hierarchical Decomposition): A parallel hierarchy processes information through multiple independent levels:
 
-```
-Atoms (A) → {Fragments (F), Residues (R)} → Molecule (M)
-```
+$$\text{Atoms } (A) \to \{\text{Fragments } (F), \text{Residues } (R)\} \to \text{Molecule } (M)$$
 
 **Theorem 2.1** (Information Preservation): Parallel decomposition preserves at least as much information as any serial decomposition.
 
@@ -96,35 +92,27 @@ Let $I(A; M)$ be the mutual information between atoms and molecular properties.
 For serial decomposition:
 By the data processing inequality:
 
-```
-I(A; M) ≤ I(A; H) ≤ H(A)
-```
+$$I(A; M) \leq I(A; H) \leq H(A)$$
 
 For parallel decomposition:
 Using the chain rule of mutual information:
 
-```
-I(A; M|F,R) = I(A; M,F,R) - I(A; F,R)
-             = I(A; M) + I(A; F,R|M) - I(A; F,R)
-```
+$$\begin{aligned}
+I(A; M|F,R) &= I(A; M,F,R) - I(A; F,R) \\
+&= I(A; M) + I(A; F,R|M) - I(A; F,R)
+\end{aligned}$$
 
 Since $F$ and $R$ are both functions of $A$:
 
-```
-I(A; F,R) = H(F,R) - H(F,R|A) = H(F,R)
-```
+$$I(A; F,R) = H(F,R) - H(F,R|A) = H(F,R)$$
 
 By conditioning reduces entropy:
 
-```
-I(A; M|F,R) ≥ max(I(A; M|F), I(A; M|R))
-```
+$$I(A; M|F,R) \geq \max(I(A; M|F), I(A; M|R))$$
 
 Since any serial hierarchy $H$ can be viewed as either $F$ or $R$ alone:
 
-```
-I(A; M|F,R) ≥ I(A; M|H)
-```
+$$I(A; M|F,R) \geq I(A; M|H)$$
 
 Therefore, parallel decomposition preserves at least as much information. ∎
 
@@ -141,23 +129,17 @@ Therefore, parallel decomposition preserves at least as much information. ∎
 **Proof:**
 For partitions $\pi_F$ and $\pi_R$, their meet $\pi_F \wedge \pi_R$ is defined as:
 
-```
-π_F ∧ π_R = {B_i ∩ B_j | B_i ∈ π_F, B_j ∈ π_R, B_i ∩ B_j ≠ ∅}
-```
+$$\pi_F \wedge \pi_R = \{B_i \cap B_j \mid B_i \in \pi_F, B_j \in \pi_R, B_i \cap B_j \neq \emptyset\}$$
 
 The entropy of a partition $H(\pi) = -\sum_i (|B_i|/n) \log(|B_i|/n)$.
 
 Since each block in $\pi_F \wedge \pi_R$ is a subset of blocks in both $\pi_F$ and $\pi_R$:
 
-```
-|blocks(π_F ∧ π_R)| ≥ max(|blocks(π_F)|, |blocks(π_R)|)
-```
+$$|\text{blocks}(\pi_F \wedge \pi_R)| \geq \max(|\text{blocks}(\pi_F)|, |\text{blocks}(\pi_R)|)$$
 
 Therefore:
 
-```
-H(π_F ∧ π_R) ≥ max(H(π_F), H(π_R))
-```
+$$H(\pi_F \wedge \pi_R) \geq \max(H(\pi_F), H(\pi_R))$$
 
 The finer partition captures more structural information. ∎
 
@@ -167,9 +149,7 @@ The finer partition captures more structural information. ∎
 
 **Definition 2.7** (Attention Mechanism): Attention computes pairwise relevance scores:
 
-```
-Attention(i,j) = softmax(Q_i · K_j^T / √d)
-```
+$$\text{Attention}(i,j) = \text{softmax}(Q_i \cdot K_j^T / \sqrt{d})$$
 
 **Theorem 2.3** (Information Flow Complexity): Message passing requires $O(\text{diameter}(G))$ steps for global information flow, while attention requires $O(1)$ steps.
 
@@ -245,29 +225,23 @@ Representational capacity can be measured by the dimension of the feature space.
 
 Single hierarchy:
 
-```
-dim(H) = k_h × d_h
-```
+$$\dim(H) = k_h \times d_h$$
 
 Parallel hierarchy:
 
-```
-dim(F × R) = k_f × d_f + k_r × d_r + k_f × k_r × d_c
-```
+$$\dim(F \times R) = k_f \times d_f + k_r \times d_r + k_f \times k_r \times d_c$$
 
-The cross-term k_f × k_r × d_c represents additional capacity from interactions.
+The cross-term $k_f \times k_r \times d_c$ represents additional capacity from interactions.
 
 For cyclic peptides:
 
-- k_f ≈ number of modification types
-- k_r ≈ number of residues
-- Cross-term grows as O(k_f × k_r)
+- $k_f \approx$ number of modification types
+- $k_r \approx$ number of residues
+- Cross-term grows as $O(k_f \times k_r)$
 
 Therefore:
 
-```
-dim(F × R) > dim(H) for any H with comparable complexity
-```
+$$\dim(F \times R) > \dim(H) \text{ for any } H \text{ with comparable complexity}$$
 
 ∎
 
@@ -280,22 +254,18 @@ Let p be the probability of gradient vanishing through a single path.
 
 Serial hierarchy:
 
-```
-P(gradient reaches atoms) = 1 - p
-```
+$$P(\text{gradient reaches atoms}) = 1 - p$$
 
 Parallel hierarchy with independent pathways:
 
-```
-P(gradient vanishes) = P(both paths fail) = p²
-P(gradient reaches atoms) = 1 - p²
-```
+$$\begin{aligned}
+P(\text{gradient vanishes}) &= P(\text{both paths fail}) = p^2 \\
+P(\text{gradient reaches atoms}) &= 1 - p^2
+\end{aligned}$$
 
-Since p ∈ (0,1):
+Since $p \in (0,1)$:
 
-```
-1 - p² > 1 - p
-```
+$$1 - p^2 > 1 - p$$
 
 The parallel structure provides gradient flow redundancy. ∎
 

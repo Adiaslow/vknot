@@ -123,6 +123,12 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      rehype-katex:
+        specifier: ^7.0.0
+        version: 7.0.1
+      remark-math:
+        specifier: ^6.0.0
+        version: 6.0.0
       unocss:
         specifier: ^0.58.0
         version: 0.58.9(postcss@8.5.6)(rollup@4.52.4)(vite@5.4.20(@types/node@17.0.45))
@@ -165,8 +171,11 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      simplex-noise:
+        specifier: ^4.0.3
+        version: 4.0.3
       three:
-        specifier: ^0.160.0
+        specifier: ^0.160.1
         version: 0.160.1
       unocss:
         specifier: ^0.58.0
@@ -2184,6 +2193,9 @@ packages:
 
   simple-swizzle@0.2.4:
     resolution: {integrity: sha512-nAu1WFPQSMNr2Zn9PGSZK9AGn4t/y97lEm+MXTtUDwfP0ksAIX4nO+6ruD9Jwut4C49SB1Ws+fbXsm/yScWOHw==}
+
+  simplex-noise@4.0.3:
+    resolution: {integrity: sha512-qSE2I4AngLQG7BXqoZj51jokT4WUXe8mOBrvfOXpci8+6Yu44+/dD5zqDpOx3Ux792eamTd2lLcI8jqFntk/lg==}
 
   sirv@2.0.4:
     resolution: {integrity: sha512-94Bdh3cC2PKrbgSOUqTiGPWVZeSiXfKOVZNJniWoqrWrRkB1CJzBU3NEbiTsPcYy1lDsANA/THzS+9WBiy5nfQ==}
@@ -5159,6 +5171,8 @@ snapshots:
     dependencies:
       is-arrayish: 0.3.4
     optional: true
+
+  simplex-noise@4.0.3: {}
 
   sirv@2.0.4:
     dependencies:

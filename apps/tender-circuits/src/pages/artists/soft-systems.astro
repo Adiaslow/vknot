@@ -28,58 +28,60 @@ const artist = {
   title={`${artist.name} - Artist`}
   description={`${artist.name}: ${artist.description.substring(0, 150)}...`}
 >
-  <section class="flex flex-col gap-12">
+  <section class="flex flex-col gap-16">
     {/* Artist Header */}
-    <div class="flex flex-col gap-6">
-      <div class="flex items-center gap-2 text-sm text-slate-400">
-        <a
-          href="/tender_circuits/artists"
-          class="hover:text-slate-300 transition-colors">Artists</a
-        >
-        <span>/</span>
-        <span>{artist.name}</span>
-      </div>
-
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-          <h1 class="text-4xl font-bold text-white tracking-tight">
-            {artist.name}
-          </h1>
-          <span
-            class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full"
+    <div class="card rounded-2xl p-8">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-2 text-sm text-slate-400">
+          <a
+            href="/tender_circuits/artists"
+            class="hover:text-slate-300 transition-colors">Artists</a
           >
-            Featured Artist
-          </span>
+          <span>/</span>
+          <span>{artist.name}</span>
         </div>
 
-        <div class="flex items-center gap-4 text-sm text-slate-400">
-          <span>{artist.location}</span>
-          <span>•</span>
-          <span
-            >{artist.releases.length} release{
-              artist.releases.length !== 1 ? "s" : ""
-            }</span
-          >
-        </div>
-      </div>
-
-      <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
-        {artist.description}
-      </p>
-
-      <div class="flex flex-wrap gap-2">
-        {
-          artist.genres.map((genre) => (
-            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-              {genre}
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <h1 class="text-4xl font-bold text-white tracking-tight">
+              {artist.name}
+            </h1>
+            <span
+              class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full"
+            >
+              Featured Artist
             </span>
-          ))
-        }
+          </div>
+
+          <div class="flex items-center gap-4 text-sm text-slate-400">
+            <span>{artist.location}</span>
+            <span>•</span>
+            <span
+              >{artist.releases.length} release{
+                artist.releases.length !== 1 ? "s" : ""
+              }</span
+            >
+          </div>
+        </div>
+
+        <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
+          {artist.description}
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+          {
+            artist.genres.map((genre) => (
+              <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                {genre}
+              </span>
+            ))
+          }
+        </div>
       </div>
     </div>
 
     {/* Approach & Methods */}
-    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-8">
+    <section class="card rounded-2xl p-8">
       <div class="flex flex-col gap-6">
         <h2 class="text-2xl font-semibold text-white">Approach & Methods</h2>
         <div class="grid gap-3">
@@ -96,15 +98,17 @@ const artist = {
     </section>
 
     {/* Releases */}
-    <section class="flex flex-col gap-8">
-      <h2 class="text-2xl font-semibold text-white">
-        Releases on Tender Circuits
-      </h2>
+    <section class="flex flex-col gap-12">
+      <div class="card rounded-2xl p-6">
+        <h2 class="text-2xl font-semibold text-white">
+          Releases on Tender Circuits
+        </h2>
+      </div>
 
       <div class="flex flex-col gap-6">
         {
           artist.releases.map((release) => (
-            <article class="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-all duration-300 hover:border-slate-700/80 hover:bg-slate-900/90">
+            <article class="card group rounded-2xl p-6">
               <div class="flex flex-col gap-4">
                 <div class="flex items-center gap-3">
                   <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
@@ -170,7 +174,7 @@ const artist = {
     </section>
 
     {/* Contact/Connect */}
-    <section class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8">
+    <section class="card rounded-2xl p-8">
       <div class="flex flex-col gap-4 text-center">
         <h2 class="text-xl font-semibold text-white">Connect</h2>
         <p class="text-slate-400 leading-relaxed max-w-2xl mx-auto">

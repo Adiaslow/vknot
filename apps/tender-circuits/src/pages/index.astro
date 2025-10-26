@@ -18,25 +18,29 @@ const featuredReleases = [
   title="Tender Circuits"
   description="Independent record label curating ambient and experimental electronic music."
 >
-  <section class="flex flex-col gap-6">
-    <header class="flex flex-col gap-3">
-      <span class="text-xs uppercase tracking-[0.4em] text-slate-500"
-        >Tender Circuits</span
-      >
-      <h1 class="text-4xl font-semibold text-white">
-        Independent label for experimental sound and ambient electronics.
-      </h1>
-      <p class="max-w-2xl text-slate-300">
-        Curating releases that explore ambient textures, avant-garde
-        compositions, and the intersection of electronic and acoustic sound.
-      </p>
-    </header>
+  <section class="flex flex-col gap-10">
+    <div class="card rounded-2xl p-8">
+      <header class="flex flex-col gap-3">
+        <span class="text-xs uppercase tracking-[0.4em] text-slate-500"
+          >Tender Circuits</span
+        >
+        <h1 class="text-4xl font-semibold text-white">
+          Independent label for experimental sound and ambient electronics.
+        </h1>
+        <p class="max-w-2xl text-slate-300">
+          Curating releases that explore ambient textures, avant-garde
+          compositions, and the intersection of electronic and acoustic sound.
+        </p>
+      </header>
+    </div>
 
-    <section class="flex flex-col gap-6">
-      <h2 class="text-2xl font-semibold text-white">Latest Release</h2>
+    <section class="flex flex-col gap-10">
+      <div class="card rounded-2xl p-6">
+        <h2 class="text-2xl font-semibold text-white">Latest Release</h2>
+      </div>
       {
         featuredReleases.map((release) => (
-          <article class="flex flex-col gap-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-8">
+          <article class="card flex flex-col gap-6 rounded-2xl p-8">
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-3">
                 <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">

@@ -1,0 +1,363 @@
+/**
+ * Velvet Effect Styling - Complete Method Stack Implementation
+ * Each layer builds progressively to create realistic velvet with glassmorphic overlay
+ */
+
+/* Remove default margins and ensure full coverage */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+
+  /* Prevent scroll bounce/overscroll */
+  overscroll-behavior: none;
+}
+
+/* Lock HTML viewport - prevents overscroll bounce */
+html {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* Background color set by JavaScript from BASE_COLOR_RGB */
+}
+
+/* Body becomes the scroll container */
+body {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+
+/* Firefox - hide scrollbar */
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* Style navigation header - fixed to viewport (only direct child of body) */
+body > header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  z-index: 50;
+}
+
+/* Add spacing after fixed header */
+body > header + * {
+  margin-top: calc(var(--header-height, 80px) + 2rem);
+}
+
+@layer components {
+
+/* ============================================================================
+   FOUNDATION LAYER - THE VELVET BASE
+   Implements: Normal/Direction Maps, Procedural Noise, Base Texture
+   ============================================================================ */
+
+.velvet-background {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+
+  /* Base background color set by JavaScript from BASE_COLOR_RGB */
+  /* Three.js canvas will render sheep wool fur on top */
+}
+
+/* ============================================================================
+   MATERIAL PROPERTIES LAYER
+   Implements: Anisotropic Shading, Fresnel, Dual-Layer, Subsurface Scattering
+   ============================================================================ */
+
+/* Ensure content appears above background layers */
+.velvet-background > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================================
+   GLASSMORPHISM LAYER
+   Implements: Backdrop Blur, Refraction, Edge Highlights, Surface Reflections
+   ============================================================================ */
+
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  /* No background - layers handle the glass effect */
+  background: transparent !important;
+
+  /* Outer shadow - floating on wool */
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(0, 0, 0, 0.08);
+
+  /* Physics-based easing for natural motion */
+  transition:
+    transform 1.2s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  transform-origin: center center;
+  will-change: transform, box-shadow;
+}
+
+/* Liquid Glass: Blur effect layer with glass distortion */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+
+  /* Light blur with tint - liquid glass effect */
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(255, 255, 255, 0.15);
+
+  /* Glass distortion - realistic refraction */
+  filter: url(#glass-distortion);
+}
+
+/* Liquid Glass: Shine layer - glass highlights */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 1;
+  pointer-events: none;
+
+  /* Inset highlights for glass shine effect */
+  box-shadow:
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure content appears above glass layers */
+.card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================================================
+   ETCHED GLASS TEXT EFFECT
+   ============================================================================ */
+
+/* All text within glass cards - simple frosted appearance */
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card h5,
+.card h6,
+.card p,
+.card a,
+.card span,
+.card li {
+  /* Semi-transparent white text */
+  color: rgba(255, 255, 255, 0.7) !important;
+
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================================
+   MOTION LAYER
+   Implements: Physics-Based Easing, Dynamic Lighting, Shadow Casting
+   ============================================================================ */
+
+/* No hover effects - glass always rests on fur */
+
+/* Album artwork frame effect */
+.velvet-artwork-frame {
+  box-shadow:
+    /* Deep inset creates impression of artwork pressed into glass */
+    inset 0 0 0 1px rgba(0, 0, 0, 0.9),
+    inset 0 4px 16px rgba(0, 0, 0, 0.6),
+    inset 0 0 50px rgba(0, 0, 0, 0.3),
+
+    /* Subtle outer frame */
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+} /* End @layer components */
+
+/* Override box-shadows outside @layer for proper specificity */
+.card {
+  /* Liquid Glass: Floating on wool */
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 1.2s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 1s cubic-bezier(0.22, 0.61, 0.36, 1),
+    backdrop-filter 1s ease-out,
+    border-image 1s ease-out,
+    background 1s ease-out;
+}
+
+/* No hover effects */
+
+/* ============================================================================
+   TEAK WOOD STYLING - Header and Footer
+   Defined after .velvet-card for proper cascade specificity
+   ============================================================================ */
+
+/* Only target top-level header and footer (direct children of body) */
+body > header,
+body > footer {
+  /* Full viewport width - use calc to account for potential scrollbar */
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+
+  /* Break out of any parent containers */
+  box-sizing: border-box !important;
+
+  /* Wood grain texture */
+  background-image: url('/tender_circuits/images/textures/wood_grain_texture.jpeg') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+
+  /* Reduce saturation slightly for more muted wood tone */
+  filter: saturate(0.75);
+
+  /* Solid wood - no glass transparency or blur */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Remove all borders */
+  border: none !important;
+}
+
+/* Header gets left/right positioning since it's fixed */
+body > header {
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Ensure navigation inner containers don't constrain width but have safe margins */
+body > header > *,
+body > header nav {
+  max-width: none !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+/* Constrain inner content to readable width */
+body > header > nav > * {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Wood burning effect for header text */
+body > header *,
+body > header a,
+body > header span,
+body > header button {
+  color: #0f0a08 !important; /* Nearly black char */
+  font-size: 1.125rem !important; /* Larger text */
+  text-shadow:
+    /* Deep burnt char depth */
+    0 2px 4px rgba(0, 0, 0, 0.95),
+    0 3px 6px rgba(0, 0, 0, 0.85),
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    /* Wider dark burn spread */
+    0 0 8px rgba(20, 10, 5, 0.7),
+    /* Slight orange ember glow */
+    0 0 4px rgba(139, 69, 19, 0.4),
+    0 0 8px rgba(101, 45, 12, 0.3);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header - rounded bevel on bottom edge */
+body > header {
+  /* Already positioned fixed at top of file */
+  background-position: center top !important;
+
+  /* Remove top border */
+  border-top: none !important;
+
+  /* Softer dark inset shadow on bottom for rounded appearance */
+  box-shadow:
+    /* Softer inset shadow creating rounded bottom */
+    inset 0 -20px 30px -12px rgba(0, 0, 0, 0.4),
+    inset 0 -12px 20px -8px rgba(20, 10, 5, 0.35),
+    inset 0 -6px 12px -4px rgba(0, 0, 0, 0.3),
+    /* Outer shadow for depth */
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.3) !important;
+
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Ensure footer inner containers have safe margins */
+body > footer > * {
+  max-width: 100% !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  box-sizing: border-box;
+}
+
+/* Wood burning effect for footer text */
+body > footer *,
+body > footer span {
+  color: #0f0a08 !important; /* Nearly black char */
+  font-size: 1.125rem !important; /* Larger text */
+  text-shadow:
+    /* Deep burnt char depth */
+    0 2px 4px rgba(0, 0, 0, 0.95),
+    0 3px 6px rgba(0, 0, 0, 0.85),
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    /* Wider dark burn spread */
+    0 0 8px rgba(20, 10, 5, 0.7),
+    /* Slight orange ember glow */
+    0 0 4px rgba(139, 69, 19, 0.4),
+    0 0 8px rgba(101, 45, 12, 0.3);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Footer - rounded bevel on top edge */
+body > footer {
+  background-position: center 50% !important;
+
+  /* Remove bottom border and margin */
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+
+  /* Light inset shadow on top for rounded appearance */
+  box-shadow:
+    /* Soft light inset shadow creating rounded top */
+    inset 0 20px 30px -12px rgba(255, 255, 255, 0.15),
+    inset 0 12px 20px -8px rgba(200, 180, 150, 0.2),
+    inset 0 6px 12px -4px rgba(255, 255, 255, 0.1),
+    /* Outer shadow for depth */
+    0 -4px 12px rgba(0, 0, 0, 0.3),
+    0 -2px 6px rgba(0, 0, 0, 0.2) !important;
+
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}

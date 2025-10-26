@@ -1,17 +1,21 @@
 ---
+import { getCollection } from "astro:content";
 import BlogLayout from "../layouts/BlogLayout.astro";
 import ArticleHeader from "../components/ArticleHeader.astro";
 
-const posts = [
-  {
-    title: "Building 3D Experiences with React Three Fiber",
-    summary:
-      "A practical introduction to standing up interactive 3D scenes with R3F in Astro islands.",
-    publishDate: "2025-01-15",
-    tags: ["react", "threejs", "webgl"],
-    href: "/adam-murray/technical/posts/2025-01-react-three",
-  },
-];
+// Get all blog posts and sort by date (newest first)
+const allPosts = await getCollection("blog");
+const posts = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .map((post) => ({
+    title: post.data.title,
+    summary: post.data.description,
+    publishDate: post.data.date.toISOString(),
+    tags: post.data.tags,
+    href: `/adam-murray/technical/posts/${post.slug}`,
+    readingTimeMinutes: post.data.readingTimeMinutes,
+  }));
 ---
 
 <BlogLayout
@@ -35,7 +39,7 @@ const posts = [
               summary={post.summary}
               publishDate={post.publishDate}
               tags={post.tags}
-              readingTimeMinutes={8}
+              readingTimeMinutes={post.readingTimeMinutes}
             />
             <a
               class="text-sm font-semibold text-slate-900 underline"

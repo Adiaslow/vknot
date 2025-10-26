@@ -45,20 +45,22 @@ const releases = await Promise.all(
   title="Releases"
   description="Complete discography from Tender Circuits."
 >
-  <section class="flex flex-col gap-8">
-    <div class="flex flex-col gap-4">
-      <h1 class="text-4xl font-bold text-white tracking-tight">Discography</h1>
-      <p class="text-lg text-slate-300 leading-relaxed max-w-3xl">
-        A curated collection of releases exploring the boundaries between
-        ambient electronics, experimental composition, and electroacoustic sound
-        design.
-      </p>
+  <section class="flex flex-col gap-12">
+    <div class="card rounded-2xl p-8">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-4xl font-bold text-white tracking-tight">Discography</h1>
+        <p class="text-lg text-slate-300 leading-relaxed max-w-3xl">
+          A curated collection of releases exploring the boundaries between
+          ambient electronics, experimental composition, and electroacoustic sound
+          design.
+        </p>
+      </div>
     </div>
 
-    <div class="flex flex-col gap-12">
+    <div class="flex flex-col gap-16">
       {
         releases.map((release) => (
-          <article class="group rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden transition-all duration-300 hover:border-slate-700/80 hover:bg-slate-900/90">
+          <article class="card group rounded-2xl overflow-hidden">
             <div class="flex flex-col md:flex-row gap-8">
               {/* Album Artwork */}
               {release.artwork && (
@@ -67,7 +69,7 @@ const releases = await Promise.all(
                     <img
                       src={release.artwork}
                       alt={`${release.title} album artwork`}
-                      class="w-full h-full object-cover md:h-full aspect-square transition-transform duration-300 group-hover:scale-105"
+                      class="velvet-artwork-frame w-full h-full object-cover md:h-full aspect-square"
                     />
                   </a>
                 </div>
@@ -190,7 +192,7 @@ const releases = await Promise.all(
     </div>
 
     {/* Future Releases Section */}
-    <section class="rounded-2xl border border-slate-800/50 bg-slate-900/30 p-8">
+    <section class="card rounded-2xl p-8">
       <div class="flex flex-col gap-4 text-center">
         <h2 class="text-2xl font-semibold text-white">Upcoming Releases</h2>
         <p class="text-slate-400 leading-relaxed max-w-2xl mx-auto">

@@ -1,5 +1,6 @@
 ---
 import { Navigation, SEO } from "@vknot/ui";
+import "../styles/velvet.css";
 
 export interface Props {
   readonly title: string;
@@ -23,7 +24,55 @@ const { title, description } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
     />
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-50">
+  <body class="min-h-screen velvet-background text-slate-50">
+    <!-- SVG Filters for Liquid Glass Effect -->
+    <svg style="position: absolute; width: 0; height: 0;">
+      <defs>
+        <filter
+          id="glass-distortion"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
+          filterUnits="objectBoundingBox"
+        >
+          <!-- Create edge detection from alpha channel -->
+          <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blurred" />
+
+          <!-- Invert to make edges bright, center dark -->
+          <feComponentTransfer in="blurred" result="edgeMask">
+            <feFuncA type="table" tableValues="1 0" />
+          </feComponentTransfer>
+
+          <!-- Create radial displacement map for beveled glass edges -->
+          <feMorphology operator="erode" radius="2" in="SourceAlpha" result="inner" />
+          <feGaussianBlur in="inner" stdDeviation="10" result="innerBlur" />
+
+          <feComponentTransfer in="innerBlur" result="displacementMap">
+            <feFuncR type="table" tableValues="0.5 1" />
+            <feFuncG type="table" tableValues="0.5 1" />
+            <feFuncB type="discrete" tableValues="0" />
+            <feFuncA type="table" tableValues="1 0" />
+          </feComponentTransfer>
+
+          <!-- Apply subtle radial displacement from edges -->
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="displacementMap"
+            scale="8"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Three.js Fur Background Canvas -->
+    <canvas
+      id="fur-background"
+      style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"
+    ></canvas>
+
     <Navigation
       theme="music"
       siteName="Tender Circuits"
@@ -39,15 +88,17 @@ const { title, description } = Astro.props;
     >
       <slot />
     </main>
-    <footer class="border-t border-slate-800 bg-slate-900/60 py-10">
+    <footer class="py-10 mt-12">
       <div
         class="mx-auto flex w-full max-w-5xl flex-col gap-2 px-6 text-sm text-slate-400"
       >
         <span>© {new Date().getFullYear()} Tender Circuits</span>
-        <span
-          >Independent label curating ambient and experimental electronic music.</span
-        >
       </div>
     </footer>
+
+    <!-- Three.js Fur Background System -->
+    <script>
+      import "../scripts/three-fur-background.ts";
+    </script>
   </body>
 </html>

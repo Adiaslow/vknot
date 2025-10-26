@@ -13,12 +13,12 @@
     "@astrojs/partytown": "^2.0.3",
     "@astrojs/react": "^3.5.0",
     "@astrojs/sitemap": "^3.0.3",
+    "@unocss/astro": "^0.58.0",
     "astro": "^4.15.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.160.0",
-    "@unocss/astro": "^0.58.0",
+    "simplex-noise": "^4.0.3",
+    "three": "^0.160.1",
     "unocss": "^0.58.0"
   }
 }
-

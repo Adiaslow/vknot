@@ -8,31 +8,44 @@ import { visit } from 'unist-util-visit';
 export function remarkMathBlocks() {
   return (tree) => {
     // Define patterns for matching mathematical structures
+    // Capture groups: 1 = number (e.g., "2.1"), 2 = title in parentheses (e.g., "Information Preservation")
     const patterns = {
-      theorem: /^Theorem\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      definition: /^Definition\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      lemma: /^Lemma\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      example: /^Example\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      assumption: /^Assumption\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-      remark: /^Remark(?:\s*\([^)]+\))?:?$/i,
-      proof: /^Proof(?:\s*\([^)]+\))?:?$/i,
+      theorem: /^Theorem\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      definition: /^Definition\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      lemma: /^Lemma\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      example: /^Example\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      assumption: /^Assumption\s*(\d+\.?\d*)?(?:\s*\(([^)]+)\))?:?$/i,
+      remark: /^Remark(?:\s*\(([^)]+)\))?:?$/i,
+      proof: /^Proof(?:\s*\(([^)]+)\))?:?$/i,
     };
 
     // Helper function to create component node
-    const createComponentNode = (componentType, number, contentNodes) => {
+    const createComponentNode = (componentType, number, title, contentNodes) => {
       const componentName = componentType.charAt(0).toUpperCase() + componentType.slice(1);
+      const attributes = [];
+
+      if (number) {
+        attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'number',
+          value: number,
+        });
+      }
+
+      if (title) {
+        attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'title',
+          value: title,
+        });
+      }
+
       return {
         type: 'mdxJsxFlowElement',
         name: componentName,
-        attributes: number ? [
-          {
-            type: 'mdxJsxAttribute',
-            name: 'number',
-            value: number,
-          }
-        ] : [],
+        attributes,
         children: contentNodes,
         data: { hName: 'div' }
       };
@@ -55,8 +68,9 @@ export function remarkMathBlocks() {
         const match = headingText.match(pattern);
         if (!match) continue;
 
-        // Extract number if present
+        // Extract number and title if present
         const number = match[1] || '';
+        const title = match[2] || ''; // Title from parentheses
 
         // Look ahead to collect subsequent content until we hit another heading or math block
         const contentNodes = [];
@@ -95,7 +109,7 @@ export function remarkMathBlocks() {
           nextIndex++;
         }
 
-        const componentNode = createComponentNode(componentType, number, contentNodes);
+        const componentNode = createComponentNode(componentType, number, title, contentNodes);
 
         // Replace the heading and consumed nodes with component
         parent.children.splice(index, nextIndex - index, componentNode);
@@ -123,8 +137,9 @@ export function remarkMathBlocks() {
         const match = boldText.match(pattern);
         if (!match) continue;
 
-        // Extract number if present
+        // Extract number and title if present
         const number = match[1] || '';
+        const title = match[2] || ''; // Title from parentheses
 
         // Get remaining content (everything after the bold title)
         const remainingContent = node.children.slice(1);
@@ -168,7 +183,7 @@ export function remarkMathBlocks() {
           nextIndex++;
         }
 
-        const componentNode = createComponentNode(componentType, number, contentNodes);
+        const componentNode = createComponentNode(componentType, number, title, contentNodes);
 
         // Replace the original node and remove consumed nodes
         parent.children.splice(index, nextIndex - index, componentNode);

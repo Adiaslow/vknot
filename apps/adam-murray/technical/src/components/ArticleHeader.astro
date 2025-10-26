@@ -5,6 +5,7 @@ export interface Props {
   readonly title: string;
   readonly summary: string;
   readonly publishDate: string;
+  readonly showTags?: boolean;
   readonly tags?: ReadonlyArray<string>;
   readonly readingTimeMinutes?: number;
 }
@@ -13,30 +14,36 @@ const {
   title,
   summary,
   publishDate,
+  showTags = false,
   tags = [],
   readingTimeMinutes,
 } = Astro.props;
 ---
 
 <header class="flex flex-col gap-4">
-  <div
-    class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500"
-  >
-    <time datetime={publishDate}
-      >{new Date(publishDate).toLocaleDateString()}</time
-    >
-    {
-      tags.map((tag) => (
-        <span
-          class="rounded-full bg-slate-900 px-3 py-1 text-white"
-          data-tag={tag}
-        >
-          {tag}
-        </span>
-      ))
-    }
-  </div>
   <h1 class="text-4xl font-bold tracking-tight text-slate-900">{title}</h1>
+  <time
+    datetime={publishDate}
+    class="text-sm text-slate-500"
+  >
+    {new Date(publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+  </time>
   <p class="max-w-3xl text-lg text-slate-600">{summary}</p>
+  {showTags && tags.length > 0 && (
+    <div
+      class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]"
+    >
+      {
+        tags.map((tag) => (
+          <span
+            class="rounded-full bg-slate-900 px-3 py-1 text-white"
+            data-tag={tag}
+          >
+            {tag}
+          </span>
+        ))
+      }
+    </div>
+  )}
   {readingTimeMinutes ? <ReadingTime minutes={readingTimeMinutes} /> : null}
 </header>

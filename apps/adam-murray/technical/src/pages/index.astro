@@ -33,21 +33,25 @@ const posts = allPosts
     <div class="flex flex-col gap-8">
       {
         posts.map((post) => (
-          <article class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <a
+            href={post.href}
+            class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
+          >
             <ArticleHeader
               title={post.title}
               summary={post.summary}
               publishDate={post.publishDate}
-              tags={post.tags}
+              showTags={false}
               readingTimeMinutes={post.readingTimeMinutes}
             />
-            <a
-              class="text-sm font-semibold text-slate-900 underline"
-              href={post.href}
-            >
-              Read post
-            </a>
-          </article>
+            <div class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
+              {post.tags.map((tag) => (
+                <span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag={tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
         ))
       }
     </div>

@@ -20,15 +20,16 @@ export function remarkMathBlocks() {
         .join('');
 
       // Match patterns like "Theorem 2.1", "Definition 2.2", "Proof:", etc.
+      // Also matches optional titles in parentheses like "Theorem 2.1 (Information Preservation):"
       const patterns = {
-        theorem: /^Theorem\s*(\d+\.?\d*)?$/i,
-        definition: /^Definition\s*(\d+\.?\d*)?$/i,
-        lemma: /^Lemma\s*(\d+\.?\d*)?$/i,
-        corollary: /^Corollary\s*(\d+\.?\d*)?$/i,
-        conjecture: /^Conjecture\s*(\d+\.?\d*)?$/i,
-        example: /^Example\s*(\d+\.?\d*)?$/i,
-        remark: /^Remark$/i,
-        proof: /^Proof:?$/i,
+        theorem: /^Theorem\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        definition: /^Definition\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        lemma: /^Lemma\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        example: /^Example\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        remark: /^Remark(?:\s*\([^)]+\))?:?$/i,
+        proof: /^Proof(?:\s*\([^)]+\))?:?$/i,
       };
 
       for (const [componentType, pattern] of Object.entries(patterns)) {

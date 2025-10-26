@@ -16,12 +16,15 @@ const { title, description } = Astro.props;
       title={title}
       description={description ?? "Technical writing and systems notes."}
     />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    />
   </head>
   <body class="min-h-screen bg-white text-slate-900">
     <Navigation
       theme="blog"
-      siteName="Adam Murray Technical"
+      siteName="Adam Murray - Technical Writeups"
       baseUrl="/adam-murray/technical"
       links={[
         { href: "/adam-murray/technical", label: "Posts" },
@@ -43,7 +46,6 @@ const { title, description } = Astro.props;
     <footer class="border-t border-slate-200 py-10 text-sm text-slate-500">
       <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6">
         <span>© {new Date().getFullYear()} Adam Murray</span>
-        <span>Technical writing and systems notes.</span>
       </div>
     </footer>
   </body>

@@ -2,10 +2,109 @@ import { visit } from 'unist-util-visit';
 
 /**
  * Remark plugin to automatically convert mathematical structure patterns
- * (like Theorem 2.1**, Definition 2.2**, Proof:**) into styled components.
+ * (like ### Theorem 2.1, **Definition 2.2**, Proof:**) into styled components.
+ * Supports both heading format (### Theorem) and bold paragraph format (**Theorem**).
  */
 export function remarkMathBlocks() {
   return (tree) => {
+    // Define patterns for matching mathematical structures
+    const patterns = {
+      theorem: /^Theorem\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      definition: /^Definition\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      lemma: /^Lemma\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      example: /^Example\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      assumption: /^Assumption\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+      remark: /^Remark(?:\s*\([^)]+\))?:?$/i,
+      proof: /^Proof(?:\s*\([^)]+\))?:?$/i,
+    };
+
+    // Helper function to create component node
+    const createComponentNode = (componentType, number, contentNodes) => {
+      const componentName = componentType.charAt(0).toUpperCase() + componentType.slice(1);
+      return {
+        type: 'mdxJsxFlowElement',
+        name: componentName,
+        attributes: number ? [
+          {
+            type: 'mdxJsxAttribute',
+            name: 'number',
+            value: number,
+          }
+        ] : [],
+        children: contentNodes,
+        data: { hName: 'div' }
+      };
+    };
+
+    // Process ### headings (new format)
+    visit(tree, 'heading', (node, index, parent) => {
+      // Only process level 3 headings (###)
+      if (node.depth !== 3) return;
+      if (!node.children || node.children.length === 0) return;
+
+      // Extract text from heading
+      const headingText = node.children
+        .filter(child => child.type === 'text')
+        .map(child => child.value)
+        .join('');
+
+      // Try to match against patterns
+      for (const [componentType, pattern] of Object.entries(patterns)) {
+        const match = headingText.match(pattern);
+        if (!match) continue;
+
+        // Extract number if present
+        const number = match[1] || '';
+
+        // Look ahead to collect subsequent content until we hit another heading or math block
+        const contentNodes = [];
+        let nextIndex = index + 1;
+
+        while (nextIndex < parent.children.length) {
+          const nextNode = parent.children[nextIndex];
+
+          // Stop if we hit another heading at same or higher level
+          if (nextNode.type === 'heading' && nextNode.depth <= 3) {
+            // Check if it's another math structure heading
+            const nextHeadingText = nextNode.children
+              .filter(c => c.type === 'text')
+              .map(c => c.value)
+              .join('');
+            const isNextMathBlock = Object.values(patterns).some(p => p.test(nextHeadingText));
+            if (isNextMathBlock) break;
+            // If it's a regular heading at same level, also stop
+            if (nextNode.depth === 3) break;
+          }
+
+          // Stop if we hit a bold paragraph that matches our patterns
+          if (nextNode.type === 'paragraph' && nextNode.children[0]?.type === 'strong') {
+            const nextBoldText = nextNode.children[0].children
+              .filter(c => c.type === 'text')
+              .map(c => c.value)
+              .join('');
+            const isNextMathBlock = Object.values(patterns).some(p => p.test(nextBoldText));
+            if (isNextMathBlock) break;
+          }
+
+          // Stop if we hit horizontal rule
+          if (nextNode.type === 'thematicBreak') break;
+
+          contentNodes.push(nextNode);
+          nextIndex++;
+        }
+
+        const componentNode = createComponentNode(componentType, number, contentNodes);
+
+        // Replace the heading and consumed nodes with component
+        parent.children.splice(index, nextIndex - index, componentNode);
+
+        return index; // Continue from this position
+      }
+    });
+
+    // Process **bold** paragraphs (existing format, backward compatibility)
     visit(tree, 'paragraph', (node, index, parent) => {
       if (!node.children || node.children.length === 0) return;
 
@@ -19,20 +118,7 @@ export function remarkMathBlocks() {
         .map(child => child.value)
         .join('');
 
-      // Match patterns like "Theorem 2.1", "Definition 2.2", "Proof:", etc.
-      // Also matches optional titles in parentheses like "Theorem 2.1 (Information Preservation):"
-      const patterns = {
-        theorem: /^Theorem\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        definition: /^Definition\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        lemma: /^Lemma\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        example: /^Example\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        assumption: /^Assumption\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
-        remark: /^Remark(?:\s*\([^)]+\))?:?$/i,
-        proof: /^Proof(?:\s*\([^)]+\))?:?$/i,
-      };
-
+      // Try to match against patterns
       for (const [componentType, pattern] of Object.entries(patterns)) {
         const match = boldText.match(pattern);
         if (!match) continue;
@@ -62,8 +148,18 @@ export function remarkMathBlocks() {
             if (isNextMathBlock) break;
           }
 
-          // Stop if we hit a heading
-          if (nextNode.type === 'heading') break;
+          // Stop if we hit a heading (especially math structure headings)
+          if (nextNode.type === 'heading') {
+            if (nextNode.depth === 3) {
+              const nextHeadingText = nextNode.children
+                .filter(c => c.type === 'text')
+                .map(c => c.value)
+                .join('');
+              const isNextMathBlock = Object.values(patterns).some(p => p.test(nextHeadingText));
+              if (isNextMathBlock) break;
+            }
+            break;
+          }
 
           // Stop if we hit horizontal rule
           if (nextNode.type === 'thematicBreak') break;
@@ -72,22 +168,7 @@ export function remarkMathBlocks() {
           nextIndex++;
         }
 
-        // Create the component node
-        const componentName = componentType.charAt(0).toUpperCase() + componentType.slice(1);
-
-        const componentNode = {
-          type: 'mdxJsxFlowElement',
-          name: componentName,
-          attributes: number ? [
-            {
-              type: 'mdxJsxAttribute',
-              name: 'number',
-              value: number,
-            }
-          ] : [],
-          children: contentNodes,
-          data: { hName: 'div' }
-        };
+        const componentNode = createComponentNode(componentType, number, contentNodes);
 
         // Replace the original node and remove consumed nodes
         parent.children.splice(index, nextIndex - index, componentNode);

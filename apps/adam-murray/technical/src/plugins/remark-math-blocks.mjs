@@ -2,7 +2,7 @@ import { visit } from 'unist-util-visit';
 
 /**
  * Remark plugin to automatically convert mathematical structure patterns
- * (like **Theorem 2.1**, **Definition 2.2**, **Proof:**) into styled components.
+ * (like Theorem 2.1**, Definition 2.2**, Proof:**) into styled components.
  */
 export function remarkMathBlocks() {
   return (tree) => {
@@ -28,6 +28,7 @@ export function remarkMathBlocks() {
         corollary: /^Corollary\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
         conjecture: /^Conjecture\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
         example: /^Example\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
+        assumption: /^Assumption\s*(\d+\.?\d*)?(?:\s*\([^)]+\))?:?$/i,
         remark: /^Remark(?:\s*\([^)]+\))?:?$/i,
         proof: /^Proof(?:\s*\([^)]+\))?:?$/i,
       };

@@ -30,6 +30,7 @@ export default defineConfig({
     'border-cyan-600', 'bg-cyan-50', 'text-cyan-900',
     'border-teal-600', 'bg-teal-50', 'text-teal-900',
     'border-rose-600', 'bg-rose-50', 'text-rose-900',
+    'border-orange-600', 'bg-orange-50', 'text-orange-900',
     'border-slate-400', 'bg-slate-50', 'text-slate-700',
     // Dark mode variants
     'dark:bg-blue-950/20', 'dark:border-blue-500', 'dark:text-blue-100',
@@ -39,6 +40,7 @@ export default defineConfig({
     'dark:bg-cyan-950/20', 'dark:border-cyan-500', 'dark:text-cyan-100',
     'dark:bg-teal-950/20', 'dark:border-teal-500', 'dark:text-teal-100',
     'dark:bg-rose-950/20', 'dark:border-rose-500', 'dark:text-rose-100',
+    'dark:bg-orange-950/20', 'dark:border-orange-500', 'dark:text-orange-100',
     'dark:bg-slate-900/20', 'dark:border-slate-600', 'dark:text-slate-300',
   ]
 });

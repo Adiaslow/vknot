@@ -7,3 +7,4 @@ export { default as Corollary } from './Corollary.astro';
 export { default as Remark } from './Remark.astro';
 export { default as Example } from './Example.astro';
 export { default as Conjecture } from './Conjecture.astro';
+export { default as Assumption } from './Assumption.astro';

@@ -81,7 +81,7 @@ This formulation generalizes beyond specific cases (such as three-adduct systems
 
 **Statement**: For intervals of the same adduct type from consecutive masses to be non-overlapping, the minimum spacing between consecutive masses is $\delta = 2T$.
 
-**Proof**:
+Proof\*\*:
 Consider intervals $I_j(m_i)$ and $I_j(m_{i+1})$ for some fixed $j \in \{1, 2, \ldots, k\}$.
 
 $$I_j(m_i) = (m_i + a_j - T, m_i + a_j + T)$$
@@ -103,7 +103,7 @@ $$\boxed{\delta = 2T}$$
 
 **Statement**: The critical constraint determining the maximum number of consecutive masses occurs between $I_k(m_i)$ and $I_1(m_{i+\kappa})$ for some $\kappa \geq 1$.
 
-**Proof**:
+Proof\*\*:
 Consider any two intervals $I_j(m_i)$ and $I_{j'}(m_{i'})$ where $(i,j) \neq (i',j')$ and $i < i'$.
 
 For non-overlap:
@@ -128,7 +128,7 @@ where $\kappa$ is the minimum integer such that this constraint is satisfied.
 **Statement**: With uniform spacing $\delta = 2T$, the critical parameter is:
 $$\kappa = \left\lceil\frac{a_k - a_1}{2T} + 1\right\rceil$$
 
-**Proof**:
+Proof\*\*:
 With uniform spacing $\delta = 2T$, we have:
 $$m_{i+\kappa} = m_i + \kappa \cdot 2T$$
 
@@ -147,7 +147,7 @@ $$\boxed{\kappa = \left\lceil\frac{a_k - a_1}{2T} + 1\right\rceil}$$
 **Statement**: To maximize range utilization by ensuring the leftmost interval starts at $L$, the optimal offset is:
 $$\varepsilon = T - a_1$$
 
-**Proof**:
+Proof\*\*:
 Let $m_i = L + i \cdot \delta + \varepsilon$ for $i = 0, 1, 2, \ldots$
 
 The leftmost interval is $I_1(m_0) = (m_0 + a_1 - T, m_0 + a_1 + T)$.
@@ -165,7 +165,7 @@ $$M = \{L + T - a_1, L + 3T - a_1, L + 5T - a_1, \ldots, L + (2n+1)T - a_1\}$$
 Or equivalently:
 $$m_i = L + (2i+1)T - a_1 \quad \text{for } i = 0, 1, 2, \ldots, n$$
 
-**Proof**:
+Proof\*\*:
 Substituting the optimal parameters into the general form:
 $$m_i = L + i \cdot \delta + \varepsilon$$
 $$m_i = L + i \cdot 2T + (T - a_1)$$
@@ -179,7 +179,7 @@ $$n_{\max} = \left\lfloor\frac{U - L - a_k + a_1 - 2T}{2T}\right\rfloor$$
 
 with the total number of masses being $n_{\max} + 1$ (since we index from 0).
 
-**Proof**:
+Proof\*\*:
 For all intervals to lie within $R = [L, U]$, the rightmost interval $I_k(m_n)$ must satisfy:
 $$m_n + a_k + T \leq U$$
 
@@ -201,7 +201,7 @@ $$\boxed{n_{\max} = \left\lfloor\frac{U - L - a_k + a_1 - 2T}{2T}\right\rfloor}$
 
 **Statement**: The construction with parameters $\delta = 2T$ and $\varepsilon = T - a_1$ satisfies the non-overlap constraint for all intervals.
 
-**Proof**:
+Proof\*\*:
 We must verify that $\forall (i,j) \neq (i',j'), \; I_j(m_i) \cap I_{j'}(m_{i'}) = \emptyset$.
 
 **Case 1: Same mass, different adducts** ($i = i'$, $j \neq j'$)
@@ -257,7 +257,7 @@ Therefore, all cross-adduct pairs are non-overlapping. ✓
 
 **Statement**: The constructed solution achieves maximum density subject to uniform spacing constraints.
 
-**Proof**:
+Proof\*\*:
 We establish local optimality for each component:
 
 1. **Spacing Optimality**: By Theorem 3.1, $\delta = 2T$ is the minimum spacing ensuring same-adduct non-overlap. Any smaller spacing would violate constraints.
@@ -318,7 +318,7 @@ This problem extends the classical interval scheduling problem from computer sci
 | **Classical Interval Scheduling** | **Generalized Adduct Intervals Problem**  |
 | --------------------------------- | ----------------------------------------- |
 | Given set of intervals            | Generates intervals from masses           |
-| One interval per task             | $k$ intervals per mass (one per adduct)     |
+| One interval per task             | $k$ intervals per mass (one per adduct)   |
 | Select subset to maximize count   | Construct masses to maximize count        |
 | Arbitrary interval positions      | Uniform spacing required for synthesis    |
 | Greedy algorithm optimal          | Constructive algorithm with proven bounds |

@@ -10,6 +10,7 @@ import Corollary from "../../components/math/Corollary.astro";
 import Remark from "../../components/math/Remark.astro";
 import Example from "../../components/math/Example.astro";
 import Conjecture from "../../components/math/Conjecture.astro";
+import Assumption from "../../components/math/Assumption.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -33,6 +34,7 @@ const components = {
   Remark,
   Example,
   Conjecture,
+  Assumption,
 };
 ---
 

@@ -298,7 +298,7 @@ Given inputs $R = [L, U]$, $A = \{a_1, \ldots, a_k\}$, and $T$:
 
 For a typical ESI-MS system with:
 
-- $A = \{1.008, 22.990, 38.964\}$ (H⁺, Na⁺, K⁺ adducts in Da)
+- $A = \{1.008, 22.990, 38.964\}$ ($\text{H}^+$, $\text{Na}^+$, $\text{K}^+$ adducts in Da)
 - $T = 0.5$ Da (interval half-width)
 - $R = [100, 1000]$ Da (mass range)
 
@@ -307,7 +307,7 @@ The algorithm would:
 1. Verify: $900 > 37.956 + 1 = 38.956$ ✓
 2. Compute: $\delta = 1$ Da, $\varepsilon = -0.508$ Da
 3. Find: $n_{\max} = \lfloor\frac{900 - 37.956}{1}\rfloor = 862$
-4. Generate 863 optimally spaced masses
+4. Generate $863$ optimally spaced masses
 
 ## 6. Connections to Existing Theory
 
@@ -318,7 +318,7 @@ This problem extends the classical interval scheduling problem from computer sci
 | **Classical Interval Scheduling** | **Generalized Adduct Intervals Problem**  |
 | --------------------------------- | ----------------------------------------- |
 | Given set of intervals            | Generates intervals from masses           |
-| One interval per task             | k intervals per mass (one per adduct)     |
+| One interval per task             | $k$ intervals per mass (one per adduct)     |
 | Select subset to maximize count   | Construct masses to maximize count        |
 | Arbitrary interval positions      | Uniform spacing required for synthesis    |
 | Greedy algorithm optimal          | Constructive algorithm with proven bounds |
@@ -470,8 +470,8 @@ By providing provable upper bounds on library size, this framework enables:
 
 ### Future Directions
 
-1. **Extension to non-uniform spacing**: Investigate whether relaxing uniform spacing can increase n_max
-2. **Multiple charge states**: Extend framework to handle z > 1 charge states
+1. **Extension to non-uniform spacing**: Investigate whether relaxing uniform spacing can increase $n_{\max}$
+2. **Multiple charge states**: Extend framework to handle $z > 1$ charge states
 3. **Tandem MS constraints**: Incorporate MS/MS fragmentation patterns
 4. **Machine learning integration**: Use bounds to guide neural architecture search for library design
 5. **Experimental validation**: Synthesize optimally-spaced libraries and verify MS resolution

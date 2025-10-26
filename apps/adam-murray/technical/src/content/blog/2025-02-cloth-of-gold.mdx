@@ -190,8 +190,8 @@ This creates a flow from high to low pressure regions, analogous to fluid dynami
 **Proof:**
 Necessity: If any condition fails:
 
-1. Interior cells with $\neq$ 2-3 neighbors die (standard rules)
-2. Boundary cells with $<$ 3 friendly neighbors lose majority
+1. Interior cells with $\neq 2$-$3$ neighbors die (standard rules)
+2. Boundary cells with $< 3$ friendly neighbors lose majority
 3. Boundary cells with enemy majority convert or die
 
 Sufficiency: If all conditions hold:
@@ -213,7 +213,7 @@ Consider a mixed 2×2 block:
 
 ```
 ab    Neighbors: Each cell has 3 neighbors
-ba    N_A = N_B = 1 or 2 for each position
+ba    $N_A = N_B = 1$ or $2$ for each position
 ```
 
 For each cell:
@@ -250,7 +250,7 @@ For an $m \times n$ board, this exceeds $10^{mn}$ possible strategies.
 
 ### 4.2 Boundary Conditions
 
-**Definition 4.2** (Boundary Treatment): Cells outside the $m \times n$ board are treated as permanently empty (state 0) for all calculations.
+**Definition 4.2** (Boundary Treatment): Cells outside the $m \times n$ board are treated as permanently empty (state $0$) for all calculations.
 
 This creates edge effects:
 
@@ -263,7 +263,7 @@ Strategic implications: Board edges act as natural barriers, creating "coastal" 
 
 ### 4.3 Nash Equilibrium Analysis
 
-**Theorem 4.1** (No Pure Strategy Equilibrium): For non-trivial boards ($m,n \geq 10$), no pure strategy Nash equilibrium exists.
+**Theorem 4.1** (No Pure Strategy Equilibrium): For non-trivial boards ($m, n \geq 10$), no pure strategy Nash equilibrium exists.
 
 **Proof:**
 Suppose pure strategy $s^*$ is a Nash equilibrium. Then $s^*$ must be a best response to itself.
@@ -295,7 +295,7 @@ By Nash's theorem, a mixed strategy equilibrium exists. ∎
 
 $$H(\text{opponent\_placement} \mid \text{my\_placement}) = \log_2\binom{\text{available\_cells}}{10}$$
 
-For a $100 \times 100$ board with 50% available cells:
+For a $100 \times 100$ board with $50\%$ available cells:
 
 $$H \approx \log_2\binom{5000}{10} \approx 33 \text{ bits}$$
 
@@ -339,11 +339,11 @@ Quadratic growth dominates linear strategies asymptotically. ∎
 **Theorem 5.2** (Packing Density): Honey farms achieve $2 \times$ better resource density than distributed beehives.
 
 **Proof:**
-Beehive + 2 blocks requires $\approx 25$ cells, generates 1 unit:
+Beehive $+ 2$ blocks requires $\approx 25$ cells, generates $1$ unit:
 
 $$\text{Density}_{\text{distributed}} = A/25 \text{ units/round}$$
 
-Honey farm + 8 blocks requires $\approx 100$ cells, generates 8 units:
+Honey farm $+ 8$ blocks requires $\approx 100$ cells, generates $8$ units:
 
 $$\text{Density}_{\text{honey}} = 8A/100 = 0.08A \text{ units/round}$$
 
@@ -363,10 +363,10 @@ $$\lambda = \lim_{t \to \infty} \frac{1}{t} \log\left(\frac{|\delta W(t)|}{|\del
 
 **Analysis:**
 
-- Conway's Game of Life: $\lambda \approx 0.2 - 0.5$
+- Conway's Game of Life: $\lambda \approx 0.2$ - $0.5$
 - Competition adds stochastic elements through placement
 - Territorial pressure creates additional instabilities
-- Combined: $\lambda_{CG} \approx 0.3 - 0.8$
+- Combined: $\lambda_{CG} \approx 0.3$ - $0.8$
 
 Higher $\lambda$ implies:
 
@@ -557,7 +557,7 @@ This creates multiple viable paths to victory.
 
 $$E[\text{duration}] = 52 \cdot P(\text{no early victory}) + \sum_{t<52} t \cdot P(\text{victory at } t)$$
 
-With balanced players: E[duration] ≈ 35-45 rounds.
+With balanced players: $E[\text{duration}] \approx 35$-$45$ rounds.
 
 ## 11. Connections to Other Fields
 
@@ -618,7 +618,7 @@ Connections to:
 
 ### 12.3 Extensions
 
-1. **Multiplayer**: How do dynamics change with 3+ players?
+1. **Multiplayer**: How do dynamics change with $3+$ players?
 
 2. **Fog of War**: Limited visibility of opponent's territory?
 

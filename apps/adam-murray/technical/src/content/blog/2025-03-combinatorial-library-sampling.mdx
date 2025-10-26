@@ -137,10 +137,12 @@ With partial knowledge $\kappa$:
 
 **Theorem 4.1** (Sharp Phase Transition): For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
 
-```
-lim_{|U|→∞} P(C(α) > 1-ε) = {0 if α < α_c(ε)
-                                 {1 if α > α_c(ε)
-```
+$$
+\lim_{|U| \to \infty} P(C(\alpha) > 1-\varepsilon) = \begin{cases}
+0 & \text{if } \alpha < \alpha_c(\varepsilon) \\
+1 & \text{if } \alpha > \alpha_c(\varepsilon)
+\end{cases}
+$$
 
 where $\alpha_c(\varepsilon) = \log(1/\varepsilon)/(R \times |U|/|S|)$.
 
@@ -182,7 +184,7 @@ Below $\alpha_{\text{perc}}$: Isolated clusters of discovered chemicals.
 Above $\alpha_{\text{perc}}$: Giant component containing $\Theta(|U|)$ chemicals forms.
 
 **Proof sketch:**
-Maps to Erdős-Rényi random graph with edge probability p = αR|U|/|S|. Giant component emerges when p > log d/d. ∎
+Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. Giant component emerges when $p > \log d/d$. ∎
 
 ## 5. Optimal Experimental Design
 
@@ -201,14 +203,13 @@ Maximize coverage subject to budget B.
 **Proof:**
 For submodularity, must show diminishing returns:
 
-```
-C(n₁,...,nᵢ+1,...) - C(n₁,...,nᵢ,...) ≥
-C(n₁,...,nᵢ+1,...,nⱼ+1,...) - C(n₁,...,nᵢ,...,nⱼ+1,...)
-```
+$$
+C(n_1,\ldots,n_i+1,\ldots) - C(n_1,\ldots,n_i,\ldots) \geq C(n_1,\ldots,n_i+1,\ldots,n_j+1,\ldots) - C(n_1,\ldots,n_i,\ldots,n_j+1,\ldots)
+$$
 
-Each additional sample has probability p of discovering new entity. With more samples, fewer entities remain undiscovered, so p decreases. Therefore marginal benefit decreases. ∎
+Each additional sample has probability $p$ of discovering new entity. With more samples, fewer entities remain undiscovered, so $p$ decreases. Therefore marginal benefit decreases. ∎
 
-**Corollary**: Greedy allocation achieves (1-1/e) approximation of optimal coverage.
+**Corollary**: Greedy allocation achieves $(1-1/e)$ approximation of optimal coverage.
 
 ### 5.2 Adaptive Experimental Design
 
@@ -232,7 +233,7 @@ Uses upper confidence bound (UCB) framework. Optimal exploration bonus is propor
 
 $$b^* = \sqrt{\beta \times |U| \times \log|U|}$$
 
-independent of $|S|$ when $R >> \log|U|$.
+independent of $|S|$ when $R \gg \log|U|$.
 
 **Proof:**
 Total cost for coverage:
@@ -250,15 +251,15 @@ Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redun
 
 ### 5.4 Temporal Optimization
 
-**Problem**: Given sample quality decay Q(t) = Q₀exp(-λt), optimize sampling schedule.
+**Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
 
 **Theorem 5.4** (Front-Loading Principle): Optimal sampling rate is:
 
 $$n^*(t) \propto \exp(-\lambda t/2)$$
 
 **Proof:**
-Information per sample at time t: $I(t) = I_0\exp(-\lambda t)$.
-Cost per sample: constant C.
+Information per sample at time $t$: $I(t) = I_0\exp(-\lambda t)$.
+Cost per sample: constant $C$.
 Lagrangian for maximizing $\int I(t)n(t)dt$ subject to $\int Cn(t)dt \leq B$:
 
 $$L = \int[I_0\exp(-\lambda t)n(t) - \mu Cn(t)]dt$$
@@ -307,14 +308,14 @@ $$\text{Var\_reduction} = \frac{(\sum|F_i||U_i|)^2}{\sum|F_i|^2 \times |U_i|}$$
 
 For a typical DEL with:
 
-- |S| = 10⁹ sequences
-- |U| = 10⁴ unique molecules
-- R = 10⁵ redundancy
+- $|S| = 10^9$ sequences
+- $|U| = 10^4$ unique molecules
+- $R = 10^5$ redundancy
 
-**Complete enumeration**: 10⁹ × 261 = 2.61 × 10¹¹ operations
-**Optimal sampling**: 10⁴ × log(10⁴) × 261 ≈ 2.4 × 10⁸ operations
+**Complete enumeration**: $10^9 \times 261 = 2.61 \times 10^{11}$ operations
+**Optimal sampling**: $10^4 \times \log(10^4) \times 261 \approx 2.4 \times 10^8$ operations
 
-**Speedup**: 1000×
+**Speedup**: $1000\times$
 
 ### 7.2 Critical Sampling Fraction
 
@@ -322,7 +323,7 @@ For the DEL example:
 
 $$\alpha_c = \frac{\log(10^4)}{10^5 \times 10^4/10^9} = 9.2 \times 10^{-4}$$
 
-Need to sample only 0.092% of the library for complete coverage!
+Need to sample only $0.092\%$ of the library for complete coverage!
 
 ### 7.3 Confidence Bounds
 
@@ -330,11 +331,11 @@ Need to sample only 0.092% of the library for complete coverage!
 
 $$P(\text{complete coverage}) \geq 1 - \delta$$
 
-For 99.9% confidence ($\delta = 0.001$):
+For $99.9\%$ confidence ($\delta = 0.001$):
 
-$$n = 10^4(\log(10^4) + \log(1000)) = 10^4 \times 16.1 \approx 161,000$$
+$$n = 10^4(\log(10^4) + \log(1000)) = 10^4 \times 16.1 \approx 161{,}000$$
 
-Still 6000× fewer than complete enumeration.
+Still $6000\times$ fewer than complete enumeration.
 
 ## 8. Extensions and Open Problems
 

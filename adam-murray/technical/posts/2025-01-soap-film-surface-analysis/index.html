@@ -1,1 +1,329 @@
-<!DOCTYPE html><html lang="en" class="bg-white text-slate-900"> <head><title>Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis</title><meta name="title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta name="description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><link rel="canonical" href="https://vknot.love/adam-murray/technical/posts/2025-01-soap-film-surface-analysis/"><meta property="og:type" content="website"><meta property="og:url" content="https://vknot.love/adam-murray/technical/posts/2025-01-soap-film-surface-analysis/"><meta property="og:title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta property="og:description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta name="twitter:description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><script type="application/ld+json">{JSON.stringify(structuredData)}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><link rel="stylesheet" href="/adam-murray/technical/_astro/about.DABIKQux.css"></head> <body class="min-h-screen bg-white text-slate-900"> <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding-inline:32px;padding-block:18px;border-bottom:1px solid #f1f5f9;background:#ffffff;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)"><div style="display:flex;align-items:center;gap:12px"><a href="/adam-murray/technical" aria-label="Adam Murray - Technical Writeups" style="display:flex;align-items:center;gap:8px;color:#0f172a;text-decoration:none;font-weight:600"><span style="font-size:1.1rem;letter-spacing:-0.01em">Adam Murray - Technical Writeups</span></a></div><nav aria-label="Primary navigation" style="display:flex;align-items:center;gap:24px"><ul style="display:flex;align-items:center;gap:18px;list-style:none;margin:0;padding:0;font-size:0.95rem"><li style="display:block"><a href="/adam-murray/technical" style="color:#334155;text-decoration:none;font-weight:500">Posts</a></li><li style="display:block"><a href="/adam-murray/technical/series" style="color:#334155;text-decoration:none;font-weight:500">Series</a></li><li style="display:block"><a href="/adam-murray/technical/about" style="color:#334155;text-decoration:none;font-weight:500">About</a></li></ul></nav><div style="display:flex;align-items:center;gap:12px"><a href="/adam-murray/technical/newsletter" style="border-radius:999px;padding-inline:16px;padding-block:10px;font-size:0.9rem;font-weight:600;text-decoration:none;background:#0f172a;color:#ffffff;transition:background 200ms ease">Newsletter</a></div></header> <main class="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 pb-24 pt-12">  <article class="prose prose-slate max-w-none">  <header class="flex flex-col gap-4"> <div class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500"> <time datetime="2025-01-25T00:00:00.000Z">1/25/2025</time> <span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="differential-geometry"> differential-geometry </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="minimal-surfaces"> minimal-surfaces </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="cyclic-peptides"> cyclic-peptides </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="conformational-analysis"> conformational-analysis </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="theoretical-chemistry"> theoretical-chemistry </span> </div> <h1 class="text-4xl font-bold tracking-tight text-slate-900">Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis</h1> <p class="max-w-3xl text-lg text-slate-600">A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics.</p> <span class="inline-flex items-center gap-2 text-sm text-slate-500"><svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg><span>35<!-- --> min read</span></span> </header>   </article> </main> <footer class="border-t border-slate-200 py-10 text-sm text-slate-500"> <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6"> <span>© 2025 Adam Murray</span> </div> </footer> </body></html>
+<!DOCTYPE html><html lang="en" class="bg-white text-slate-900"> <head><title>Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis</title><meta name="title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta name="description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><link rel="canonical" href="https://vknot.love/adam-murray/technical/posts/2025-01-soap-film-surface-analysis/"><meta property="og:type" content="website"><meta property="og:url" content="https://vknot.love/adam-murray/technical/posts/2025-01-soap-film-surface-analysis/"><meta property="og:title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta property="og:description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis"><meta name="twitter:description" content="A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics."><script type="application/ld+json">{JSON.stringify(structuredData)}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><link rel="stylesheet" href="/adam-murray/technical/_astro/about.B1bMJ0rS.css"></head> <body class="min-h-screen bg-white text-slate-900"> <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding-inline:32px;padding-block:18px;border-bottom:1px solid #f1f5f9;background:#ffffff;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)"><div style="display:flex;align-items:center;gap:12px"><a href="/adam-murray/technical" aria-label="Adam Murray - Technical Writeups" style="display:flex;align-items:center;gap:8px;color:#0f172a;text-decoration:none;font-weight:600"><span style="font-size:1.1rem;letter-spacing:-0.01em">Adam Murray - Technical Writeups</span></a></div><nav aria-label="Primary navigation" style="display:flex;align-items:center;gap:24px"><ul style="display:flex;align-items:center;gap:18px;list-style:none;margin:0;padding:0;font-size:0.95rem"><li style="display:block"><a href="/adam-murray/technical" style="color:#334155;text-decoration:none;font-weight:500">Posts</a></li><li style="display:block"><a href="/adam-murray/technical/about" style="color:#334155;text-decoration:none;font-weight:500">About</a></li></ul></nav></header> <main class="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 pb-24 pt-12">  <article class="prose prose-slate max-w-none">  <header class="flex flex-col gap-4"> <h1 class="text-4xl font-bold tracking-tight text-slate-900">Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis</h1> <time datetime="2025-01-25T00:00:00.000Z" class="text-sm text-slate-500"> January 25, 2025 </time> <p class="max-w-3xl text-lg text-slate-600">A proposed mathematical framework that applies minimal surface theory to cyclic peptide conformational analysis, offering a novel geometric perspective through the lens of soap film physics.</p> <div class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]"> <span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="differential-geometry"> differential-geometry </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="minimal-surfaces"> minimal-surfaces </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="cyclic-peptides"> cyclic-peptides </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="conformational-analysis"> conformational-analysis </span><span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag="theoretical-chemistry"> theoretical-chemistry </span> </div>  </header> <h1 id="soap-film-surface-analysis-a-theoretical-framework-for-cyclic-peptide-conformational-analysis">Soap Film Surface Analysis: A Theoretical Framework for Cyclic Peptide Conformational Analysis</h1>
+<h2 id="abstract">Abstract</h2>
+<p>This work presents Soap Film Surface Analysis (SFSA), a novel theoretical framework for analyzing three-dimensional conformations of cyclic peptides through the lens of minimal surface theory. This approach models peptide backbone conformations as energy-minimizing surfaces spanning the cyclic boundary, inspired by the physics of soap films stretched across wire loops. We present the mathematical foundations, explore theoretical properties, and discuss potential implications for conformational analysis. While this framework remains theoretical and requires computational validation, it offers a fundamentally new geometric perspective that could reveal conformational patterns invisible to traditional methods.</p>
+<h2 id="1-motivation-and-theoretical-premise">1. Motivation and Theoretical Premise</h2>
+<h3 id="11-the-conformational-analysis-challenge">1.1 The Conformational Analysis Challenge</h3>
+<p>Cyclic peptides present unique challenges for conformational analysis:</p>
+<ul>
+<li><strong>Ring constraints</strong> impose global geometric restrictions unlike linear peptides</li>
+<li><strong>Traditional methods</strong> (RMSD, torsion angles) have fundamental limitations</li>
+<li><strong>High dimensionality</strong> of conformational space resists simple characterization</li>
+<li><strong>Lack of natural coordinates</strong> makes alignment-free analysis difficult</li>
+</ul>
+<p>Current approaches suffer from:</p>
+<ul>
+<li>Alignment dependency (RMSD)</li>
+<li>Discontinuities and high dimensionality (torsion angles)</li>
+<li>Loss of geometric intuition (distance matrices)</li>
+<li>Limited interpretability (machine learning descriptors)</li>
+</ul>
+<h3 id="12-the-core-proposition">1.2 The Core Proposition</h3>
+<p><strong>What if we viewed cyclic peptide conformations through the lens of minimal surface theory?</strong></p>
+<p>The key insight: A cyclic peptide backbone naturally defines a closed curve in 3D space. The minimal surface spanning this curve could provide a canonical geometric representation that:</p>
+<ul>
+<li>Depends only on the boundary configuration</li>
+<li>Provides continuous, differentiable descriptors</li>
+<li>Captures both local and global geometry</li>
+<li>Requires no arbitrary alignment choices</li>
+</ul>
+<h3 id="13-physical-inspiration-the-soap-film-analogy">1.3 Physical Inspiration: The Soap Film Analogy</h3>
+<p>When a soap film spans a wire loop, surface tension drives it to minimize area, creating a minimal surface. This physical phenomenon suggests a mathematical framework:</p>
+<p><strong>Physical System:</strong></p>
+<ul>
+<li>Wire loop → Peptide backbone</li>
+<li>Surface tension → Energy minimization principle</li>
+<li>Soap film → Geometric representation</li>
+</ul>
+<p><strong>Mathematical Translation:</strong></p>
+<ul>
+<li>Boundary curve γ(s) → Backbone atom positions</li>
+<li>Minimal surface S → Conformational descriptor space</li>
+<li>Surface properties → Geometric invariants</li>
+</ul>
+<h2 id="2-mathematical-foundations">2. Mathematical Foundations</h2>
+<h3 id="21-problem-formulation">2.1 Problem Formulation</h3>
+<p>Given a cyclic peptide with backbone atoms at positions <strong>p</strong>₁, <strong>p</strong>₂, …, <strong>p</strong>ₙ ∈ ℝ³, these define a closed curve:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>:</mo><msup><mi>S</mi><mn>1</mn></msup><mo>→</mo><msup><mi mathvariant="double-struck">R</mi><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">\gamma: S^1 \rightarrow \mathbb{R}^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em"></span><span class="mord mathnormal" style="margin-right:0.05556em">γ</span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:0.8141em"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em"><span style="top:-3.063em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:0.8141em"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em"><span style="top:-3.063em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span></p>
+<p>We seek the surface S that minimizes area:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi>min</mi><mo>⁡</mo></mrow><mi>S</mi></msub><mi mathvariant="script">A</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo><mo>=</mo><msub><mo>∬</mo><mi>S</mi></msub><mi>d</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">\min_{S} \mathcal{A}[S] = \iint_S dA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mop"><span class="mop">min</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em"><span style="top:-2.55em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em">S</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord mathcal">A</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:1.1607em;vertical-align:-0.3557em"></span><span class="mop"><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0005em">∬</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1226em"><span style="top:-2.3443em;margin-left:-0.1945em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em">S</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3557em"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">A</span></span></span></span></p>
+<p>subject to: ∂S = γ</p>
+<p>This is <strong>Plateau’s problem</strong> applied to molecular geometry.</p>
+<h3 id="22-existence-and-uniqueness-considerations">2.2 Existence and Uniqueness Considerations</h3>
+<h4 id="theorem-21-existence-via-douglas-radó">Theorem 2.1 (Existence via Douglas-Radó)</h4>
+<p><em>For any Jordan curve γ in ℝ³ (simple, closed, rectifiable), there exists at least one surface of minimal area spanning γ.</em></p>
+<p><strong>Application</strong>: Since cyclic peptide backbones form Jordan curves by construction, minimal surfaces exist mathematically.</p>
+<h4 id="theoretical-challenge">Theoretical Challenge</h4>
+<p>Most peptide boundaries are non-convex and may have high total curvature, suggesting:</p>
+<ul>
+<li>Multiple local minima could exist</li>
+<li>Uniqueness is not guaranteed</li>
+<li>Regularization may be necessary</li>
+</ul>
+<h4 id="proposed-regularization">Proposed Regularization</h4>
+<p>To ensure computational stability and physical relevance:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">E</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo><mo>=</mo><mi mathvariant="script">A</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo><mo>+</mo><mi>λ</mi><mi mathvariant="script">W</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\mathcal{E}[S] = \mathcal{A}[S] + \lambda \mathcal{W}[S]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord mathcal" style="margin-right:0.08944em">E</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord mathcal">A</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord mathnormal">λ</span><span class="mord mathcal" style="margin-right:0.08222em">W</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span></span></span></span></p>
+<p>where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">W</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo><mo>=</mo><msub><mo>∬</mo><mi>S</mi></msub><msup><mi>H</mi><mn>2</mn></msup><mi>d</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">\mathcal{W}[S] = \iint_S H^2 dA</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord mathcal" style="margin-right:0.08222em">W</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:1.1698em;vertical-align:-0.3557em"></span><span class="mop"><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0005em">∬</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1226em"><span style="top:-2.3443em;margin-left:-0.1945em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em">S</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3557em"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em">H</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em"><span style="top:-3.063em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mathnormal">d</span><span class="mord mathnormal">A</span></span></span></span> is the Willmore energy, balancing:</p>
+<ul>
+<li>Area minimization (geometric simplicity)</li>
+<li>Smoothness constraints (numerical stability)</li>
+</ul>
+<h2 id="3-theoretical-geometric-descriptors">3. Theoretical Geometric Descriptors</h2>
+<h3 id="31-curvature-based-descriptors">3.1 Curvature-Based Descriptors</h3>
+<p>The surface curvature encodes local geometry:</p>
+<ul>
+<li><strong>Mean curvature</strong> H = (κ₁ + κ₂)/2</li>
+<li><strong>Gaussian curvature</strong> K = κ₁ · κ₂</li>
+<li><strong>Principal curvatures</strong> κ₁, κ₂</li>
+</ul>
+<p><strong>Theoretical Property</strong>: For a true minimal surface, H = 0 everywhere. Our regularized surfaces would have H ≈ 0 with deviations encoding conformational strain.</p>
+<h3 id="32-spectral-descriptors">3.2 Spectral Descriptors</h3>
+<p>The Laplace-Beltrami operator Δ on the surface yields eigenvalues <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>λ</mi><mn>0</mn></msub><mo separator="true">,</mo><msub><mi>λ</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>λ</mi><mn>2</mn></msub><mo separator="true">,</mo><mo>…</mo><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\{\lambda_0, \lambda_1, \lambda_2, \ldots\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em"></span><span class="minner">…</span><span class="mclose">}</span></span></span></span> that could serve as shape fingerprints.</p>
+<h4 id="theoretical-result-weyls-law">Theoretical Result (Weyl’s Law)</h4>
+<p><em>The eigenvalue asymptotics encode geometric properties:</em></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>n</mi></msub><mo>∼</mo><mfrac><mrow><mn>4</mn><mi>π</mi><mi>n</mi></mrow><mrow><mi mathvariant="script">A</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo></mrow></mfrac><mspace width="1em"></mspace><mtext>as </mtext><mi>n</mi><mo>→</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">\lambda_n \sim \frac{4\pi n}{\mathcal{A}[S]} \quad \text{as } n \rightarrow \infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:1.3651em;vertical-align:-0.52em"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em"><span style="top:-2.655em"><span class="pstrut" style="height:3em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathcal mtight">A</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight" style="margin-right:0.05764em">S</span><span class="mclose mtight">]</span></span></span></span><span style="top:-3.23em"><span class="pstrut" style="height:3em"></span><span class="frac-line" style="border-bottom-width:0.04em"></span></span><span style="top:-3.394em"><span class="pstrut" style="height:3em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">4</span><span class="mord mathnormal mtight">πn</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:1em"></span><span class="mord text"><span class="mord">as </span></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:0.4306em"></span><span class="mord">∞</span></span></span></span></p>
+<p><strong>Implication</strong>: The spectrum contains information about surface area and, through trace formulas, boundary length and topology.</p>
+<h3 id="33-topological-invariants">3.3 Topological Invariants</h3>
+<p>Global descriptors that could characterize overall conformation:</p>
+<ul>
+<li><strong>Surface area</strong> 𝒜[S]</li>
+<li><strong>Enclosed volume</strong> V[S]</li>
+<li><strong>Sphericity</strong> Ψ = (36πV²)^(1/3)/𝒜</li>
+<li><strong>Euler characteristic</strong> χ (for surfaces with different topology)</li>
+</ul>
+<h3 id="34-chirality-quantification">3.4 Chirality Quantification</h3>
+<p><strong>Hypothesis</strong>: Surface-based measures could provide robust chirality descriptors.</p>
+<p>Proposed chirality index combining:</p>
+<ul>
+<li>Writhe of the boundary curve</li>
+<li>Signed volume</li>
+<li>Asymmetry of curvature distribution</li>
+</ul>
+<h2 id="4-theoretical-advantages-and-conjectures">4. Theoretical Advantages and Conjectures</h2>
+<h3 id="41-proposed-advantages">4.1 Proposed Advantages</h3>
+<h4 id="dimensional-reduction">Dimensional Reduction</h4>
+<p><strong>Conjecture</strong>: High-dimensional atomic coordinates (3N values) could be meaningfully compressed to ~10-20 geometric descriptors while preserving conformational information.</p>
+<h4 id="intrinsic-geometry">Intrinsic Geometry</h4>
+<p><strong>Theoretical advantage</strong>: Descriptors based on intrinsic surface geometry would be:</p>
+<ul>
+<li>Coordinate-independent</li>
+<li>Rotation/translation invariant</li>
+<li>Alignment-free</li>
+</ul>
+<h4 id="multi-scale-description">Multi-scale Description</h4>
+<p>The framework naturally provides descriptors at multiple scales:</p>
+<ul>
+<li><strong>Local</strong>: Point-wise curvatures</li>
+<li><strong>Regional</strong>: Curvature statistics over patches</li>
+<li><strong>Global</strong>: Topological invariants, spectral properties</li>
+</ul>
+<h3 id="42-key-conjectures">4.2 Key Conjectures</h3>
+<h4 id="conjecture-41-conformational-discrimination">Conjecture 4.1 (Conformational Discrimination)</h4>
+<p><em>Conformationally distinct cyclic peptides will have distinguishable minimal surface descriptors.</em></p>
+<p><strong>Rationale</strong>: Different 3D backbone arrangements → different boundary curves → different minimal surfaces → different descriptors</p>
+<p><strong>Open questions</strong>:</p>
+<ul>
+<li>Sensitivity threshold?</li>
+<li>Uniqueness of descriptor mapping?</li>
+<li>Metric structure of descriptor space?</li>
+</ul>
+<h4 id="conjecture-42-stability-correlation">Conjecture 4.2 (Stability Correlation)</h4>
+<p><em>The Willmore energy ℰ_W of the surface might correlate with conformational stability.</em></p>
+<p><strong>Theoretical basis</strong>: Both measure deviation from an “ideal” state</p>
+<ul>
+<li>Willmore energy: deviation from minimal surface</li>
+<li>Conformational stability: deviation from energy minimum</li>
+</ul>
+<p><strong>To investigate</strong>: Relationship to molecular mechanics energies?</p>
+<h4 id="conjecture-43-permeability-prediction">Conjecture 4.3 (Permeability Prediction)</h4>
+<p><em>Surface compactness measures could correlate with membrane permeability.</em></p>
+<p><strong>Hypothesis</strong>: Compact surfaces (high sphericity, low area) → better membrane insertion</p>
+<p><strong>Proposed relationship</strong>:
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>log</mi><mo>⁡</mo><msub><mi>P</mi><mrow><mi>e</mi><mi>f</mi><mi>f</mi></mrow></msub><mo>∼</mo><mo>−</mo><mi>α</mi><mo>⋅</mo><mi mathvariant="script">A</mi><mo stretchy="false">[</mo><mi>S</mi><mo stretchy="false">]</mo><mo>−</mo><mi>β</mi><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\log P_{eff} \sim -\alpha \cdot \mathcal{A}[S] - \beta \cdot (1 - \Psi)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em"></span><span class="mop">lo<span style="margin-right:0.01389em">g</span></span><span class="mspace" style="margin-right:0.1667em"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.10764em">ff</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right:0.0037em">α</span><span class="mspace" style="margin-right:0.2222em"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord mathcal">A</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05764em">S</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em"></span><span class="mord mathnormal" style="margin-right:0.05278em">β</span><span class="mspace" style="margin-right:0.2222em"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em"></span><span class="mord">Ψ</span><span class="mclose">)</span></span></span></span></p>
+<h2 id="5-computational-considerations">5. Computational Considerations</h2>
+<h3 id="51-algorithmic-approach">5.1 Algorithmic Approach</h3>
+<p>A potential implementation strategy:</p>
+<ol>
+<li><strong>Boundary extraction</strong>: Identify backbone atoms, create closed curve</li>
+<li><strong>Initial surface</strong>: Generate coarse triangulation spanning boundary</li>
+<li><strong>Optimization</strong>: Minimize area (+ regularization) via gradient descent</li>
+<li><strong>Descriptor extraction</strong>: Compute geometric/spectral properties</li>
+<li><strong>Analysis</strong>: Statistical comparison across conformations</li>
+</ol>
+<h3 id="52-theoretical-complexity">5.2 Theoretical Complexity</h3>
+<p>Expected computational requirements:</p>
+<ul>
+<li><strong>Triangulation</strong>: O(n²) for n boundary points</li>
+<li><strong>Surface optimization</strong>: O(m·k) for m mesh vertices, k iterations</li>
+<li><strong>Eigenvalue computation</strong>: O(m) for sparse operators</li>
+<li><strong>Descriptor calculation</strong>: O(m) for most geometric measures</li>
+</ul>
+<h3 id="53-numerical-challenges">5.3 Numerical Challenges</h3>
+<p>Potential issues requiring investigation:</p>
+<ul>
+<li>Convergence for highly twisted boundaries</li>
+<li>Mesh quality maintenance during optimization</li>
+<li>Numerical stability of curvature calculations</li>
+<li>Eigenvalue computation for irregular meshes</li>
+</ul>
+<h2 id="6-potential-applications-and-implications">6. Potential Applications and Implications</h2>
+<h3 id="61-conformational-analysis">6.1 Conformational Analysis</h3>
+<p>If validated, SFSA could enable:</p>
+<ul>
+<li><strong>Unsupervised clustering</strong> of conformational ensembles</li>
+<li><strong>Quantitative comparison</strong> without alignment</li>
+<li><strong>Continuous conformational paths</strong> via surface interpolation</li>
+<li><strong>Ensemble characterization</strong> through descriptor statistics</li>
+</ul>
+<h3 id="62-structure-property-relationships">6.2 Structure-Property Relationships</h3>
+<p>The geometric descriptors might correlate with:</p>
+<ul>
+<li><strong>Binding affinity</strong>: Shape complementarity via surface matching</li>
+<li><strong>Membrane permeability</strong>: Compactness and surface area</li>
+<li><strong>Metabolic stability</strong>: High-curvature regions as cleavage sites</li>
+<li><strong>Conformational dynamics</strong>: Spectral properties encoding flexibility</li>
+</ul>
+<h3 id="63-drug-design-applications">6.3 Drug Design Applications</h3>
+<p>Potential uses in medicinal chemistry:</p>
+<ul>
+<li><strong>Virtual screening</strong>: Geometric similarity for scaffold hopping</li>
+<li><strong>Lead optimization</strong>: Systematic exploration of conformational effects</li>
+<li><strong>Permeability prediction</strong>: Surface-based models</li>
+<li><strong>Conformational constraints</strong>: Designing rigidity via surface properties</li>
+</ul>
+<h2 id="7-validation-strategy-and-open-questions">7. Validation Strategy and Open Questions</h2>
+<h3 id="71-proposed-validation-experiments">7.1 Proposed Validation Experiments</h3>
+<p>To test the framework’s utility:</p>
+<ol>
+<li><strong>Discrimination test</strong>: Can SFSA distinguish known conformational families?</li>
+<li><strong>Correlation analysis</strong>: Do descriptors correlate with experimental properties?</li>
+<li><strong>Ensemble characterization</strong>: Do descriptor distributions capture dynamics?</li>
+<li><strong>Comparison study</strong>: How does SFSA compare to existing methods?</li>
+</ol>
+<h3 id="72-critical-questions">7.2 Critical Questions</h3>
+<p>Fundamental issues to address:</p>
+<ol>
+<li><strong>Physical relevance</strong>: Do minimal surfaces meaningfully represent conformations?</li>
+<li><strong>Uniqueness</strong>: How to handle multiple minimal surfaces for complex boundaries?</li>
+<li><strong>Sensitivity</strong>: Can the method distinguish similar conformations?</li>
+<li><strong>Interpretability</strong>: What is the physical meaning of geometric descriptors?</li>
+<li><strong>Computational feasibility</strong>: Is this practical for large-scale analysis?</li>
+</ol>
+<h3 id="73-theoretical-developments-needed">7.3 Theoretical Developments Needed</h3>
+<p>Mathematical work required:</p>
+<ul>
+<li>Prove descriptor bounds and scaling laws</li>
+<li>Establish perturbation theory (conformational change → descriptor change)</li>
+<li>Develop statistical theory for ensemble descriptors</li>
+<li>Connect to molecular mechanics and statistical mechanics</li>
+<li>Analyze numerical convergence and stability</li>
+</ul>
+<h2 id="8-related-work-and-context">8. Related Work and Context</h2>
+<h3 id="81-connections-to-existing-theory">8.1 Connections to Existing Theory</h3>
+<p>SFSA builds upon:</p>
+<ul>
+<li><strong>Minimal surface theory</strong> (Plateau, Douglas, Radó)</li>
+<li><strong>Differential geometry</strong> (Gauss, Riemann, do Carmo)</li>
+<li><strong>Spectral geometry</strong> (“Shape-DNA”, Laplace-Beltrami spectra)</li>
+<li><strong>Computational geometry</strong> (mesh generation, discrete differential operators)</li>
+</ul>
+<h3 id="82-novelty-of-approach">8.2 Novelty of Approach</h3>
+<p>To our knowledge, this represents the first systematic application of minimal surface theory to molecular conformational analysis. Unlike previous geometric approaches that focus on molecular surfaces (van der Waals, solvent-accessible), SFSA uses the minimal surface as a canonical geometric representation.</p>
+<h3 id="83-potential-impact">8.3 Potential Impact</h3>
+<p>If successful, this framework could:</p>
+<ul>
+<li>Provide new geometric insights into conformational space</li>
+<li>Enable novel descriptors for machine learning</li>
+<li>Bridge differential geometry and molecular modeling</li>
+<li>Inspire geometric approaches to other molecular problems</li>
+</ul>
+<h2 id="9-conclusions-and-outlook">9. Conclusions and Outlook</h2>
+<h3 id="91-summary">9.1 Summary</h3>
+<p>SFSA proposes a radical reimagining of cyclic peptide conformational analysis through minimal surface theory. By viewing peptide conformations as boundaries of soap film-like surfaces, we gain access to:</p>
+<ul>
+<li>Rich mathematical framework from differential geometry</li>
+<li>Intrinsic, alignment-free descriptors</li>
+<li>Multi-scale geometric characterization</li>
+<li>Potentially novel structure-property relationships</li>
+</ul>
+<h3 id="92-current-status">9.2 Current Status</h3>
+<p>This framework is:</p>
+<ul>
+<li><strong>Theoretically grounded</strong> in established mathematics</li>
+<li><strong>Computationally feasible</strong> with modern algorithms</li>
+<li><strong>Potentially powerful</strong> for conformational analysis</li>
+<li><strong>Requiring validation</strong> through implementation and testing</li>
+</ul>
+<h3 id="93-future-directions">9.3 Future Directions</h3>
+<p>Development priorities:</p>
+<ol>
+<li><strong>Proof-of-concept implementation</strong>: Test on simple cyclic peptides</li>
+<li><strong>Theoretical development</strong>: Prove key properties and bounds</li>
+<li><strong>Validation studies</strong>: Correlate with experimental data</li>
+<li><strong>Algorithm optimization</strong>: Improve computational efficiency</li>
+<li><strong>Extension</strong>: Consider applications beyond cyclic peptides</li>
+</ol>
+<h3 id="94-final-perspective">9.4 Final Perspective</h3>
+<p>SFSA demonstrates how mathematical perspectives can offer fresh insights into molecular problems. While its practical utility remains to be demonstrated, the theoretical framework opens exciting possibilities for understanding molecular shape through the elegant mathematics of minimal surfaces.</p>
+<p>As Henri Poincaré noted, “Mathematics is the art of giving the same name to different things.” In SFSA, we give the name “minimal surface” to cyclic peptide conformations, potentially revealing hidden geometric unity in molecular diversity.</p>
+<h2 id="references">References</h2>
+<h3 id="theoretical-foundations">Theoretical Foundations</h3>
+<ol>
+<li>
+<p><strong>Minimal Surface Theory</strong></p>
+<ul>
+<li>Douglas, J. (1931). Solution of the problem of Plateau. Trans. Amer. Math. Soc., 33(1), 263-321.</li>
+<li>Radó, T. (1930). On Plateau’s problem. Ann. of Math., 31(3), 457-469.</li>
+<li>Nitsche, J.C.C. (1989). Lectures on Minimal Surfaces. Cambridge University Press.</li>
+</ul>
+</li>
+<li>
+<p><strong>Differential Geometry</strong></p>
+<ul>
+<li>do Carmo, M.P. (2016). Differential Geometry of Curves and Surfaces. Dover Publications.</li>
+<li>Meyer, M., Desbrun, M., Schröder, P., &amp; Barr, A.H. (2003). Discrete Differential-Geometry Operators for Triangulated 2-Manifolds. In Visualization and Mathematics III (pp. 35-57).</li>
+</ul>
+</li>
+<li>
+<p><strong>Spectral Geometry</strong></p>
+<ul>
+<li>Reuter, M., Wolter, F.E., &amp; Peinecke, N. (2006). Laplace-Beltrami spectra as ‘Shape-DNA’ of surfaces and solids. Computer-Aided Design, 38(4), 342-366.</li>
+<li>Weyl, H. (1911). Über die asymptotische Verteilung der Eigenwerte. Nachrichten von der Gesellschaft der Wissenschaften zu Göttingen, 110-117.</li>
+</ul>
+</li>
+</ol>
+<h3 id="cyclic-peptides-and-conformational-analysis">Cyclic Peptides and Conformational Analysis</h3>
+<ol start="4">
+<li>
+<p><strong>Cyclic Peptide Structure</strong></p>
+<ul>
+<li>Yudin, A.K. (2015). Macrocycles: lessons from the distant past, recent developments, and future directions. Chemical Science, 6(1), 30-49.</li>
+<li>White, C.J., &amp; Yudin, A.K. (2011). Contemporary strategies for peptide macrocyclization. Nature Chemistry, 3(7), 509-524.</li>
+</ul>
+</li>
+<li>
+<p><strong>Conformational Analysis Methods</strong></p>
+<ul>
+<li>Ramachandran, G.N., Ramakrishnan, C., &amp; Sasisekharan, V. (1963). Stereochemistry of polypeptide chain configurations. Journal of Molecular Biology, 7(1), 95-99.</li>
+<li>Kufareva, I., &amp; Abagyan, R. (2012). Methods of protein structure comparison. Methods in Molecular Biology, 857, 231-257.</li>
+</ul>
+</li>
+</ol>
+<h3 id="computational-methods">Computational Methods</h3>
+<ol start="6">
+<li>
+<p><strong>Surface Mesh Generation</strong></p>
+<ul>
+<li>Shewchuk, J.R. (1996). Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator. In Applied Computational Geometry (pp. 203-222).</li>
+<li>Botsch, M., Kobbelt, L., Pauly, M., Alliez, P., &amp; Lévy, B. (2010). Polygon Mesh Processing. CRC Press.</li>
+</ul>
+</li>
+<li>
+<p><strong>Numerical Methods</strong></p>
+<ul>
+<li>Pinkall, U., &amp; Polthier, K. (1993). Computing discrete minimal surfaces and their conjugates. Experimental Mathematics, 2(1), 15-36.</li>
+<li>Desbrun, M., Meyer, M., &amp; Alliez, P. (2002). Intrinsic parameterizations of surface meshes. Computer Graphics Forum, 21(3), 209-218.</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<p><strong>Note</strong>: This theoretical framework represents exploratory work in progress. The ideas presented here require computational implementation and experimental validation before their practical utility can be assessed. We present this framework to stimulate discussion and invite collaboration in developing these concepts further.</p>  </article> </main> <footer class="border-t border-slate-200 py-10 text-sm text-slate-500"> <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6"> <span>© 2025 Adam Murray</span> </div> </footer> </body></html>

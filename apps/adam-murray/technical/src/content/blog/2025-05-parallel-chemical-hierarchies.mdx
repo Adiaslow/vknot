@@ -76,15 +76,21 @@ This structure:
 
 ### 2.1 Information-Theoretic Analysis
 
-**Definition 2.1** (Serial Hierarchical Decomposition): A serial hierarchy processes information through a single intermediate level:
+**Definition 2.1 (Serial Hierarchical Decomposition):**
+
+A serial hierarchy processes information through a single intermediate level:
 
 $$\text{Atoms } (A) \to \text{Hierarchy } (H) \to \text{Molecule } (M)$$
 
-**Definition 2.2** (Parallel Hierarchical Decomposition): A parallel hierarchy processes information through multiple independent levels:
+**Definition 2.2 (Parallel Hierarchical Decomposition):**
+
+A parallel hierarchy processes information through multiple independent levels:
 
 $$\text{Atoms } (A) \to \{\text{Fragments } (F), \text{Residues } (R)\} \to \text{Molecule } (M)$$
 
-**Theorem 2.1** (Information Preservation): Parallel decomposition preserves at least as much information as any serial decomposition.
+**Theorem 2.1 (Information Preservation):**
+
+Parallel decomposition preserves at least as much information as any serial decomposition.
 
 **Proof:**
 Let $I(A; M)$ be the mutual information between atoms and molecular properties.
@@ -118,13 +124,21 @@ Therefore, parallel decomposition preserves at least as much information. ∎
 
 ### 2.2 Graph-Theoretic Framework
 
-**Definition 2.3** (Molecular Partition): A partition $\pi$ of atomic set $A$ groups atoms into disjoint subsets.
+**Definition 2.3 (Molecular Partition):**
 
-**Definition 2.4** (Fragment Partition): $\pi_F$ groups atoms by synthetic building blocks (e.g., BRICS decomposition).
+A partition $\pi$ of atomic set $A$ groups atoms into disjoint subsets.
 
-**Definition 2.5** (Residue Partition): $\pi_R$ groups atoms by biological units (amino acid residues).
+**Definition 2.4 (Fragment Partition):**
 
-**Lemma 2.2** (Partition Refinement): The meet (intersection) of two partitions provides finer granularity than either partition alone.
+$\pi_F$ groups atoms by synthetic building blocks (e.g., BRICS decomposition).
+
+**Definition 2.5 (Residue Partition):**
+
+$\pi_R$ groups atoms by biological units (amino acid residues).
+
+**Lemma 2.2 (Partition Refinement):**
+
+The meet (intersection) of two partitions provides finer granularity than either partition alone.
 
 **Proof:**
 For partitions $\pi_F$ and $\pi_R$, their meet $\pi_F \wedge \pi_R$ is defined as:
@@ -145,13 +159,19 @@ The finer partition captures more structural information. ∎
 
 ### 2.3 Attention-Based Long-Range Interactions
 
-**Definition 2.6** (Graph Distance): In a molecular graph $G$, $d(i,j)$ is the shortest path between atoms $i$ and $j$.
+**Definition 2.6 (Graph Distance):**
 
-**Definition 2.7** (Attention Mechanism): Attention computes pairwise relevance scores:
+In a molecular graph $G$, $d(i,j)$ is the shortest path between atoms $i$ and $j$.
+
+**Definition 2.7 (Attention Mechanism):**
+
+Attention computes pairwise relevance scores:
 
 $$\text{Attention}(i,j) = \text{softmax}(Q_i \cdot K_j^T / \sqrt{d})$$
 
-**Theorem 2.3** (Information Flow Complexity): Message passing requires $O(\text{diameter}(G))$ steps for global information flow, while attention requires $O(1)$ steps.
+**Theorem 2.3 (Information Flow Complexity):**
+
+Message passing requires $O(\text{diameter}(G))$ steps for global information flow, while attention requires $O(1)$ steps.
 
 **Proof:**
 In message passing with $k$ iterations:
@@ -172,7 +192,9 @@ For cyclic peptides, $\text{diameter}(G) \approx n/2$ for $n$ residues, making a
 
 ### 3.1 Formal Construction
 
-**Definition 3.1** (Parallel Hierarchical Molecular Graph): A tuple $(A, F, R, M, \varphi_F, \varphi_R, \psi)$ where:
+**Definition 3.1 (Parallel Hierarchical Molecular Graph):**
+
+A tuple $(A, F, R, M, \varphi_F, \varphi_R, \psi)$ where:
 
 - $A$ = atomic features $\in \mathbb{R}^{n \times d_a}$
 - $F$ = fragment features $\in \mathbb{R}^{k_f \times d_f}$
@@ -184,7 +206,9 @@ For cyclic peptides, $\text{diameter}(G) \approx n/2$ for $n$ residues, making a
 
 ### 3.2 Cross-Level Interactions
 
-**Definition 3.2** (Fragment-Residue Interaction Tensor): $T \in \mathbb{R}^{k_f \times k_r \times d_c}$ captures interactions between fragments and residues.
+**Definition 3.2 (Fragment-Residue Interaction Tensor):**
+
+$T \in \mathbb{R}^{k_f \times k_r \times d_c}$ captures interactions between fragments and residues.
 
 For cyclic peptides, this captures critical relationships:
 
@@ -218,7 +242,9 @@ The parallel structure naturally captures permeability determinants:
 
 ### 4.1 Representational Capacity
 
-**Theorem 4.1** (Capacity Bound): The parallel hierarchy has higher representational capacity than any single hierarchy.
+**Theorem 4.1 (Capacity Bound):**
+
+The parallel hierarchy has higher representational capacity than any single hierarchy.
 
 **Proof:**
 Representational capacity can be measured by the dimension of the feature space.
@@ -247,7 +273,9 @@ Therefore, the parallel hierarchy has higher representational capacity. ∎
 
 ### 4.2 Gradient Flow Properties
 
-**Theorem 4.2** (Gradient Robustness): Parallel pathways reduce gradient vanishing probability.
+**Theorem 4.2 (Gradient Robustness):**
+
+Parallel pathways reduce gradient vanishing probability.
 
 **Proof:**
 Let p be the probability of gradient vanishing through a single path.
@@ -271,7 +299,9 @@ The parallel structure provides gradient flow redundancy. ∎
 
 ### 4.3 Compositional Learning
 
-**Definition 4.1** (Compositional Rules): Learned mappings that generalize to novel combinations:
+**Definition 4.1 (Compositional Rules):**
+
+Learned mappings that generalize to novel combinations:
 
 - Fragment compatibility: P(f_i connects to f_j)
 - Residue compatibility: P(r_i follows r_j)
@@ -318,7 +348,9 @@ Neither view is complete; both are necessary.
 
 The parallel hierarchy naturally extracts permeability-relevant features:
 
-**Theorem 5.1** (Feature Completeness): The parallel decomposition captures all first-order permeability determinants.
+**Theorem 5.1 (Feature Completeness):**
+
+The parallel decomposition captures all first-order permeability determinants.
 
 **Proof sketch:**
 Permeability determinants include:

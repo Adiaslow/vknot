@@ -48,7 +48,9 @@ We establish:
 
 ### 2.1 Quotient Space Structure
 
-**Definition 2.1** (Chemical Quotient Space): A combinatorial library forms a quotient space $(S, U, \pi)$ where:
+**Definition 2.1 (Chemical Quotient Space):**
+
+A combinatorial library forms a quotient space $(S, U, \pi)$ where:
 
 - $S$ = synthesis space (all synthesized instances)
 - $U$ = chemical space (unique chemical entities)
@@ -56,7 +58,9 @@ We establish:
 
 The equivalence relation $s_1 \sim s_2 \iff \pi(s_1) = \pi(s_2)$ partitions $S$ into equivalence classes.
 
-**Definition 2.2** (Redundancy): The redundancy factor $R = |S|/|U|$ measures average equivalence class size.
+**Definition 2.2 (Redundancy):**
+
+The redundancy factor $R = |S|/|U|$ measures average equivalence class size.
 
 ### 2.2 The Sampling Problem
 
@@ -68,7 +72,7 @@ $$P(|\{\pi(s_1), \ldots, \pi(s_n)\}| \geq C|U|) \geq 1 - \delta$$
 
 For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$:
 
-**Definition 2.3** (Compositional Space):
+**Definition 2.3 (Compositional Space):**
 
 - Maximum diversity: $|U|_{max} = \prod_i B_i$
 - Chemical redundancy: $\rho = |U|_{max}/|U|$
@@ -78,7 +82,9 @@ For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$
 
 ### 3.1 Fundamental Limits
 
-**Theorem 3.1** (Information-Theoretic Lower Bound): For any sampling strategy with $n$ samples and unknown $|U|$:
+**Theorem 3.1 (Information-Theoretic Lower Bound):**
+
+For any sampling strategy with $n$ samples and unknown $|U|$:
 
 $$E[\text{samples needed}] \geq \frac{|U|H(P)}{\log|U|}$$
 
@@ -93,11 +99,14 @@ Rearranging gives the bound. ∎
 
 ### 3.2 Adaptive vs. Uniform Sampling
 
-**Definition 3.1** (Information Gain): The information gain from sample $s_n$ given previous samples $S_{n-1}$:
+**Definition 3.1 (Information Gain):**
+
+The information gain from sample $s_n$ given previous samples $S_{n-1}$:
 
 $$I(s_n) = H(U|S_{n-1}) - H(U|S_{n-1} \cup \{s_n\})$$
 
-**Theorem 3.2** (Logarithmic Advantage of Adaptivity):
+**Theorem 3.2 (Logarithmic Advantage of Adaptivity):**
+
 For uniform sampling:
 
 $$E[I(s_n)] = O\left(\frac{|U| - \text{observed}}{|U|} \times \log|U|\right)$$
@@ -115,7 +124,8 @@ Adaptive sampling can target highest-uncertainty regions, guaranteeing discovery
 
 ### 3.3 Partial Information Regimes
 
-**Theorem 3.3** (Sample Complexity with Partial Information):
+**Theorem 3.3 (Sample Complexity with Partial Information):**
+
 Given knowledge level $\kappa \in [0,1]$ about quotient structure:
 
 $$n^*(\kappa) = \frac{|U|(\log|U| + (1-\kappa)\log R)}{1 + \kappa(R-1)/R}$$
@@ -131,11 +141,17 @@ With partial knowledge $\kappa$:
 
 ### 4.1 Coverage Phase Transition
 
-**Definition 4.1** (Sampling Fraction): $\alpha = n/|S|$ where $n$ is number of samples.
+**Definition 4.1 (Sampling Fraction):**
 
-**Definition 4.2** (Coverage Function): $C(\alpha) = E[|\text{observed unique}|/|U|]$.
+$\alpha = n/|S|$ where $n$ is number of samples.
 
-**Theorem 4.1** (Sharp Phase Transition): For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
+**Definition 4.2 (Coverage Function):**
+
+$C(\alpha) = E[|\text{observed unique}|/|U|]$.
+
+**Theorem 4.1 (Sharp Phase Transition):**
+
+For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
 
 $$
 \lim_{|U| \to \infty} P(C(\alpha) > 1-\varepsilon) = \begin{cases}
@@ -163,7 +179,9 @@ As $|U| \to \infty$, these probabilities $\to 0$, giving sharp transition. ∎
 
 ### 4.2 Multi-Scale Transitions
 
-**Theorem 4.2** (Hierarchical Phase Transitions): For libraries with building blocks B, fragments F, and molecules U:
+**Theorem 4.2 (Hierarchical Phase Transitions):**
+
+For libraries with building blocks B, fragments F, and molecules U:
 
 $$\begin{aligned}
 \alpha_1 &= 1/|S| && \text{(first discovery)} \\
@@ -176,7 +194,9 @@ Each transition enables qualitatively different chemical insights.
 
 ### 4.3 Percolation in Chemical Space
 
-**Theorem 4.3** (Chemical Percolation): When chemicals form a similarity graph G with average degree d:
+**Theorem 4.3 (Chemical Percolation):**
+
+When chemicals form a similarity graph G with average degree d:
 
 $$\alpha_{\text{perc}} = \frac{\log d}{d \times R \times |U|/|S|}$$
 
@@ -198,7 +218,9 @@ Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. 
 
 Maximize coverage subject to budget B.
 
-**Theorem 5.1** (Submodular Coverage): The joint coverage function C(n₁,...,n_K) is submodular.
+**Theorem 5.1 (Submodular Coverage):**
+
+The joint coverage function C(n₁,...,n_K) is submodular.
 
 **Proof:**
 For submodularity, must show diminishing returns:
@@ -213,12 +235,16 @@ Each additional sample has probability $p$ of discovering new entity. With more 
 
 ### 5.2 Adaptive Experimental Design
 
-**Definition 5.1** (Exploration-Exploitation Trade-off): At each step, choose between:
+**Definition 5.1 (Exploration-Exploitation Trade-off):**
+
+At each step, choose between:
 
 - Exploration: Sample from high-uncertainty regions
 - Exploitation: Sample from high-value regions
 
-**Theorem 5.2** (Optimal Sampling Policy): The optimal policy samples region r with probability:
+**Theorem 5.2 (Optimal Sampling Policy):**
+
+The optimal policy samples region r with probability:
 
 $$P(r) \propto \sqrt{\text{value}(r) \times \text{uncertainty}(r)}$$
 
@@ -227,9 +253,13 @@ Uses upper confidence bound (UCB) framework. Optimal exploration bonus is propor
 
 ### 5.3 Batch Optimization
 
-**Definition 5.2** (Batch Economy): β = setup_cost/per_sample_cost.
+**Definition 5.2 (Batch Economy):**
 
-**Theorem 5.3** (Optimal Batch Size): The cost-minimizing batch size is:
+β = setup_cost/per_sample_cost.
+
+**Theorem 5.3 (Optimal Batch Size):**
+
+The cost-minimizing batch size is:
 
 $$b^* = \sqrt{\beta \times |U| \times \log|U|}$$
 
@@ -253,7 +283,9 @@ Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redun
 
 **Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
 
-**Theorem 5.4** (Front-Loading Principle): Optimal sampling rate is:
+**Theorem 5.4 (Front-Loading Principle):**
+
+Optimal sampling rate is:
 
 $$n^*(t) \propto \exp(-\lambda t/2)$$
 
@@ -327,7 +359,9 @@ Need to sample only $0.092\%$ of the library for complete coverage!
 
 ### 7.3 Confidence Bounds
 
-**Theorem 7.1** (Finite Sample Bounds): For n samples with $n = |U|(\log|U| + \log(1/\delta))$:
+**Theorem 7.1 (Finite Sample Bounds):**
+
+For n samples with $n = |U|(\log|U| + \log(1/\delta))$:
 
 $$P(\text{complete coverage}) \geq 1 - \delta$$
 

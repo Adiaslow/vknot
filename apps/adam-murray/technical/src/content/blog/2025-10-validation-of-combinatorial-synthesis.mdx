@@ -1,0 +1,505 @@
+---
+title: "Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing"
+description: "A mathematically rigorous framework for validating DNA-encoded library synthesis using only one-dimensional chromatographic signals and graph-theoretic constraints, without requiring mass spectrometry or molecular structure information."
+date: 2024-10-13
+tags:
+  - graph-theory
+  - signal-processing
+  - discrete-morse-theory
+  - combinatorial-chemistry
+  - poisson-statistics
+draft: false
+---
+
+# Graph-Theoretic Validation of Combinatorial Synthesis via Signal Processing
+
+## Abstract
+
+This framework provides a mathematical approach for validating combinatorial chemical synthesis using minimal information inputs. By design, the system operates without mass spectrometry or molecular structure information, relying instead on rigorous application of graph theory, discrete Morse theory, and statistical inference to one-dimensional chromatographic signals. The framework proves that truncation relationships in combinatorial libraries form a directed acyclic graph (DAG), establishes the mathematical foundations for using discrete Morse theory in chromatographic peak detection, and demonstrates how global constraint propagation through the DAG enables robust peak classification. This approach achieves synthesis validation through mathematical rigor rather than information abundance, proving that careful application of pure mathematics can solve underdetermined chemical analysis problems.
+
+## 1. Introduction
+
+### 1.1 The Synthesis Validation Problem
+
+DNA-encoded libraries (DELs) enable parallel synthesis of millions of compounds through combinatorial chemistry. Each synthesis position can either successfully add its intended building block or fail (truncation), creating a complex mixture of products and truncation byproducts. The validation challenge: determine which syntheses succeeded using analytical chemistry.
+
+Traditional approaches employ information-rich methods:
+
+- Mass spectrometry for molecular weight confirmation
+- Structure prediction for retention time modeling
+- Machine learning on training datasets
+
+### 1.2 The Minimalist Approach
+
+This work takes a deliberately constrained approach, using only:
+
+- **One-dimensional chromatographic signal** (intensity vs. time)
+- **Abstract synthesis relationships** (which compounds are related by truncation)
+- **No mass information** (by design, not limitation)
+- **No structural information** (universally applicable)
+
+This constraint-by-design philosophy forces mathematical rigor to compensate for limited observables.
+
+### 1.3 Key Contributions
+
+This work establishes:
+
+1. **Proof** that combinatorial truncation relationships form a DAG
+2. **Mathematical justification** for discrete Morse theory in peak detection
+3. **Statistical framework** using Poisson models for significance testing
+4. **Optimal assignment** via the Hungarian algorithm
+5. **Convergence analysis** of positional variants to chemical identities
+
+## 2. Mathematical Foundations
+
+### 2.1 The Truncation Graph Structure
+
+**Definition 2.1** (Truncation Relation): For compounds A and B in a combinatorial library, A ≼ B (A is a truncation of B) if A can be obtained from B by replacing one or more building blocks with null.
+
+**Theorem 2.1** (DAG Structure): The truncation relation ≼ forms a directed acyclic graph.
+
+**Proof:**
+The relation ≼ defines a strict partial order:
+
+_Reflexivity_: A ≼ A (every compound truncates to itself)
+
+_Antisymmetry_: If A ≼ B and B ≼ A, then A = B
+
+- A ≼ B implies |A| ≤ |B| (length non-increasing)
+- B ≼ A implies |B| ≤ |A|
+- Therefore |A| = |B|
+- With equal lengths and mutual truncation, A = B
+
+_Transitivity_: If A ≼ B and B ≼ C, then A ≼ C
+
+- Truncation operations compose
+
+_Acyclicity_: Assume cycle A → B → ... → A exists
+
+- Each edge represents truncation (length decrease or null replacement)
+- Following the cycle: |A| > |B| > ... > |A|
+- Contradiction: |A| > |A|
+
+Therefore, the truncation relation forms a DAG. ∎
+
+### 2.2 Chemical Identity vs. Positional Identity
+
+**Definition 2.2** (Positional Sequence): An n-tuple where position i contains building block b_i or null.
+
+**Definition 2.3** (Chemical Identity): The actual molecule, independent of synthesis position.
+
+**Example**:
+
+- Positional: [Val, Null, Null], [Null, Val, Null], [Null, Null, Val] (different)
+- Chemical: All three are "Val" (same molecule)
+
+**Theorem 2.2** (Convergence Property): Multiple positional sequences can represent the same chemical identity, creating convergence in the DAG.
+
+**Proof:**
+Consider positional sequences P₁ = [b, Null, Null] and P₂ = [Null, b, Null].
+
+- Chemically, both represent the single building block b
+- In the DAG, both P₁ and P₂ are distinct vertices
+- Both map to the same chemical entity b
+- This creates convergence (diamond patterns) without violating acyclicity
+
+The convergence is not a cycle because edges only point toward simpler structures. ∎
+
+### 2.3 Equivalence Classes
+
+**Definition 2.4** (Equivalence Class): The set of all positional sequences with the same chemical identity.
+
+**Theorem 2.3** (Partition Property): Chemical equivalence partitions the positional sequence space into disjoint equivalence classes.
+
+**Proof:**
+Define relation ~: P₁ ~ P₂ iff P₁ and P₂ have the same chemical identity.
+
+_Reflexivity_: P ~ P (same chemical identity as itself)
+_Symmetry_: P₁ ~ P₂ ⟹ P₂ ~ P₁ (chemical identity is symmetric)
+_Transitivity_: P₁ ~ P₂ and P₂ ~ P₃ ⟹ P₁ ~ P₃
+
+Therefore ~ is an equivalence relation, partitioning the space into disjoint classes. ∎
+
+## 3. Signal Processing Framework
+
+### 3.1 Discrete Morse Theory for Peak Detection
+
+**Definition 3.1** (Discrete Morse Function): For discrete signal s: ℤ → ℝ, position i is a critical point if:
+
+- Local maximum: s[i] > s[i-1] and s[i] ≥ s[i+1]
+- Local minimum: s[i] < s[i-1] and s[i] ≤ s[i+1]
+
+**Theorem 3.1** (Topological Invariance): Critical points of discrete Morse functions are invariant under monotonic transformations.
+
+**Proof:**
+Let f: ℝ → ℝ be strictly monotonic and increasing.
+For signal s, consider transformed signal t = f ∘ s.
+
+At position i:
+
+- s[i] > s[i-1] ⟹ f(s[i]) > f(s[i-1]) ⟹ t[i] > t[i-1]
+- s[i] ≥ s[i+1] ⟹ f(s[i]) ≥ f(s[i+1]) ⟹ t[i] ≥ t[i+1]
+
+Critical points are preserved. ∎
+
+**Corollary**: Peak detection via discrete Morse theory is robust to monotonic noise and baseline drift.
+
+### 3.2 Poisson Statistical Model
+
+**Assumption**: Chromatographic detector counts follow Poisson statistics (reasonable for photon/ion counting).
+
+**Definition 3.2** (Poisson Z-score): For observed count x with background rate λ:
+
+```
+Z = (x - λ) / √(λ + ε)
+```
+
+where ε prevents division by zero.
+
+**Theorem 3.2** (False Positive Bound): For threshold Z_t, the false positive rate is bounded by:
+
+```
+P(Z > Z_t | H₀) ≤ Φ(-Z_t)
+```
+
+where Φ is the standard normal CDF and H₀ is the null hypothesis (no peak).
+
+**Proof:**
+Under H₀, x ~ Poisson(λ).
+For large λ, Poisson(λ) ≈ N(λ, λ) by CLT.
+Therefore Z ≈ N(0, 1) under H₀.
+P(Z > Z_t) = 1 - Φ(Z_t) = Φ(-Z_t). ∎
+
+### 3.3 Peak Detection Pipeline
+
+**Algorithm**: Combined Morse-Poisson Peak Detection
+
+1. Find all local maxima via discrete Morse theory
+2. Compute Poisson Z-scores for each maximum
+3. Retain peaks with Z > Z_threshold
+4. Calculate prominence for chromatographic significance
+
+**Theorem 3.3** (Completeness): The algorithm finds all statistically significant topological peaks.
+
+**Proof:**
+
+- Morse theory finds all local maxima (complete enumeration)
+- Poisson filtering removes only statistically insignificant peaks
+- No true peaks are missed if they exceed noise threshold ∎
+
+## 4. Global Constraint Propagation
+
+### 4.1 The Classification Problem
+
+Given detected peaks in related compounds, classify each peak as:
+
+- **NULL**: Corresponds to the empty compound
+- **TRUNCATION**: Missing one or more building blocks
+- **PUTATIVE_PRODUCT**: Consistent with intended product
+- **UNKNOWN**: Cannot be determined
+
+### 4.2 Constraint Propagation Algorithm
+
+**Definition 4.1** (L₀): The minimal element of the DAG, representing the fully-null compound.
+
+**Theorem 4.1** (NULL Peak Inheritance): All compounds must contain peaks corresponding to L₀'s peaks.
+
+**Proof:**
+L₀ is a truncation of every compound (replace all blocks with null).
+Any chemical species in L₀ must also be present in all compounds.
+Therefore, L₀'s peaks appear in every chromatogram. ∎
+
+**Algorithm**: Bottom-Up Constraint Propagation
+
+```
+1. Start from L₀ (minimal element)
+2. Identify NULL peaks (present in L₀)
+3. For each compound in topological order:
+   - Inherit NULL peaks from L₀
+   - Match peaks with descendants via Hungarian algorithm
+   - Classify based on retention time constraints
+```
+
+### 4.3 The Hungarian Algorithm Application
+
+**Problem**: Optimally assign peaks between related compounds.
+
+**Formulation**: Bipartite matching with cost matrix C[i,j] = |RT_i - RT_j|
+
+**Theorem 4.2** (Optimal Assignment): The Hungarian algorithm finds the globally optimal peak assignment minimizing total retention time deviation in O(n³).
+
+**Proof:**
+The Hungarian algorithm solves the assignment problem optimally.
+Our cost matrix satisfies requirements (non-negative, real-valued).
+The solution minimizes Σ C[i, π(i)] over all permutations π. ∎
+
+## 5. Chemical Assumptions and Validity
+
+### 5.1 The Additivity Assumption
+
+**Assumption 5.1** (Retention Time Additivity):
+
+```
+RT(compound) ≈ Σ RT(block_i) + ε
+```
+
+where ε is small noise.
+
+**Justification**: Valid for:
+
+- Peptides in reverse-phase LC (hydrophobicity is approximately additive)
+- Building blocks without strong interactions
+- Linear synthesis without cyclization
+
+**Theorem 5.1** (Retention Order): Under additivity, products elute after their truncations.
+
+**Proof:**
+For compound C with blocks $\{b_1, \ldots, b_n\}$ and truncation T missing block $b_i$:
+
+```
+RT(C) ≈ Σⱼ RT(bⱼ)
+RT(T) ≈ Σⱼ≠ᵢ RT(bⱼ)
+RT(C) - RT(T) ≈ RT(b_i) > 0
+```
+
+Therefore RT(C) > RT(T). ∎
+
+### 5.2 Pre-validation Assumption
+
+**Assumption 5.2**: Building blocks are validated before library synthesis.
+
+**Implication**: Intra-block truncations represent coupling failures, not defective blocks.
+
+**Consequence**: Block-level analysis captures the primary failure modes.
+
+## 6. Complexity Analysis
+
+### 6.1 Graph Construction
+
+**Theorem 6.1**: DAG construction has complexity O(N × 2^B) where N is the number of maximal compounds and B is the maximum number of blocks.
+
+**Proof:**
+Each maximal compound generates at most 2^B truncations (each block present/absent).
+For N maximal compounds: O(N × 2^B) vertices.
+Edge construction: O(V²) worst case, but sparse in practice. ∎
+
+### 6.2 Signal Processing
+
+**Theorem 6.2**: Peak detection complexity is O(n) per chromatogram where n is signal length.
+
+**Proof:**
+
+- Discrete Morse theory: Single pass to find local maxima, O(n)
+- Poisson Z-score: O(1) per peak, O(p) total where p ≪ n
+- Prominence calculation: O(n) single pass
+- Total: O(n) per signal ∎
+
+### 6.3 Constraint Propagation
+
+**Theorem 6.3**: Global classification has complexity O(V × p³) where V is the number of compounds and p is the maximum peaks per compound.
+
+**Proof:**
+
+- Topological sort: O(V + E)
+- Per compound: Hungarian algorithm O(p³)
+- Total: O(V × p³) ∎
+
+## 7. Theoretical Guarantees
+
+### 7.1 Soundness
+
+**Theorem 7.1** (Classification Soundness): The constraint propagation algorithm never produces inconsistent classifications.
+
+**Proof:**
+The algorithm only propagates constraints that must hold:
+
+- NULL peaks inherited from L₀ (Theorem 4.1)
+- Retention order constraints (Theorem 5.1)
+- No conflicting assignments possible (Hungarian optimality)
+
+The DAG structure ensures no circular dependencies. ∎
+
+### 7.2 Completeness Under Assumptions
+
+**Theorem 7.2** (Conditional Completeness): Given perfect additivity and sufficient peak separation, the algorithm correctly classifies all peaks.
+
+**Proof sketch:**
+Under perfect conditions:
+
+- All peaks are detected (Morse completeness)
+- Retention order is preserved (additivity)
+- Optimal assignment is unique (Hungarian algorithm)
+- Constraints determine unique classification ∎
+
+### 7.3 Robustness
+
+**Theorem 7.3** (Graceful Degradation): Violations of assumptions lead to "UNKNOWN" classifications, not incorrect classifications.
+
+**Proof:**
+When constraints conflict:
+
+- Algorithm detects inconsistency
+- Assigns "UNKNOWN" rather than forcing classification
+- Never produces provably incorrect result ∎
+
+## 8. Information-Theoretic Perspective
+
+### 8.1 The Information Deficit
+
+**Observation**: The system operates with severe information constraints:
+
+- 1D signal instead of 2D (no mass dimension)
+- No structural information (no retention prediction)
+- Abstract relationships only (DAG structure)
+
+### 8.2 Information Recovery
+
+**Theorem 8.1** (Information Sufficiency): The DAG structure plus 1D signals contain sufficient information for synthesis validation under the stated assumptions.
+
+**Proof sketch:**
+Information sources:
+
+1. Topological peaks (presence/absence of compounds)
+2. Retention order (truncation relationships)
+3. Peak inheritance (NULL reference)
+4. DAG constraints (global consistency)
+
+Together, these constrain the solution space to enable validation. ∎
+
+## 9. Practical Implications
+
+### 9.1 Why Constraints by Design?
+
+The deliberate constraints achieve:
+
+- **Universality**: Works for any chemistry without modification
+- **Robustness**: Fewer dependencies, fewer failure modes
+- **Efficiency**: No structure prediction or mass matching needed
+- **Mathematical elegance**: Pure signal processing + graph theory
+
+### 9.2 When the Framework Applies
+
+This approach is suitable when:
+
+- Building blocks have additive retention effects
+- Truncations are primary failure mode
+- Chromatographic separation is sufficient
+- Graph structure is known (synthesis was designed)
+
+### 9.3 Limitations
+
+The framework assumes:
+
+- Poisson statistics (count-based detectors)
+- Retention time additivity (no strong interactions)
+- Pre-validated building blocks
+- Sufficient chromatographic resolution
+
+## 10. Related Work
+
+### 10.1 Traditional Approaches
+
+Most synthesis validation uses:
+
+- Mass spectrometry (information-rich but complex)
+- Machine learning (requires training data)
+- Structure-based prediction (library-specific)
+
+This framework proves these are not necessary.
+
+### 10.2 Mathematical Innovations
+
+The novel applications include:
+
+- Discrete Morse theory for chromatography (unusual)
+- DAG constraint propagation for peak classification
+- Hungarian algorithm for chemical peak matching
+- Dual representation (positional vs. chemical)
+
+### 10.3 Theoretical Connections
+
+The framework connects to:
+
+- Compressed sensing (recovering structure from limited observations)
+- Constraint satisfaction problems (global consistency)
+- Quotient spaces (equivalence classes)
+- Optimal transport (Hungarian algorithm)
+
+## 11. Open Problems
+
+### 11.1 Theoretical Questions
+
+1. **Optimal truncation boundary**: Can chromatographic theory provide principled boundary settings?
+
+2. **Minimal information requirements**: What is the information-theoretic minimum for synthesis validation?
+
+3. **Convergence rates**: How quickly does constraint propagation converge?
+
+### 11.2 Extensions
+
+1. **Non-additive retention**: How to handle strong molecular interactions?
+
+2. **Partial information**: Can mass or structure information be incorporated when available?
+
+3. **Online analysis**: Can the framework operate in streaming mode?
+
+## 12. Conclusions
+
+### 12.1 Summary
+
+This framework demonstrates that rigorous mathematics can solve underdetermined chemical problems. By deliberately constraining available information, the approach forces mathematical rigor that paradoxically makes it more robust than information-rich approaches.
+
+Key insights:
+
+- Truncation relationships necessarily form a DAG
+- Discrete Morse theory provides parameter-free peak detection
+- Graph constraints enable global consistency
+- Chemical convergence creates natural equivalence classes
+
+### 12.2 Broader Implications
+
+This work exemplifies a philosophy: **mathematical rigor over information abundance**. Many chemical analysis problems may be solvable with less information but more mathematics.
+
+The framework proves that careful application of:
+
+- Graph theory (structural relationships)
+- Topology (signal features)
+- Statistics (significance testing)
+- Optimization (optimal assignment)
+
+Can extract sufficient information from minimal observations.
+
+### 12.3 Future Directions
+
+The mathematical framework suggests extensions to:
+
+- Other combinatorial libraries (not just DELs)
+- Different analytical techniques (not just LC)
+- Multi-dimensional signals (LC-MS, 2D-LC)
+- Probabilistic frameworks (Bayesian networks on DAGs)
+
+The core insight—that mathematical structure compensates for limited observations—has broad applicability in analytical chemistry.
+
+## References
+
+[1] R. Diestel, Graph Theory, 5th ed. Berlin: Springer, 2017.
+
+[2] T. H. Cormen et al., Introduction to Algorithms, 3rd ed. Cambridge, MA: MIT Press, 2009.
+
+[3] R. Forman, "Morse theory for cell complexes," Advances in Mathematics, vol. 134, no. 1, pp. 90-145, 1998.
+
+[4] T. Lewiner et al., "Applications of Forman's discrete Morse theory to topology visualization and mesh compression," IEEE Transactions on Visualization and Computer Graphics, vol. 10, no. 5, pp. 499-508, 2003.
+
+[5] H. W. Kuhn, "The Hungarian method for the assignment problem," Naval Research Logistics Quarterly, vol. 2, no. 1-2, pp. 83-97, 1955.
+
+[6] J. Munkres, "Algorithms for the assignment and transportation problems," Journal of SIAM, vol. 5, no. 1, pp. 32-38, 1957.
+
+[7] F. J. Anscombe, "The transformation of Poisson, binomial and negative-binomial data," Biometrika, vol. 35, no. 3-4, pp. 246-254, 1948.
+
+[8] S. Brenner and R. A. Lerner, "Encoded combinatorial chemistry," Proceedings of the National Academy of Sciences, vol. 89, no. 12, pp. 5381-5383, 1992.
+
+[9] R. M. Franzini et al., "DNA-encoded chemical libraries: advancing beyond conventional small-molecule libraries," Accounts of Chemical Research, vol. 47, no. 4, pp. 1247-1255, 2014.
+
+---
+
+_This framework demonstrates that mathematical rigor can replace information abundance in chemical analysis, achieving robust synthesis validation through graph theory and signal processing alone._

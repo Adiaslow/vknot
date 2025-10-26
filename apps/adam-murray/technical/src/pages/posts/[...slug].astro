@@ -23,7 +23,7 @@ const { Content } = await post.render();
     title={post.data.title}
     summary={post.data.description ?? ""}
     publishDate={post.data.date.toISOString()}
-    showTags={true}
+    showTags={false}
     tags={post.data.tags}
     readingTimeMinutes={post.data.readingTimeMinutes}
   />

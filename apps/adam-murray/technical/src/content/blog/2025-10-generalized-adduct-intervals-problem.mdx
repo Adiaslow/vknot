@@ -1,7 +1,7 @@
 ---
 title: "Generalized Adduct Intervals Problem: A Formal Mathematical Proof"
 description: "A rigorous mathematical framework establishing optimal mass spacing strategies for mass spectrometry-based detection of combinatorial cyclic peptide libraries, providing provable upper bounds for multi-objective evolutionary algorithms in drug discovery."
-date: 2025-01-25
+date: 2025-04-23
 tags:
   - mathematics
   - algorithms
@@ -15,7 +15,7 @@ draft: false
 
 ## Abstract
 
-This work presents a rigorous mathematical framework for the what Generalized Adduct Intervals Problem, establishing optimal mass spacing strategies for mass spectrometry-based detection of combinatorial cyclic peptide libraries. The framework provides provable upper bounds on library size that are essential for multi-objective evolutionary algorithms in drug discovery applications. By bridging algorithmic optimization theory with analytical chemistry constraints, this work enables principled design of large-scale peptide libraries while guaranteeing unique MS identification of each library member.
+This work presents a rigorous mathematical framework for the Generalized Adduct Intervals Problem, establishing optimal mass spacing strategies for mass spectrometry-based detection of combinatorial cyclic peptide libraries. The framework provides provable upper bounds on library size that are essential for multi-objective evolutionary algorithms in drug discovery applications. By bridging algorithmic optimization theory with analytical chemistry constraints, this work enables principled design of large-scale peptide libraries while guaranteeing unique MS identification of each library member.
 
 ## 1. Background and Motivation
 
@@ -333,7 +333,7 @@ Existing MS tools focus on post-acquisition handling of adduct overlaps:
 - **AdductHunter**: Identifies protein-metal complex adducts using constraint optimization
 - **MzAdan**: Annotates adducts in existing spectra
 
-Our approach is fundamentally different: it **prevents overlap by design** through optimal mass spacing, enabling larger libraries with guaranteed MS resolution.
+This approach is fundamentally different: it **prevents overlap by design** through optimal mass spacing, enabling larger libraries with guaranteed MS resolution.
 
 ### 6.3 Bridge to Combinatorial Library Design
 
@@ -480,26 +480,24 @@ The theoretical foundation presented here directly informs optimization algorith
 
 ## References
 
-1. Deb, K., & Jain, H. (2014). An Evolutionary Many-Objective Optimization Algorithm Using Reference-Point-Based Nondominated Sorting Approach, Part I: Solving Problems With Box Constraints. IEEE Transactions on Evolutionary Computation, 18(4), 577-601.
+[1] K. Deb and H. Jain, "An Evolutionary Many-Objective Optimization Algorithm Using Reference-Point-Based Nondominated Sorting Approach, Part I: Solving Problems With Box Constraints," IEEE Transactions on Evolutionary Computation, vol. 18, no. 4, pp. 577-601, 2014.
 
-2. Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. (2002). A fast and elitist multiobjective genetic algorithm: NSGA-II. IEEE Transactions on Evolutionary Computation, 6(2), 182-197.
+[2] K. Deb, A. Pratap, S. Agarwal, and T. Meyarivan, "A fast and elitist multiobjective genetic algorithm: NSGA-II," IEEE Transactions on Evolutionary Computation, vol. 6, no. 2, pp. 182-197, 2002.
 
-3. Das, I., & Dennis, J. E. (1998). Normal-boundary intersection: A new method for generating the Pareto surface in nonlinear multicriteria optimization problems. SIAM Journal on Optimization, 8(3), 631-657.
+[3] I. Das and J. E. Dennis, "Normal-boundary intersection: A new method for generating the Pareto surface in nonlinear multicriteria optimization problems," SIAM Journal on Optimization, vol. 8, no. 3, pp. 631-657, 1998.
 
-4. Kleinberg, J., & Tardos, E. (2005). Algorithm Design. Addison-Wesley.
+[4] J. Kleinberg and E. Tardos, Algorithm Design. Boston, MA: Addison-Wesley, 2005.
 
-5. Interval Scheduling. In: Algorithm Notes. Available at: https://stumash.github.io/Algorithm_Notes/greedy/intervals/intervals.html
+[5] "Interval Scheduling," Algorithm Notes. [Online]. Available: https://stumash.github.io/Algorithm_Notes/greedy/intervals/intervals.html
 
-6. Cyclic Peptide Libraries:
+[6] S. H. Joo et al., "High-throughput sequence determination of cyclic peptide library members by partial Edman degradation/mass spectrometry," Journal of the American Chemical Society, vol. 128, no. 39, pp. 13000-13009, 2006.
 
-   - Joo, S. H., et al. (2006). High-throughput sequence determination of cyclic peptide library members by partial Edman degradation/mass spectrometry. Journal of the American Chemical Society, 128(39), 13000-13009.
-   - Redman, J. E., et al. (2003). Automated mass spectrometric sequence determination of cyclic peptide library members. Journal of Combinatorial Chemistry, 5(1), 33-40.
+[7] J. E. Redman et al., "Automated mass spectrometric sequence determination of cyclic peptide library members," Journal of Combinatorial Chemistry, vol. 5, no. 1, pp. 33-40, 2003.
 
-7. Mass Spectrometry Adduct Analysis:
+[8] P. I. Kitov et al., "Sliding Window Adduct Removal Method (SWARM) for enhanced electrospray ionization mass spectrometry binding data," Journal of The American Society for Mass Spectrometry, vol. 30, no. 8, pp. 1446-1454, 2019.
 
-   - Kitov, P. I., et al. (2019). Sliding Window Adduct Removal Method (SWARM) for enhanced electrospray ionization mass spectrometry binding data. Journal of The American Society for Mass Spectrometry, 30(8), 1446-1454.
-   - Gavriilidou, A. F. M., et al. (2024). AdductHunter: identifying protein-metal complex adducts in mass spectra. Journal of Cheminformatics, 16(1), 15.
+[9] A. F. M. Gavriilidou et al., "AdductHunter: identifying protein-metal complex adducts in mass spectra," Journal of Cheminformatics, vol. 16, no. 1, p. 15, 2024.
 
-8. Multi-Objective Optimization:
-   - Coello, C. C., Lamont, G. B., & Van Veldhuizen, D. A. (2007). Evolutionary algorithms for solving multi-objective problems. Springer.
-   - Miettinen, K. (1999). Nonlinear multiobjective optimization. Kluwer Academic Publishers.
+[10] C. C. Coello, G. B. Lamont, and D. A. Van Veldhuizen, Evolutionary Algorithms for Solving Multi-Objective Problems. New York: Springer, 2007.
+
+[11] K. Miettinen, Nonlinear Multiobjective Optimization. Boston, MA: Kluwer Academic Publishers, 1999.

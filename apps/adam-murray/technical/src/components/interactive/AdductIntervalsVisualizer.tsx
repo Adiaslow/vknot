@@ -74,7 +74,88 @@ export default function AdductIntervalsVisualizer() {
     setActiveAdducts([...adducts]);
   }, [mode, method]);
 
-  // Compute intervals and detect overlaps
+  // Helper: Compute forbidden zones for a candidate position
+  const computeForbiddenZones = (
+    placedMasses: number[],
+    adductMasses: number[],
+    halfWidth: number
+  ): Array<[number, number]> => {
+    const zones: Array<[number, number]> = [];
+
+    // For each placed mass and all adduct pairs, compute forbidden zone
+    for (const m_ell of placedMasses) {
+      for (const aj of adductMasses) {
+        for (const aj_prime of adductMasses) {
+          // Forbidden zone: [m_ell + a_j' - a_j - 2T, m_ell + a_j' - a_j + 2T]
+          const center = m_ell + aj_prime - aj;
+          const lower = center - 2 * halfWidth;
+          const upper = center + 2 * halfWidth;
+          zones.push([lower, upper]);
+        }
+      }
+    }
+
+    return zones;
+  };
+
+  // Helper: Merge overlapping intervals
+  const mergeIntervals = (intervals: Array<[number, number]>): Array<[number, number]> => {
+    if (intervals.length === 0) return [];
+
+    // Sort by lower bound
+    const sorted = intervals.sort((a, b) => a[0] - b[0]);
+    const merged: Array<[number, number]> = [sorted[0]];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const current = sorted[i];
+      const lastMerged = merged[merged.length - 1];
+
+      // If current overlaps or touches last merged, extend it
+      if (current[0] <= lastMerged[1]) {
+        lastMerged[1] = Math.max(lastMerged[1], current[1]);
+      } else {
+        merged.push(current);
+      }
+    }
+
+    return merged;
+  };
+
+  // Helper: Find next valid position given forbidden zones
+  const findNextValidPosition = (
+    minPos: number,
+    forbiddenZones: Array<[number, number]>,
+    maxPos: number
+  ): number | null => {
+    const EPSILON = 1e-9; // Small tolerance for floating point
+
+    // Merge overlapping forbidden zones
+    const merged = mergeIntervals(forbiddenZones);
+
+    let candidate = minPos;
+
+    // Check each forbidden zone
+    for (const [lower, upper] of merged) {
+      // If candidate is before this forbidden zone, we're done
+      if (candidate < lower - EPSILON) {
+        break;
+      }
+
+      // If candidate is inside this forbidden zone, jump past it
+      if (candidate >= lower - EPSILON && candidate <= upper + EPSILON) {
+        candidate = upper + EPSILON;
+      }
+    }
+
+    // Check if candidate exceeds maximum position
+    if (candidate > maxPos) {
+      return null;
+    }
+
+    return candidate;
+  };
+
+  // Compute intervals using greedy algorithm
   const computeIntervals = (): { intervals: Interval[]; overlaps: Set<string>; n: number; delta: number; kappa: number } => {
     if (activeAdducts.length === 0) {
       return { intervals: [], overlaps: new Set(), n: 0, delta: 0, kappa: 0 };
@@ -84,8 +165,9 @@ export default function AdductIntervalsVisualizer() {
     const sortedAdducts = [...activeAdducts].sort((a, b) => a.mass - b.mass);
     const a1 = sortedAdducts[0].mass;
     const ak = sortedAdducts[sortedAdducts.length - 1].mass;
+    const adductMasses = sortedAdducts.map(a => a.mass);
 
-    // Calculate spacing and number of peptides
+    // Calculate spacing
     const delta = 2 * T;
 
     // Validity check 1: Range must be large enough (Section 2.3)
@@ -100,24 +182,45 @@ export default function AdductIntervalsVisualizer() {
       }
     }
 
-    const n = Math.floor((U - L - (ak - a1) - 2 * T) / delta) + 1;
+    // Greedy algorithm: place masses at earliest valid positions
+    const masses: number[] = [];
 
-    // Additional safety check: ensure n is positive
-    if (n <= 0) {
+    // Initialize first mass: m_0 = L + T - a_1
+    let currentMass = L + T - a1;
+
+    // Check if first mass fits
+    if (currentMass + ak + T > U) {
       return { intervals: [], overlaps: new Set(), n: 0, delta, kappa: 0 };
     }
 
-    // Generate masses
-    const masses: number[] = [];
-    for (let i = 0; i < n; i++) {
-      const m = L + (2 * i + 1) * T - a1;
-      masses.push(m);
+    masses.push(currentMass);
+
+    // Place subsequent masses greedily
+    const MAX_ITERATIONS = 10000; // Safety limit
+    for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+      // Compute forbidden zones based on all previously placed masses
+      const forbiddenZones = computeForbiddenZones(masses, adductMasses, T);
+
+      // Find next valid position (at least 2T away from previous mass)
+      const minNextPos = masses[masses.length - 1] + 2 * T;
+      const maxNextPos = U - ak - T; // Ensure all adduct intervals fit
+
+      const nextMass = findNextValidPosition(minNextPos, forbiddenZones, maxNextPos);
+
+      // If no valid position found, terminate
+      if (nextMass === null || nextMass + ak + T > U) {
+        break;
+      }
+
+      masses.push(nextMass);
     }
+
+    const n = masses.length;
 
     // Generate intervals
     const intervals: Interval[] = [];
     masses.forEach((m, i) => {
-      activeAdducts.forEach(adduct => {
+      sortedAdducts.forEach(adduct => {
         intervals.push({
           peptideIndex: i,
           adduct,
@@ -128,7 +231,7 @@ export default function AdductIntervalsVisualizer() {
       });
     });
 
-    // Detect overlaps (with small numerical tolerance for floating point errors)
+    // Detect overlaps (should be zero with greedy algorithm)
     const EPSILON = 1e-6; // tolerance for touching intervals
     const overlaps = new Set<string>();
     for (let i = 0; i < intervals.length; i++) {
@@ -136,7 +239,6 @@ export default function AdductIntervalsVisualizer() {
         const int1 = intervals[i];
         const int2 = intervals[j];
         // Two intervals overlap if: int1.upper > int2.lower AND int1.lower < int2.upper
-        // We add EPSILON tolerance to avoid false positives from floating point errors
         if (int1.upper > int2.lower + EPSILON && int1.lower < int2.upper - EPSILON) {
           overlaps.add(`${i}`);
           overlaps.add(`${j}`);
@@ -144,8 +246,7 @@ export default function AdductIntervalsVisualizer() {
       }
     }
 
-    // Calculate kappa (critical separation)
-    // Per Lemma 3.3: κ = ceil((a_k - a_1)/(2T) + 1)
+    // Calculate kappa (for reference, not used in greedy algorithm)
     const kappa = Math.ceil((ak - a1) / delta + 1);
 
     return { intervals, overlaps, n, delta, kappa };

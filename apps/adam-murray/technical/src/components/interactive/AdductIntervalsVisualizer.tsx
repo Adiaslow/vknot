@@ -325,7 +325,9 @@ export default function AdductIntervalsVisualizer() {
     const width = 900;
     const rowHeight = 20; // Fixed row height for consistency
     const rowSpacing = 4; // Fixed spacing between rows
-    const plotHeight = totalRows * (rowHeight + rowSpacing) + rowSpacing;
+    const baseMarkHeight = 8; // Height of base mass marker lines
+    // Add extra rowSpacing at bottom for separation between lowest row and base mass ticks
+    const plotHeight = totalRows * (rowHeight + rowSpacing) + rowSpacing + baseMarkHeight / 2;
     const margin = { top: 40, right: 40, bottom: 60, left: 60 };
     const plotWidth = width - margin.left - margin.right;
     const height = plotHeight + margin.top + margin.bottom;

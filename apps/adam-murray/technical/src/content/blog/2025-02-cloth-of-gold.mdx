@@ -11,11 +11,19 @@ tags:
 draft: false
 ---
 
+import ClothOfGoldSimulator from '../../components/interactive/ClothOfGoldSimulator.tsx';
+
 # Cloth of Gold: Competitive Cellular Automata as a Strategy Game
 
 ## Abstract
 
 Cloth of Gold presents a two-player strategy game built on a competitive modification of Conway's Game of Life. By introducing player ownership and majority-rule dynamics to cellular evolution, the game transforms a zero-player mathematical curiosity into a contest of strategic depth. This framework proves that the competitive rules fundamentally alter the mathematical properties of the cellular automaton, create complex game-theoretic equilibria, and give rise to emergent territorial dynamics. The game features simultaneous hidden placement, economic feedback through pattern recognition, and multiple victory conditions, creating a rich strategic space at the intersection of discrete dynamical systems and competitive game theory.
+
+## Interactive Demonstration
+
+*Explore competitive cellular automaton dynamics below. Click cells to place Player A (blue) or Player B (red) populations, then watch them evolve according to competitive Game of Life rules. The colored background shows discretized territorial control via metaball influence fields.*
+
+<ClothOfGoldSimulator client:load />
 
 ## 1. Introduction
 

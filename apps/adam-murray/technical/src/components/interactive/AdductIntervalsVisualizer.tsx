@@ -448,32 +448,16 @@ export default function AdductIntervalsVisualizer() {
         g.selectAll('.tooltip').remove();
       });
 
-    // Draw bare mass markers (small vertical lines)
-    // For each mass, find which row its intervals are on
-    const massToRow = new Map<number, number>();
-    intervals.forEach(int => {
-      if (!massToRow.has(int.mass)) {
-        massToRow.set(int.mass, intervalToRow.get(int) || 0);
-      }
-    });
-
+    // Draw bare mass markers as points on the x-axis
     const massMarkers = g.selectAll('.mass-marker')
       .data(uniqueMasses)
-      .join('line')
+      .join('circle')
       .attr('class', 'mass-marker')
-      .attr('x1', d => xScale(d))
-      .attr('x2', d => xScale(d))
-      .attr('y1', d => {
-        const row = massToRow.get(d) || 0;
-        return row * (rowHeight + rowSpacing);
-      })
-      .attr('y2', d => {
-        const row = massToRow.get(d) || 0;
-        return row * (rowHeight + rowSpacing) + rowHeight;
-      })
-      .attr('stroke', '#000')
-      .attr('stroke-width', 1)
-      .attr('opacity', 0.5)
+      .attr('cx', d => xScale(d))
+      .attr('cy', plotHeight)
+      .attr('r', 3)
+      .attr('fill', '#000')
+      .attr('opacity', 0.7)
       .style('pointer-events', 'none');
 
     // Animate entrance

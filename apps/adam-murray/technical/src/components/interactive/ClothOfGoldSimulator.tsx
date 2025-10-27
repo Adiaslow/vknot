@@ -83,7 +83,7 @@ export default function ClothOfGoldSimulator() {
     return { total, playerA, playerB };
   }
 
-  // Apply competitive Game of Life rules
+  // Apply competitive Game of Life rules (Cloth of Gold variant)
   function evolveGrid(currentGrid: Grid): Grid {
     const newGrid = createEmptyGrid();
 
@@ -92,27 +92,42 @@ export default function ClothOfGoldSimulator() {
         const cell = currentGrid[i][j];
         const { total, playerA, playerB } = countNeighbors(currentGrid, i, j);
 
-        // Rule 1: Death by isolation or overcrowding
+        // Rule 1: Death by isolation or overcrowding (applies to all cells)
         if (total < 2 || total > 3) {
           newGrid[i][j] = 0;
           continue;
         }
 
-        // Rules 2-4: Competitive birth/survival
-        const survivalCondition = (cell !== 0 && (total === 2 || total === 3));
-        const birthCondition = (cell === 0 && total === 3);
+        // For cells that survive (total is 2 or 3), determine ownership by competitive rules
 
-        if (survivalCondition || birthCondition) {
-          // Rule 4: Stalemate preservation (equal neighbors)
-          if (playerA === playerB) {
-            newGrid[i][j] = cell; // Keep current state
-          }
-          // Rule 2: Player A dominance
-          else if (playerA > playerB) {
+        // Rule 4: Stalemate preservation - if neighbors are equal, keep current state
+        if (playerA === playerB && total >= 2 && total <= 3) {
+          newGrid[i][j] = cell;
+          continue;
+        }
+
+        // Rule 2: Player A wins if more A neighbors
+        // KEY: Cells can CHANGE OWNERSHIP based on neighbor majority
+        if (playerA > playerB) {
+          // Any living cell (A or B) with 2-3 neighbors becomes A if more A neighbors
+          if (cell !== 0 && (total === 2 || total === 3)) {
             newGrid[i][j] = 1;
           }
-          // Rule 3: Player B dominance
-          else {
+          // Empty cell with exactly 3 neighbors births as A if more A neighbors
+          else if (cell === 0 && total === 3) {
+            newGrid[i][j] = 1;
+          }
+        }
+
+        // Rule 3: Player B wins if more B neighbors
+        // KEY: Cells can CHANGE OWNERSHIP based on neighbor majority
+        if (playerB > playerA) {
+          // Any living cell (A or B) with 2-3 neighbors becomes B if more B neighbors
+          if (cell !== 0 && (total === 2 || total === 3)) {
+            newGrid[i][j] = 2;
+          }
+          // Empty cell with exactly 3 neighbors births as B if more B neighbors
+          else if (cell === 0 && total === 3) {
             newGrid[i][j] = 2;
           }
         }

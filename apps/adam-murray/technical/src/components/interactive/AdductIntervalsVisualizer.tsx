@@ -368,10 +368,11 @@ export default function AdductIntervalsVisualizer() {
     const colorScale = d3.scaleOrdinal(customColors)
       .domain(activeAdducts.map(a => a.symbol));
 
-    // X axis
+    // X axis - use appropriate number of ticks based on range
+    const numTicks = Math.min(10, Math.max(5, Math.floor((U - L) / 100)));
     g.append('g')
       .attr('transform', `translate(0,${plotHeight})`)
-      .call(d3.axisBottom(xScale).ticks(10))
+      .call(d3.axisBottom(xScale).ticks(numTicks))
       .style('font-size', '12px');
 
     g.append('text')
@@ -396,7 +397,7 @@ export default function AdductIntervalsVisualizer() {
     // Get unique bare masses
     const uniqueMasses = Array.from(new Set(intervals.map(int => int.mass)));
 
-    // Draw intervals using row assignments
+    // Draw intervals using row assignments (inverted so row 0 is at bottom)
     const rects = g.selectAll('.interval')
       .data(intervals)
       .join('rect')
@@ -404,7 +405,8 @@ export default function AdductIntervalsVisualizer() {
       .attr('x', d => xScale(d.lower))
       .attr('y', d => {
         const row = intervalToRow.get(d) || 0;
-        return row * (rowHeight + rowSpacing);
+        // Invert: row 0 should be at the bottom (highest y value)
+        return plotHeight - (row + 1) * (rowHeight + rowSpacing);
       })
       .attr('width', d => xScale(d.upper) - xScale(d.lower))
       .attr('height', rowHeight)
@@ -421,7 +423,7 @@ export default function AdductIntervalsVisualizer() {
 
         // Tooltip
         const row = intervalToRow.get(d) || 0;
-        const yPos = row * (rowHeight + rowSpacing);
+        const yPos = plotHeight - (row + 1) * (rowHeight + rowSpacing);
         const tooltip = g.append('g')
           .attr('class', 'tooltip')
           .attr('transform', `translate(${xScale((d.lower + d.upper) / 2)}, ${yPos - 10})`);
@@ -455,10 +457,45 @@ export default function AdductIntervalsVisualizer() {
       .attr('class', 'mass-marker')
       .attr('cx', d => xScale(d))
       .attr('cy', plotHeight)
-      .attr('r', 3)
+      .attr('r', 2)
       .attr('fill', '#000')
       .attr('opacity', 0.7)
-      .style('pointer-events', 'none');
+      .style('cursor', 'pointer')
+      .on('mouseover', function(event, d) {
+        d3.select(this)
+          .attr('opacity', 1)
+          .attr('r', 3);
+
+        // Find the peptide index for this mass
+        const peptideIdx = intervals.find(int => int.mass === d)?.peptideIndex;
+
+        // Tooltip
+        const tooltip = g.append('g')
+          .attr('class', 'mass-tooltip')
+          .attr('transform', `translate(${xScale(d)}, ${plotHeight - 15})`);
+
+        tooltip.append('rect')
+          .attr('x', -50)
+          .attr('y', -30)
+          .attr('width', 100)
+          .attr('height', 28)
+          .attr('fill', 'white')
+          .attr('stroke', '#333')
+          .attr('rx', 4);
+
+        tooltip.append('text')
+          .attr('text-anchor', 'middle')
+          .attr('y', -10)
+          .style('font-size', '11px')
+          .style('font-weight', '600')
+          .text(`m${peptideIdx}: ${d.toFixed(3)} Da`);
+      })
+      .on('mouseout', function() {
+        d3.select(this)
+          .attr('opacity', 0.7)
+          .attr('r', 2);
+        g.selectAll('.mass-tooltip').remove();
+      });
 
     // Animate entrance
     rects

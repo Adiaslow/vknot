@@ -446,8 +446,7 @@ export default function AdductIntervalsVisualizer() {
             return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
           })
           .attr('stroke', 'none')
-          .attr('opacity', 0) // Start with 0 for animation
-          .call(enter => enter.transition().duration(300).attr('opacity', 0.7)),
+          .attr('opacity', 0.7),
         update => update
           .attr('x', d => xScale(d.lower))
           .attr('y', d => {
@@ -459,8 +458,9 @@ export default function AdductIntervalsVisualizer() {
           .attr('fill', d => {
             const intervalIdx = intervals.indexOf(d);
             return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
-          }),
-        exit => exit.transition().duration(200).attr('opacity', 0).remove()
+          })
+          .attr('opacity', 0.7),
+        exit => exit.remove()
       )
       .on('mouseover', function(event, d) {
         d3.select(this)
@@ -495,7 +495,8 @@ export default function AdductIntervalsVisualizer() {
         g.selectAll('.tooltip').remove();
       });
 
-    // Draw bare mass markers as thin vertical lines on the x-axis
+    // Draw bare mass markers as very thin vertical lines crossing the x-axis
+    const lineHeight = 20; // Total height of the line (10px above and below x-axis)
     const massMarkers = g.selectAll<SVGLineElement, number>('.mass-marker')
       .data(uniqueMasses, d => String(d))
       .join(
@@ -505,16 +506,14 @@ export default function AdductIntervalsVisualizer() {
       )
       .attr('x1', d => xScale(d))
       .attr('x2', d => xScale(d))
-      .attr('y1', plotHeight - 8)
-      .attr('y2', plotHeight)
+      .attr('y1', plotHeight - lineHeight / 2)
+      .attr('y2', plotHeight + lineHeight / 2)
       .attr('stroke', '#000')
-      .attr('stroke-width', 1)
-      .attr('opacity', 0.6)
-      .style('cursor', 'pointer')
+      .attr('stroke-width', 0.5)
+      .attr('opacity', 0.7)
       .on('mouseover', function(event, d) {
         d3.select(this)
-          .attr('opacity', 1)
-          .attr('stroke-width', 2);
+          .attr('opacity', 1);
 
         // Find the peptide index for this mass
         const peptideIdx = intervals.find(int => int.mass === d)?.peptideIndex;
@@ -522,11 +521,11 @@ export default function AdductIntervalsVisualizer() {
         // Tooltip
         const tooltip = g.append('g')
           .attr('class', 'mass-tooltip')
-          .attr('transform', `translate(${xScale(d)}, ${plotHeight - 15})`);
+          .attr('transform', `translate(${xScale(d)}, ${plotHeight + 20})`);
 
         tooltip.append('rect')
           .attr('x', -50)
-          .attr('y', -30)
+          .attr('y', 0)
           .attr('width', 100)
           .attr('height', 28)
           .attr('fill', 'white')
@@ -535,15 +534,14 @@ export default function AdductIntervalsVisualizer() {
 
         tooltip.append('text')
           .attr('text-anchor', 'middle')
-          .attr('y', -10)
+          .attr('y', 18)
           .style('font-size', '11px')
           .style('font-weight', '600')
           .text(`m${peptideIdx}: ${d.toFixed(3)} Da`);
       })
       .on('mouseout', function() {
         d3.select(this)
-          .attr('opacity', 0.6)
-          .attr('stroke-width', 1);
+          .attr('opacity', 0.7);
         g.selectAll('.mass-tooltip').remove();
       });
 
@@ -735,7 +733,7 @@ export default function AdductIntervalsVisualizer() {
             </label>
             <input
               type="range"
-              min="0.01"
+              min="0.25"
               max="2"
               step="0.01"
               value={T}

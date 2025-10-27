@@ -282,7 +282,18 @@ export default function AdductIntervalsVisualizer() {
       .domain([L, U])
       .range([0, plotWidth]);
 
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
+    // Custom color scale without red (reserved for overlaps)
+    const customColors = [
+      '#3b82f6', // blue
+      '#10b981', // green
+      '#8b5cf6', // purple
+      '#f59e0b', // amber
+      '#06b6d4', // cyan
+      '#6366f1', // indigo
+      '#14b8a6', // teal
+      '#a855f7', // violet
+    ];
+    const colorScale = d3.scaleOrdinal(customColors)
       .domain(activeAdducts.map(a => a.symbol));
 
     // X axis
@@ -308,46 +319,44 @@ export default function AdductIntervalsVisualizer() {
       .style('font-weight', '700')
       .text('Adduct Interval Visualization');
 
-    // Sample intervals for visualization (show first 20 peptides)
-    const maxPeptidesToShow = Math.min(20, n);
-    const visibleIntervals = intervals.filter(int => int.peptideIndex < maxPeptidesToShow);
+    // Show all peptides, grouped by mass
+    // Each row represents one peptide with all its adduct intervals
+    const rowHeight = Math.max(8, Math.min(20, plotHeight / n));
+    const rowSpacing = rowHeight * 0.2;
 
-    // Calculate y positions for intervals
-    const yScale = d3.scaleBand()
-      .domain(visibleIntervals.map((_, i) => String(i)))
-      .range([0, plotHeight])
-      .padding(0.1);
+    // Get unique bare masses
+    const uniqueMasses = Array.from(new Set(intervals.map(int => int.mass)));
 
-    const intervalHeight = Math.min(15, plotHeight / visibleIntervals.length);
-
-    // Draw intervals
+    // Draw intervals grouped by peptide
     const rects = g.selectAll('.interval')
-      .data(visibleIntervals)
+      .data(intervals)
       .join('rect')
       .attr('class', 'interval')
       .attr('x', d => xScale(d.lower))
-      .attr('y', (d, i) => i * (plotHeight / visibleIntervals.length))
+      .attr('y', d => d.peptideIndex * (rowHeight + rowSpacing))
       .attr('width', d => xScale(d.upper) - xScale(d.lower))
-      .attr('height', intervalHeight)
-      .attr('fill', d => overlaps.has(String(visibleIntervals.indexOf(d))) ? '#ef4444' : colorScale(d.adduct.symbol))
+      .attr('height', rowHeight)
+      .attr('fill', d => {
+        const intervalIdx = intervals.indexOf(d);
+        return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
+      })
       .attr('opacity', 0.7)
-      .attr('stroke', d => overlaps.has(String(visibleIntervals.indexOf(d))) ? '#dc2626' : '#333')
-      .attr('stroke-width', 1)
+      .attr('stroke', 'none')
       .style('transition', 'all 300ms ease')
       .on('mouseover', function(event, d) {
         d3.select(this)
-          .attr('opacity', 1)
-          .attr('stroke-width', 2);
+          .attr('opacity', 1);
 
         // Tooltip
+        const yPos = d.peptideIndex * (rowHeight + rowSpacing);
         const tooltip = g.append('g')
           .attr('class', 'tooltip')
-          .attr('transform', `translate(${xScale((d.lower + d.upper) / 2)}, ${visibleIntervals.indexOf(d) * (plotHeight / visibleIntervals.length) - 10})`);
+          .attr('transform', `translate(${xScale((d.lower + d.upper) / 2)}, ${yPos - 10})`);
 
         tooltip.append('rect')
-          .attr('x', -80)
+          .attr('x', -90)
           .attr('y', -30)
-          .attr('width', 160)
+          .attr('width', 180)
           .attr('height', 28)
           .attr('fill', 'white')
           .attr('stroke', '#333')
@@ -358,21 +367,37 @@ export default function AdductIntervalsVisualizer() {
           .attr('y', -10)
           .style('font-size', '11px')
           .style('font-weight', '600')
-          .text(`Peptide ${d.peptideIndex}: ${d.adduct.symbol} [${d.lower.toFixed(3)}, ${d.upper.toFixed(3)}]`);
+          .text(`m${d.peptideIndex}: ${d.adduct.symbol} [${d.lower.toFixed(3)}, ${d.upper.toFixed(3)}]`);
       })
       .on('mouseout', function() {
         d3.select(this)
-          .attr('opacity', 0.7)
-          .attr('stroke-width', 1);
+          .attr('opacity', 0.7);
         g.selectAll('.tooltip').remove();
       });
+
+    // Draw bare mass markers (small vertical lines)
+    const massMarkers = g.selectAll('.mass-marker')
+      .data(uniqueMasses)
+      .join('line')
+      .attr('class', 'mass-marker')
+      .attr('x1', d => xScale(d))
+      .attr('x2', d => xScale(d))
+      .attr('y1', (d, i) => i * (rowHeight + rowSpacing))
+      .attr('y2', (d, i) => i * (rowHeight + rowSpacing) + rowHeight)
+      .attr('stroke', '#000')
+      .attr('stroke-width', 2)
+      .attr('opacity', 0.4)
+      .style('pointer-events', 'none');
 
     // Animate entrance
     rects
       .attr('opacity', 0)
       .transition()
       .duration(300)
-      .attr('opacity', d => overlaps.has(String(visibleIntervals.indexOf(d))) ? 0.9 : 0.7);
+      .attr('opacity', d => {
+        const intervalIdx = intervals.indexOf(d);
+        return overlaps.has(String(intervalIdx)) ? 0.9 : 0.7;
+      });
 
   }, [L, U, T, activeAdducts]);
 

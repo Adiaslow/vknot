@@ -259,15 +259,74 @@ export default function AdductIntervalsVisualizer() {
     const { intervals, overlaps, n } = computeIntervals();
     if (intervals.length === 0) return;
 
+    // Greedy row packing: pack interval sets into rows to maximize density
+    // Each interval set consists of all k adduct intervals for one peptide mass
+    const EPSILON = 1e-6;
+
+    // Group intervals by peptide index
+    const intervalsByPeptide: { [key: number]: Interval[] } = {};
+    intervals.forEach(int => {
+      if (!intervalsByPeptide[int.peptideIndex]) {
+        intervalsByPeptide[int.peptideIndex] = [];
+      }
+      intervalsByPeptide[int.peptideIndex].push(int);
+    });
+
+    // Track which intervals are on each row
+    const rowIntervals: Interval[][] = [];
+    const intervalToRow = new Map<Interval, number>();
+
+    // Helper: check if an interval overlaps with any interval in a list
+    const hasOverlap = (interval: Interval, intervalList: Interval[]): boolean => {
+      return intervalList.some(other =>
+        interval.upper > other.lower + EPSILON && interval.lower < other.upper - EPSILON
+      );
+    };
+
+    // Helper: check if all intervals in a set can fit on a row
+    const canFitOnRow = (intervalSet: Interval[], row: Interval[]): boolean => {
+      return intervalSet.every(interval => !hasOverlap(interval, row));
+    };
+
+    // Pack interval sets into rows (greedy first-fit)
+    for (let peptideIdx = 0; peptideIdx < n; peptideIdx++) {
+      const intervalSet = intervalsByPeptide[peptideIdx];
+
+      // Try to place on existing rows (starting from row 0 = lowest/closest to x-axis)
+      let placed = false;
+      for (let rowIdx = 0; rowIdx < rowIntervals.length; rowIdx++) {
+        if (canFitOnRow(intervalSet, rowIntervals[rowIdx])) {
+          // Place all intervals of this peptide on this row
+          rowIntervals[rowIdx].push(...intervalSet);
+          intervalSet.forEach(int => intervalToRow.set(int, rowIdx));
+          placed = true;
+          break;
+        }
+      }
+
+      // If couldn't fit on any existing row, create a new row
+      if (!placed) {
+        const newRowIdx = rowIntervals.length;
+        rowIntervals.push([...intervalSet]);
+        intervalSet.forEach(int => intervalToRow.set(int, newRowIdx));
+      }
+    }
+
+    const totalRows = rowIntervals.length;
+
     // Clear previous content
     d3.select(svgRef.current).selectAll('*').remove();
 
-    // Dimensions
+    // Dimensions - make height dynamic based on number of rows
     const width = 900;
-    const height = 400;
+    const rowHeight = 20; // Fixed row height for consistency
+    const rowSpacing = 4; // Fixed spacing between rows
+    const minPlotHeight = 200; // Minimum plot height
+    const dynamicPlotHeight = Math.max(minPlotHeight, totalRows * (rowHeight + rowSpacing) + rowSpacing);
     const margin = { top: 40, right: 40, bottom: 60, left: 60 };
     const plotWidth = width - margin.left - margin.right;
-    const plotHeight = height - margin.top - margin.bottom;
+    const plotHeight = dynamicPlotHeight;
+    const height = plotHeight + margin.top + margin.bottom;
 
     // Create SVG
     const svg = d3.select(svgRef.current)
@@ -321,19 +380,19 @@ export default function AdductIntervalsVisualizer() {
 
     // Show all peptides, grouped by mass
     // Each row represents one peptide with all its adduct intervals
-    const rowHeight = Math.max(8, Math.min(20, plotHeight / n));
-    const rowSpacing = rowHeight * 0.2;
-
     // Get unique bare masses
     const uniqueMasses = Array.from(new Set(intervals.map(int => int.mass)));
 
-    // Draw intervals grouped by peptide
+    // Draw intervals using row assignments
     const rects = g.selectAll('.interval')
       .data(intervals)
       .join('rect')
       .attr('class', 'interval')
       .attr('x', d => xScale(d.lower))
-      .attr('y', d => d.peptideIndex * (rowHeight + rowSpacing))
+      .attr('y', d => {
+        const row = intervalToRow.get(d) || 0;
+        return row * (rowHeight + rowSpacing);
+      })
       .attr('width', d => xScale(d.upper) - xScale(d.lower))
       .attr('height', rowHeight)
       .attr('fill', d => {
@@ -348,7 +407,8 @@ export default function AdductIntervalsVisualizer() {
           .attr('opacity', 1);
 
         // Tooltip
-        const yPos = d.peptideIndex * (rowHeight + rowSpacing);
+        const row = intervalToRow.get(d) || 0;
+        const yPos = row * (rowHeight + rowSpacing);
         const tooltip = g.append('g')
           .attr('class', 'tooltip')
           .attr('transform', `translate(${xScale((d.lower + d.upper) / 2)}, ${yPos - 10})`);
@@ -367,7 +427,7 @@ export default function AdductIntervalsVisualizer() {
           .attr('y', -10)
           .style('font-size', '11px')
           .style('font-weight', '600')
-          .text(`m${d.peptideIndex}: ${d.adduct.symbol} [${d.lower.toFixed(3)}, ${d.upper.toFixed(3)}]`);
+          .text(`m${d.peptideIndex} (row ${row}): ${d.adduct.symbol} [${d.lower.toFixed(3)}, ${d.upper.toFixed(3)}]`);
       })
       .on('mouseout', function() {
         d3.select(this)
@@ -376,14 +436,28 @@ export default function AdductIntervalsVisualizer() {
       });
 
     // Draw bare mass markers (small vertical lines)
+    // For each mass, find which row its intervals are on
+    const massToRow = new Map<number, number>();
+    intervals.forEach(int => {
+      if (!massToRow.has(int.mass)) {
+        massToRow.set(int.mass, intervalToRow.get(int) || 0);
+      }
+    });
+
     const massMarkers = g.selectAll('.mass-marker')
       .data(uniqueMasses)
       .join('line')
       .attr('class', 'mass-marker')
       .attr('x1', d => xScale(d))
       .attr('x2', d => xScale(d))
-      .attr('y1', (d, i) => i * (rowHeight + rowSpacing))
-      .attr('y2', (d, i) => i * (rowHeight + rowSpacing) + rowHeight)
+      .attr('y1', d => {
+        const row = massToRow.get(d) || 0;
+        return row * (rowHeight + rowSpacing);
+      })
+      .attr('y2', d => {
+        const row = massToRow.get(d) || 0;
+        return row * (rowHeight + rowSpacing) + rowHeight;
+      })
       .attr('stroke', '#000')
       .attr('stroke-width', 2)
       .attr('opacity', 0.4)

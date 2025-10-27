@@ -325,11 +325,9 @@ export default function AdductIntervalsVisualizer() {
     const width = 900;
     const rowHeight = 20; // Fixed row height for consistency
     const rowSpacing = 4; // Fixed spacing between rows
-    const minPlotHeight = 200; // Minimum plot height
-    const dynamicPlotHeight = Math.max(minPlotHeight, totalRows * (rowHeight + rowSpacing) + rowSpacing);
+    const plotHeight = totalRows * (rowHeight + rowSpacing) + rowSpacing;
     const margin = { top: 40, right: 40, bottom: 60, left: 60 };
     const plotWidth = width - margin.left - margin.right;
-    const plotHeight = dynamicPlotHeight;
     const height = plotHeight + margin.top + margin.bottom;
 
     // Create or update SVG

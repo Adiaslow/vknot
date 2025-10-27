@@ -496,7 +496,7 @@ export default function AdductIntervalsVisualizer() {
       });
 
     // Draw bare mass markers as very thin vertical lines crossing the x-axis
-    const lineHeight = 20; // Total height of the line (10px above and below x-axis)
+    const lineHeight = 8; // Total height of the line (4px above and below x-axis)
     const massMarkers = g.selectAll<SVGLineElement, number>('.mass-marker')
       .data(uniqueMasses, d => String(d))
       .join(

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 
 // Adduct library organized by ionization mode and method
@@ -155,8 +155,8 @@ export default function AdductIntervalsVisualizer() {
     return candidate;
   };
 
-  // Compute intervals using greedy algorithm
-  const computeIntervals = (): { intervals: Interval[]; overlaps: Set<string>; n: number; delta: number; kappa: number } => {
+  // Compute intervals using greedy algorithm (memoized for performance)
+  const { intervals, overlaps, n, delta, kappa } = useMemo(() => {
     if (activeAdducts.length === 0) {
       return { intervals: [], overlaps: new Set(), n: 0, delta: 0, kappa: 0 };
     }
@@ -231,36 +231,21 @@ export default function AdductIntervalsVisualizer() {
       });
     });
 
-    // Detect overlaps (should be zero with greedy algorithm)
-    const EPSILON = 1e-6; // tolerance for touching intervals
+    // No overlap detection needed - greedy algorithm guarantees no overlaps
     const overlaps = new Set<string>();
-    for (let i = 0; i < intervals.length; i++) {
-      for (let j = i + 1; j < intervals.length; j++) {
-        const int1 = intervals[i];
-        const int2 = intervals[j];
-        // Two intervals overlap if: int1.upper > int2.lower AND int1.lower < int2.upper
-        if (int1.upper > int2.lower + EPSILON && int1.lower < int2.upper - EPSILON) {
-          overlaps.add(`${i}`);
-          overlaps.add(`${j}`);
-        }
-      }
-    }
 
     // Calculate kappa (for reference, not used in greedy algorithm)
     const kappa = Math.ceil((ak - a1) / delta + 1);
 
     return { intervals, overlaps, n, delta, kappa };
-  };
+  }, [L, U, T, activeAdducts]); // Memoize based on input parameters
 
-  // D3 visualization
-  useEffect(() => {
-    if (!svgRef.current) return;
+  // Memoize row packing computation
+  const { intervalsByPeptide, intervalToRow, totalRows } = useMemo(() => {
+    if (intervals.length === 0) {
+      return { intervalsByPeptide: {}, intervalToRow: new Map(), totalRows: 0 };
+    }
 
-    const { intervals, overlaps, n } = computeIntervals();
-    if (intervals.length === 0) return;
-
-    // Greedy row packing: pack interval sets into rows to maximize density
-    // Each interval set consists of all k adduct intervals for one peptide mass
     const EPSILON = 1e-6;
 
     // Group intervals by peptide index
@@ -327,8 +312,14 @@ export default function AdductIntervalsVisualizer() {
 
     const totalRows = rowIntervals.length;
 
-    // Clear previous content
-    d3.select(svgRef.current).selectAll('*').remove();
+    return { intervalsByPeptide, intervalToRow, totalRows };
+  }, [intervals, n]); // Memoize based on intervals
+
+  // D3 visualization
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    if (intervals.length === 0) return;
 
     // Dimensions - make height dynamic based on number of rows
     const width = 900;
@@ -341,13 +332,18 @@ export default function AdductIntervalsVisualizer() {
     const plotHeight = dynamicPlotHeight;
     const height = plotHeight + margin.top + margin.bottom;
 
-    // Create SVG
+    // Create or update SVG
     const svg = d3.select(svgRef.current)
       .attr('width', width)
       .attr('height', height);
 
-    const g = svg.append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Use consistent g element instead of removing everything
+    let g = svg.select<SVGGElement>('g.main-group');
+    if (g.empty()) {
+      g = svg.append('g')
+        .attr('class', 'main-group');
+    }
+    g.attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Scales
     const xScale = d3.scaleLinear()
@@ -368,14 +364,44 @@ export default function AdductIntervalsVisualizer() {
     const colorScale = d3.scaleOrdinal(customColors)
       .domain(activeAdducts.map(a => a.symbol));
 
-    // X axis - use appropriate number of ticks based on range
-    const numTicks = Math.min(10, Math.max(5, Math.floor((U - L) / 100)));
-    g.append('g')
+    // X axis - generate tick values to ensure L and U are included
+    const range = U - L;
+    const step = Math.pow(10, Math.floor(Math.log10(range / 8))); // Nice round step
+    const tickValues = [];
+
+    // Start from L
+    tickValues.push(L);
+
+    // Add intermediate ticks
+    let currentTick = Math.ceil(L / step) * step;
+    while (currentTick < U) {
+      if (currentTick > L) {
+        tickValues.push(currentTick);
+      }
+      currentTick += step;
+    }
+
+    // Always end with U
+    if (tickValues[tickValues.length - 1] !== U) {
+      tickValues.push(U);
+    }
+
+    // X-axis (update or create)
+    let xAxisGroup = g.select<SVGGElement>('g.x-axis');
+    if (xAxisGroup.empty()) {
+      xAxisGroup = g.append('g').attr('class', 'x-axis');
+    }
+    xAxisGroup
       .attr('transform', `translate(0,${plotHeight})`)
-      .call(d3.axisBottom(xScale).ticks(numTicks))
+      .call(d3.axisBottom(xScale).tickValues(tickValues))
       .style('font-size', '12px');
 
-    g.append('text')
+    // X-axis label (update or create)
+    let xLabel = g.select<SVGTextElement>('text.x-label');
+    if (xLabel.empty()) {
+      xLabel = g.append('text').attr('class', 'x-label');
+    }
+    xLabel
       .attr('x', plotWidth / 2)
       .attr('y', plotHeight + 45)
       .attr('text-anchor', 'middle')
@@ -383,8 +409,12 @@ export default function AdductIntervalsVisualizer() {
       .style('font-weight', '600')
       .text('m/z (Da)');
 
-    // Title
-    svg.append('text')
+    // Title (update or create)
+    let title = svg.select<SVGTextElement>('text.title');
+    if (title.empty()) {
+      title = svg.append('text').attr('class', 'title');
+    }
+    title
       .attr('x', width / 2)
       .attr('y', 20)
       .attr('text-anchor', 'middle')
@@ -398,25 +428,40 @@ export default function AdductIntervalsVisualizer() {
     const uniqueMasses = Array.from(new Set(intervals.map(int => int.mass)));
 
     // Draw intervals using row assignments (inverted so row 0 is at bottom)
-    const rects = g.selectAll('.interval')
-      .data(intervals)
-      .join('rect')
-      .attr('class', 'interval')
-      .attr('x', d => xScale(d.lower))
-      .attr('y', d => {
-        const row = intervalToRow.get(d) || 0;
-        // Invert: row 0 should be at the bottom (highest y value)
-        return plotHeight - (row + 1) * (rowHeight + rowSpacing);
-      })
-      .attr('width', d => xScale(d.upper) - xScale(d.lower))
-      .attr('height', rowHeight)
-      .attr('fill', d => {
-        const intervalIdx = intervals.indexOf(d);
-        return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
-      })
-      .attr('opacity', 0.7)
-      .attr('stroke', 'none')
-      .style('transition', 'all 300ms ease')
+    // Use a key function for better performance
+    const rects = g.selectAll<SVGRectElement, Interval>('.interval')
+      .data(intervals, d => `${d.peptideIndex}-${d.adduct.symbol}`)
+      .join(
+        enter => enter.append('rect')
+          .attr('class', 'interval')
+          .attr('x', d => xScale(d.lower))
+          .attr('y', d => {
+            const row = intervalToRow.get(d) || 0;
+            return plotHeight - (row + 1) * (rowHeight + rowSpacing);
+          })
+          .attr('width', d => xScale(d.upper) - xScale(d.lower))
+          .attr('height', rowHeight)
+          .attr('fill', d => {
+            const intervalIdx = intervals.indexOf(d);
+            return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
+          })
+          .attr('stroke', 'none')
+          .attr('opacity', 0) // Start with 0 for animation
+          .call(enter => enter.transition().duration(300).attr('opacity', 0.7)),
+        update => update
+          .attr('x', d => xScale(d.lower))
+          .attr('y', d => {
+            const row = intervalToRow.get(d) || 0;
+            return plotHeight - (row + 1) * (rowHeight + rowSpacing);
+          })
+          .attr('width', d => xScale(d.upper) - xScale(d.lower))
+          .attr('height', rowHeight)
+          .attr('fill', d => {
+            const intervalIdx = intervals.indexOf(d);
+            return overlaps.has(String(intervalIdx)) ? '#ef4444' : colorScale(d.adduct.symbol);
+          }),
+        exit => exit.transition().duration(200).attr('opacity', 0).remove()
+      )
       .on('mouseover', function(event, d) {
         d3.select(this)
           .attr('opacity', 1);
@@ -450,21 +495,26 @@ export default function AdductIntervalsVisualizer() {
         g.selectAll('.tooltip').remove();
       });
 
-    // Draw bare mass markers as points on the x-axis
-    const massMarkers = g.selectAll('.mass-marker')
-      .data(uniqueMasses)
-      .join('circle')
-      .attr('class', 'mass-marker')
-      .attr('cx', d => xScale(d))
-      .attr('cy', plotHeight)
-      .attr('r', 2)
-      .attr('fill', '#000')
-      .attr('opacity', 0.7)
+    // Draw bare mass markers as thin vertical lines on the x-axis
+    const massMarkers = g.selectAll<SVGLineElement, number>('.mass-marker')
+      .data(uniqueMasses, d => String(d))
+      .join(
+        enter => enter.append('line').attr('class', 'mass-marker'),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr('x1', d => xScale(d))
+      .attr('x2', d => xScale(d))
+      .attr('y1', plotHeight - 8)
+      .attr('y2', plotHeight)
+      .attr('stroke', '#000')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.6)
       .style('cursor', 'pointer')
       .on('mouseover', function(event, d) {
         d3.select(this)
           .attr('opacity', 1)
-          .attr('r', 3);
+          .attr('stroke-width', 2);
 
         // Find the peptide index for this mass
         const peptideIdx = intervals.find(int => int.mass === d)?.peptideIndex;
@@ -492,22 +542,12 @@ export default function AdductIntervalsVisualizer() {
       })
       .on('mouseout', function() {
         d3.select(this)
-          .attr('opacity', 0.7)
-          .attr('r', 2);
+          .attr('opacity', 0.6)
+          .attr('stroke-width', 1);
         g.selectAll('.mass-tooltip').remove();
       });
 
-    // Animate entrance
-    rects
-      .attr('opacity', 0)
-      .transition()
-      .duration(300)
-      .attr('opacity', d => {
-        const intervalIdx = intervals.indexOf(d);
-        return overlaps.has(String(intervalIdx)) ? 0.9 : 0.7;
-      });
-
-  }, [L, U, T, activeAdducts]);
+  }, [intervals, overlaps, intervalToRow, totalRows, L, U]);
 
   const toggleAdduct = (adduct: Adduct) => {
     setActiveAdducts(prev =>
@@ -532,7 +572,6 @@ export default function AdductIntervalsVisualizer() {
     }
   };
 
-  const { intervals, overlaps, n, delta, kappa } = computeIntervals();
   const isValid = overlaps.size === 0;
 
   const availableAdducts = ADDUCT_LIBRARY[mode][method as keyof typeof ADDUCT_LIBRARY['positive' | 'negative']] || [];

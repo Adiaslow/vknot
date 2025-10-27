@@ -19,6 +19,12 @@ import AdductIntervalsVisualizer from '../../components/interactive/AdductInterv
 
 This work presents a rigorous mathematical framework for the Generalized Adduct Intervals Problem, establishing optimal mass spacing strategies for mass spectrometry-based detection of combinatorial cyclic peptide libraries. The framework provides provable upper bounds on library size that are essential for multi-objective evolutionary algorithms in drug discovery applications. By bridging algorithmic optimization theory with analytical chemistry constraints, this work enables principled design of large-scale peptide libraries while guaranteeing unique MS identification of each library member.
 
+## Interactive Exploration
+
+*Explore the Adduct Intervals Problem interactively below. Adjust ionization modes, mass ranges, and resolution to see how parameter choices affect library size and interval spacing. This visualizer demonstrates the core optimization challenge addressed by the mathematical framework presented in this work.*
+
+<AdductIntervalsVisualizer client:load />
+
 ## 1. Background and Motivation
 
 ### 1.1 The Cyclic Peptide Library Challenge
@@ -464,9 +470,7 @@ Given inputs $R = [L, U]$, $A = \{a_1, \ldots, a_k\}$, and $T$:
 
 The algorithm applies uniformly to any adduct set. We demonstrate with multiple realistic scenarios.
 
-**Interactive Exploration**: Use the visualizer below to explore how different ionization modes, methods, and parameters affect library size and interval spacing. Toggle adducts on/off to see real-time updates of the mass spectrum layout and computed parameters.
-
-<AdductIntervalsVisualizer client:load />
+**Interactive Exploration**: The scenarios below can be explored using the interactive visualizer in the [Interactive Exploration](#interactive-exploration) section above. Toggle between ionization modes and adjust parameters to see real-time updates.
 
 The following sections provide detailed worked examples corresponding to common experimental scenarios.
 

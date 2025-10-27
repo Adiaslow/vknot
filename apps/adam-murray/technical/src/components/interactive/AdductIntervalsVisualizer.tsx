@@ -272,32 +272,44 @@ export default function AdductIntervalsVisualizer() {
       intervalsByPeptide[int.peptideIndex].push(int);
     });
 
-    // Track which intervals are on each row
+    // Track which intervals are on each row and their bounding boxes
     const rowIntervals: Interval[][] = [];
+    const rowBoundingBoxes: Array<Array<{ lower: number; upper: number }>> = [];
     const intervalToRow = new Map<Interval, number>();
 
-    // Helper: check if an interval overlaps with any interval in a list
-    const hasOverlap = (interval: Interval, intervalList: Interval[]): boolean => {
-      return intervalList.some(other =>
-        interval.upper > other.lower + EPSILON && interval.lower < other.upper - EPSILON
-      );
+    // Helper: get bounding box for an interval set (continuous span from leftmost to rightmost)
+    const getBoundingBox = (intervalSet: Interval[]): { lower: number; upper: number } => {
+      const lower = Math.min(...intervalSet.map(int => int.lower));
+      const upper = Math.max(...intervalSet.map(int => int.upper));
+      return { lower, upper };
     };
 
-    // Helper: check if all intervals in a set can fit on a row
-    const canFitOnRow = (intervalSet: Interval[], row: Interval[]): boolean => {
-      return intervalSet.every(interval => !hasOverlap(interval, row));
+    // Helper: check if two bounding boxes overlap
+    const boundingBoxesOverlap = (
+      box1: { lower: number; upper: number },
+      box2: { lower: number; upper: number }
+    ): boolean => {
+      return box1.upper > box2.lower + EPSILON && box1.lower < box2.upper - EPSILON;
     };
 
-    // Pack interval sets into rows (greedy first-fit)
+    // Helper: check if an interval set's bounding box can fit on a row
+    const canFitOnRow = (intervalSet: Interval[], rowBoundingBoxes: Array<{ lower: number; upper: number }>): boolean => {
+      const boundingBox = getBoundingBox(intervalSet);
+      return rowBoundingBoxes.every(otherBox => !boundingBoxesOverlap(boundingBox, otherBox));
+    };
+
+    // Pack interval sets into rows (greedy first-fit using bounding boxes)
     for (let peptideIdx = 0; peptideIdx < n; peptideIdx++) {
       const intervalSet = intervalsByPeptide[peptideIdx];
+      const boundingBox = getBoundingBox(intervalSet);
 
       // Try to place on existing rows (starting from row 0 = lowest/closest to x-axis)
       let placed = false;
       for (let rowIdx = 0; rowIdx < rowIntervals.length; rowIdx++) {
-        if (canFitOnRow(intervalSet, rowIntervals[rowIdx])) {
+        if (canFitOnRow(intervalSet, rowBoundingBoxes[rowIdx])) {
           // Place all intervals of this peptide on this row
           rowIntervals[rowIdx].push(...intervalSet);
+          rowBoundingBoxes[rowIdx].push(boundingBox);
           intervalSet.forEach(int => intervalToRow.set(int, rowIdx));
           placed = true;
           break;
@@ -308,6 +320,7 @@ export default function AdductIntervalsVisualizer() {
       if (!placed) {
         const newRowIdx = rowIntervals.length;
         rowIntervals.push([...intervalSet]);
+        rowBoundingBoxes.push([boundingBox]);
         intervalSet.forEach(int => intervalToRow.set(int, newRowIdx));
       }
     }

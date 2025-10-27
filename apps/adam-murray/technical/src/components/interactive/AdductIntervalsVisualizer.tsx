@@ -472,8 +472,8 @@ export default function AdductIntervalsVisualizer() {
         return row * (rowHeight + rowSpacing) + rowHeight;
       })
       .attr('stroke', '#000')
-      .attr('stroke-width', 2)
-      .attr('opacity', 0.4)
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.5)
       .style('pointer-events', 'none');
 
     // Animate entrance
@@ -714,11 +714,6 @@ export default function AdductIntervalsVisualizer() {
       {/* Visualization */}
       <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm">
         <svg ref={svgRef} className="w-full"></svg>
-        {intervals.length > 0 && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
-            Showing first {Math.min(20, n)} peptides of {n} total. Hover over intervals for details.
-          </p>
-        )}
       </div>
     </div>
   );

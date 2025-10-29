@@ -84,62 +84,54 @@ export default function ClothOfGoldSimulator() {
     return { total, playerA, playerB };
   }
 
-  // Apply competitive Game of Life rules (Cloth of Gold variant)
+  // Apply standard Conway's Game of Life with team colors
   function evolveGrid(currentGrid: Grid): { newGrid: Grid; converted: Set<string> } {
     const newGrid = createEmptyGrid();
-    const converted = new Set<string>();
+    const converted = new Set<string>(); // Tracks cells killed by opposing team
 
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
         const cell = currentGrid[i][j];
         const { total, playerA, playerB } = countNeighbors(currentGrid, i, j);
 
-        // Rule 1: Death by isolation or overcrowding (applies to all cells)
-        if (total < 2 || total > 3) {
+        // Standard Conway's Game of Life rules
+
+        // Rule 1: Death by isolation (< 2 neighbors)
+        if (total < 2) {
           newGrid[i][j] = 0;
           continue;
         }
 
-        // For cells that survive (total is 2 or 3), determine ownership by competitive rules
+        // Rule 2: Death by overcrowding (> 3 neighbors)
+        if (total > 3) {
+          newGrid[i][j] = 0;
 
-        // Rule 4: Stalemate preservation - if neighbors are equal, keep current state
-        if (playerA === playerB && total >= 2 && total <= 3) {
+          // Track competitive deaths: more enemies than friendlies
+          if (cell === 1 && playerB > playerA) {
+            converted.add(`${i},${j}`);
+          } else if (cell === 2 && playerA > playerB) {
+            converted.add(`${i},${j}`);
+          }
+
+          continue;
+        }
+
+        // At this point: total is 2 or 3
+
+        // Rule 3: Survival - living cells stay alive
+        if (cell !== 0) {
           newGrid[i][j] = cell;
           continue;
         }
 
-        // Rule 2: Player A wins if more A neighbors
-        // KEY: Cells can CHANGE OWNERSHIP based on neighbor majority
-        if (playerA > playerB) {
-          // Any living cell (A or B) with 2-3 neighbors becomes A if more A neighbors
-          if (cell !== 0 && (total === 2 || total === 3)) {
+        // Rule 4: Birth - empty cell with exactly 3 neighbors
+        if (total === 3) {
+          if (playerA > playerB) {
             newGrid[i][j] = 1;
-            // Track conversion if cell changed from B to A
-            if (cell === 2) {
-              converted.add(`${i},${j}`);
-            }
-          }
-          // Empty cell with exactly 3 neighbors births as A if more A neighbors
-          else if (cell === 0 && total === 3) {
-            newGrid[i][j] = 1;
-          }
-        }
-
-        // Rule 3: Player B wins if more B neighbors
-        // KEY: Cells can CHANGE OWNERSHIP based on neighbor majority
-        if (playerB > playerA) {
-          // Any living cell (A or B) with 2-3 neighbors becomes B if more B neighbors
-          if (cell !== 0 && (total === 2 || total === 3)) {
-            newGrid[i][j] = 2;
-            // Track conversion if cell changed from A to B
-            if (cell === 1) {
-              converted.add(`${i},${j}`);
-            }
-          }
-          // Empty cell with exactly 3 neighbors births as B if more B neighbors
-          else if (cell === 0 && total === 3) {
+          } else if (playerB > playerA) {
             newGrid[i][j] = 2;
           }
+          // If tied, no birth (stays empty)
         }
       }
     }
@@ -271,7 +263,7 @@ export default function ClothOfGoldSimulator() {
       }
     }
 
-    // Draw purple dots for recently converted cells (cells that changed ownership)
+    // Draw purple dots for cells that died while outnumbered by opposing team
     for (const key of recentlyConverted) {
       const [i, j] = key.split(',').map(Number);
 
@@ -495,7 +487,7 @@ export default function ClothOfGoldSimulator() {
           </span>
           <span className="flex items-center gap-2">
             <span className="w-4 h-4 rounded bg-purple-500 opacity-70"></span>
-            Cell conversion (one frame)
+            Competitive death (one frame)
           </span>
         </div>
       </div>

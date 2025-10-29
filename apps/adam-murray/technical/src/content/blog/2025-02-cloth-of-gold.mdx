@@ -71,11 +71,10 @@ This work provides:
 
 The state space consists of:
 
-- **Cellular configuration**: $W \in \{0, a, b, c\}^{m \times n}$ where:
+- **Cellular configuration**: $W \in \{0, a, b\}^{m \times n}$ where:
   - $0$ = empty cell
   - $a$ = Player A's cell
   - $b$ = Player B's cell
-  - $c$ = Neutral cell
 - **Territory map**: $T: \mathbb{R}^2 \to [0,1]^2$ via metaball influence fields
 - **Resource state**: $R \in \mathbb{N}^2$ tracking accumulated placement units
 - **Time**: $t \in \mathbb{N}$ marking the current generation
@@ -94,50 +93,40 @@ $$N_B[w_{i,j}] = \sum_{k=i-1}^{i+1} \sum_{l=j-1}^{j+1} \mathbb{1}[w_{k,l} = b], 
 
 **Total neighbors**:
 
-$$N[w_{i,j}] = N_A[w_{i,j}] + N_B[w_{i,j}] + N_C[w_{i,j}]$$
+$$N[w_{i,j}] = N_A[w_{i,j}] + N_B[w_{i,j}]$$
 
 ### 2.3 Evolution Rules
 
 The competitive cellular automaton evolves according to:
 
-**Rule 1** (Death by isolation/overcrowding)
+**Rule 1** (Death by isolation)
 
-$$w_{i,j}(t+1) = 0 \text{ if } N[w_{i,j}] < 2 \text{ or } N[w_{i,j}] > 3$$
+$$w_{i,j}(t+1) = 0 \text{ if } N[w_{i,j}] < 2$$
 
-**Rule 2** (Competitive birth/survival for Player A)
+**Rule 2** (Death by overcrowding)
 
-$$w_{i,j}(t+1) = a \text{ if:}$$
+$$w_{i,j}(t+1) = 0 \text{ if } N[w_{i,j}] > 3$$
 
-$$
-\begin{aligned}
-&\text{- } (w_{i,j} \in \{a,c\} \text{ and } N[w_{i,j}] \in \{2,3\}) \text{ OR } (w_{i,j} = 0 \text{ and } N[w_{i,j}] = 3) \\
-&\text{- AND } N_A[w_{i,j}] > N_B[w_{i,j}]
-\end{aligned}
-$$
+Cells that die by overcrowding while outnumbered by the opposing team (i.e., when $w_{i,j} = a$ and $N_B > N_A$, or $w_{i,j} = b$ and $N_A > N_B$) are marked as competitive deaths and briefly displayed as purple indicators.
 
-**Rule 3** (Competitive birth/survival for Player B)
+**Rule 3** (Competitive ownership)
 
-$$w_{i,j}(t+1) = b \text{ if:}$$
+For cells with $N[w_{i,j}] \in \{2, 3\}$ (the survival range):
 
 $$
-\begin{aligned}
-&\text{- } (w_{i,j} \in \{b,c\} \text{ and } N[w_{i,j}] \in \{2,3\}) \text{ OR } (w_{i,j} = 0 \text{ and } N[w_{i,j}] = 3) \\
-&\text{- AND } N_B[w_{i,j}] > N_A[w_{i,j}]
-\end{aligned}
+w_{i,j}(t+1) = \begin{cases}
+a & \text{if } (w_{i,j} \neq 0 \text{ or } N[w_{i,j}] = 3) \text{ and } N_A[w_{i,j}] > N_B[w_{i,j}] \\
+b & \text{if } (w_{i,j} \neq 0 \text{ or } N[w_{i,j}] = 3) \text{ and } N_B[w_{i,j}] > N_A[w_{i,j}] \\
+w_{i,j}(t) & \text{if } N_A[w_{i,j}] = N_B[w_{i,j}]
+\end{cases}
 $$
 
-**Rule 4** (Stalemate preservation)
+This rule unifies birth and conversion:
+- **Living cells** convert ownership based on neighbor majority
+- **Empty cells** with exactly 3 neighbors birth as the majority team
+- **Tied situations** preserve current state (living cells stay their color, empty cells stay empty)
 
-$$w_{i,j}(t+1) = w_{i,j}(t) \text{ if:}$$
-
-$$
-\begin{aligned}
-&\text{- } N_A[w_{i,j}] = N_B[w_{i,j}] \\
-&\text{- AND } 2 \leq N[w_{i,j}] \leq 3
-\end{aligned}
-$$
-
-This rule enables mixed-ownership stable patterns where cells from both players contribute to mutual stability.
+The competitive ownership rule enables dynamic territorial conquest - patterns can be infiltrated and converted rather than merely destroyed. This creates fluid frontlines where cells constantly flip allegiance based on local competitive pressure.
 
 ### 2.4 Territory Definition
 
@@ -149,7 +138,7 @@ For player $P$ with cells at positions $\{x_k\}$, the influence at cell $c$ is:
 
 $$I_P(c) = \sum_k f(\|c - x_k\|)$$
 
-where $f(r) = \max(0, 1 - r^2/R^2)$ for influence radius $R$.
+where $f(r) = \max(0, 1 - r^2/R^2)$ for influence radius $R = 10$ cells.
 
 ### Definition 2.3 (Discretized Territory)
 
@@ -159,7 +148,7 @@ $$
 \text{Territory}(c) = \begin{cases}
 \text{A's territory} & \text{if } I_A(c) > 1.0 \text{ AND } I_A(c) > I_B(c) \\
 \text{B's territory} & \text{if } I_B(c) > 1.0 \text{ AND } I_B(c) > I_A(c) \\
-\text{Contested} & \text{if } I_A(c) > 1.0 \text{ AND } I_B(c) > 1.0 \text{ AND } |I_A(c) - I_B(c)| < \varepsilon \\
+\text{Contested} & \text{if } I_A(c) > 1.0 \text{ AND } I_B(c) > 1.0 \text{ AND } |I_A(c) - I_B(c)| < 1.5 \\
 \text{Neutral} & \text{if } \max(I_A(c), I_B(c)) < 1.0
 \end{cases}
 $$
@@ -178,15 +167,15 @@ Unlike Conway's Game of Life, the competitive variant does not conserve any loca
 
 In Conway's Game of Life, patterns can be designed to conserve various quantities locally (e.g., glider guns maintain population through cyclic behavior).
 
-In Cloth of Gold, consider two adjacent cells owned by different players with appropriate surrounding densities:
+In Cloth of Gold, ownership conversions irreversibly transform cellular identities. Consider a Player A cell surrounded by Player B neighbors:
 
 ```
-Initial:  ...     After 1 gen:  ...
-         .ab.                   .00.
-         ...                    ...
+Initial:  bbb     After 1 gen:  bbb
+         bab                   bbb
+         bbb                   bbb
 ```
 
-Both cells die due to competitive pressure (Rule 4), permanently removing mass from the system. No local rearrangement can recover this loss. This breaks time-reversibility and prevents conservation laws.
+The center 'a' cell has 2-3 neighbors (survival range) but $N_B > N_A$, so it converts to 'b'. This conversion is irreversible - there's no local operation that can determine the cell was originally 'a'. The competitive rules inject new information each generation, breaking time-reversibility and preventing conservation laws.
 
 ### 3.2 Territorial Pressure Dynamics
 
@@ -202,13 +191,13 @@ Cells flow down the pressure gradient.
 
 ### Proof
 
-From the evolution rules:
+From the evolution rules (for cells with 2-3 neighbors):
 
 - If $P_{i,j} > 0$: Cell becomes/remains type a
 - If $P_{i,j} < 0$: Cell becomes/remains type b
-- If $P_{i,j} = 0$: Cell dies or remains empty
+- If $P_{i,j} = 0$: Cell maintains current state
 
-This creates a flow from high to low pressure regions, analogous to fluid dynamics. The boundary between territories acts as an interface with surface tension proportional to the pressure differential.
+This creates a flow from high to low pressure regions, analogous to fluid dynamics. The boundary between territories acts as an interface with surface tension proportional to the pressure differential. At tied boundaries ($P = 0$), cells stabilize and preserve their current allegiance, creating natural demarcation lines.
 
 ### 3.3 Pattern Stability Under Competition
 
@@ -220,22 +209,20 @@ A pattern $P$ is competitively stable if it maintains structure when surrounded 
 
 A pattern $P$ is competitively stable iff:
 
-1. All interior cells have 2-3 friendly neighbors
-2. All boundary cells have $\geq$ 3 friendly neighbors
-3. No boundary cell has majority enemy neighbors
+1. All cells have 2-3 total neighbors (survival condition)
+2. No cell has more enemy than friendly neighbors (no conversions)
 
 ### Proof
 
 Necessity: If any condition fails:
 
-1. Interior cells with $\neq 2$-$3$ neighbors die (standard rules)
-2. Boundary cells with $< 3$ friendly neighbors lose majority
-3. Boundary cells with enemy majority convert or die
+1. Cells with $\neq 2$-$3$ total neighbors die by isolation or overcrowding
+2. Cells with enemy majority convert to enemy ownership, breaking pattern structure
 
 Sufficiency: If all conditions hold:
 
-- Interior cells satisfy Conway stability
-- Boundary cells maintain ownership through majority
+- All cells survive (2-3 neighbors)
+- All cells maintain ownership ($N_{\text{friendly}} \geq N_{\text{enemy}}$)
 - Pattern structure is preserved
 
 ### Corollary
@@ -254,20 +241,16 @@ Mixed-ownership patterns can achieve stability impossible for single-player patt
 
 ### Proof
 
-Consider a mixed 2×2 block:
+Chimeric patterns achieve stability when each cell has equal friendly and enemy neighbors. For example, consider this pattern:
 
 ```
-ab    Neighbors: Each cell has 3 neighbors
-ba    $N_A = N_B = 1$ or $2$ for each position
+aaabbb
+abbbaa
 ```
 
-For each cell:
+At the boundary cells, each has neighbors from both teams creating local equilibrium. When $N_A = N_B$, the tie-preservation rule maintains current state, preventing conversion while meeting survival conditions.
 
-- Total neighbors $N = 3$ (survival condition met)
-- $N_A = N_B$ (stalemate preservation rule applies)
-- Pattern remains stable indefinitely
-
-A pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion. The chimeric pattern has $P = 0$ everywhere, achieving superior stability.
+In contrast, a pure pattern at a contested boundary faces pressure $P \neq 0$, causing erosion or conversion. Chimeric patterns achieve $P = 0$ at key positions, creating stable demarcation lines.
 
 **Strategic Implications**:
 

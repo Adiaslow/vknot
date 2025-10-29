@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo, useTransition } from 'react';
 
 type CellState = 0 | 1 | 2; // 0 = empty, 1 = Player A, 2 = Player B
 type Grid = CellState[][];
@@ -19,6 +19,13 @@ export default function ClothOfGoldSimulator() {
   const [recentlyConverted, setRecentlyConverted] = useState<Set<string>>(new Set());
   const animationRef = useRef<number>();
   const lastFrameTimeRef = useRef<number>(0);
+
+  // React 18 concurrent features for performance
+  const [isPending, startTransition] = useTransition();
+  const [gridVersion, setGridVersion] = useState(0);
+
+  // Influence cache (useRef to avoid re-render cost on cache update)
+  const influenceCacheRef = useRef<Map<string, { influenceA: number; influenceB: number }>>(new Map());
 
   // Create empty grid
   function createEmptyGrid(): Grid {
@@ -138,16 +145,29 @@ export default function ClothOfGoldSimulator() {
   }
 
   // Calculate metaball influence for a player
+  // Optimized: Only check cells within INFLUENCE_RADIUS
   function calculateInfluence(grid: Grid, i: number, j: number, player: 1 | 2): number {
     let influence = 0;
+    const R = INFLUENCE_RADIUS;
+    const R2 = R * R;
 
-    for (let ci = 0; ci < GRID_SIZE; ci++) {
-      for (let cj = 0; cj < GRID_SIZE; cj++) {
+    // Bound search to cells within radius (optimization: O(n²) → O(R²))
+    const minI = Math.max(0, i - R);
+    const maxI = Math.min(GRID_SIZE - 1, i + R);
+    const minJ = Math.max(0, j - R);
+    const maxJ = Math.min(GRID_SIZE - 1, j + R);
+
+    for (let ci = minI; ci <= maxI; ci++) {
+      for (let cj = minJ; cj <= maxJ; cj++) {
         if (grid[ci][cj] === player) {
           const dx = i - ci;
           const dy = j - cj;
-          const r = Math.sqrt(dx * dx + dy * dy);
-          influence += Math.max(0, 1 - (r * r) / (INFLUENCE_RADIUS * INFLUENCE_RADIUS));
+          const dist2 = dx * dx + dy * dy;
+
+          // Skip cells outside circular radius
+          if (dist2 <= R2) {
+            influence += Math.max(0, 1 - dist2 / R2);
+          }
         }
       }
     }
@@ -155,10 +175,31 @@ export default function ClothOfGoldSimulator() {
     return influence;
   }
 
-  // Get territory state for a cell
-  function getTerritoryState(grid: Grid, i: number, j: number): TerritoryState {
-    const influenceA = calculateInfluence(grid, i, j, 1);
-    const influenceB = calculateInfluence(grid, i, j, 2);
+  // Pre-compute influence maps when grid changes (React 18 concurrent rendering)
+  useEffect(() => {
+    startTransition(() => {
+      const newCache = new Map<string, { influenceA: number; influenceB: number }>();
+
+      for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+          const key = `${i},${j}`;
+          newCache.set(key, {
+            influenceA: calculateInfluence(grid, i, j, 1),
+            influenceB: calculateInfluence(grid, i, j, 2),
+          });
+        }
+      }
+
+      influenceCacheRef.current = newCache;
+      setGridVersion(v => v + 1); // Trigger re-render with new cache
+    });
+  }, [grid]);
+
+  // Get territory state for a cell (optimized with cache lookup)
+  function getTerritoryState(i: number, j: number): TerritoryState {
+    const cached = influenceCacheRef.current.get(`${i},${j}`);
+    const influenceA = cached?.influenceA ?? 0;
+    const influenceB = cached?.influenceB ?? 0;
 
     if (influenceA > TERRITORY_THRESHOLD && influenceB > TERRITORY_THRESHOLD) {
       if (Math.abs(influenceA - influenceB) < CONTESTED_EPSILON) {
@@ -177,8 +218,8 @@ export default function ClothOfGoldSimulator() {
     return 'neutral';
   }
 
-  // Render grid and territory
-  const render = useCallback(() => {
+  // Render canvas when grid or cache changes
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -194,7 +235,7 @@ export default function ClothOfGoldSimulator() {
     // Draw territory underlay
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
-        const territory = getTerritoryState(grid, i, j);
+        const territory = getTerritoryState(i, j);
 
         switch (territory) {
           case 'playerA':
@@ -276,7 +317,7 @@ export default function ClothOfGoldSimulator() {
       );
       ctx.fill();
     }
-  }, [grid, recentlyConverted]);
+  }, [grid, recentlyConverted, gridVersion]); // Render when grid or cache updates
 
   // Animation loop
   useEffect(() => {
@@ -312,11 +353,6 @@ export default function ClothOfGoldSimulator() {
     };
   }, [isRunning, speed]);
 
-  // Render on grid changes
-  useEffect(() => {
-    render();
-  }, [grid, render]);
-
   // Handle cell click
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -346,15 +382,18 @@ export default function ClothOfGoldSimulator() {
     return acc;
   }, { playerA: 0, playerB: 0 });
 
-  // Count territory
-  const territory = { playerA: 0, playerB: 0 };
-  for (let i = 0; i < GRID_SIZE; i++) {
-    for (let j = 0; j < GRID_SIZE; j++) {
-      const territoryState = getTerritoryState(grid, i, j);
-      if (territoryState === 'playerA') territory.playerA++;
-      if (territoryState === 'playerB') territory.playerB++;
+  // Count territory (memoized for performance)
+  const territory = useMemo(() => {
+    const result = { playerA: 0, playerB: 0 };
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        const territoryState = getTerritoryState(i, j);
+        if (territoryState === 'playerA') result.playerA++;
+        if (territoryState === 'playerB') result.playerB++;
+      }
     }
-  }
+    return result;
+  }, [gridVersion]); // Only recalculate when cache updates
 
   return (
     <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">

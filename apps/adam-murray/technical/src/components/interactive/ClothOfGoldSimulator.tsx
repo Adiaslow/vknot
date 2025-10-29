@@ -6,9 +6,9 @@ type TerritoryState = 'neutral' | 'playerA' | 'playerB' | 'contested';
 
 const GRID_SIZE = 60;
 const CELL_SIZE = 8;
-const INFLUENCE_RADIUS = 15;
+const INFLUENCE_RADIUS = 10;
 const TERRITORY_THRESHOLD = 1.0;
-const CONTESTED_EPSILON = 0.3;
+const CONTESTED_EPSILON = 0.5;
 
 export default function ClothOfGoldSimulator() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,6 +16,7 @@ export default function ClothOfGoldSimulator() {
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(10);
   const [generation, setGeneration] = useState(0);
+  const [recentlyConverted, setRecentlyConverted] = useState<Set<string>>(new Set());
   const animationRef = useRef<number>();
   const lastFrameTimeRef = useRef<number>(0);
 
@@ -84,8 +85,9 @@ export default function ClothOfGoldSimulator() {
   }
 
   // Apply competitive Game of Life rules (Cloth of Gold variant)
-  function evolveGrid(currentGrid: Grid): Grid {
+  function evolveGrid(currentGrid: Grid): { newGrid: Grid; converted: Set<string> } {
     const newGrid = createEmptyGrid();
+    const converted = new Set<string>();
 
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
@@ -112,6 +114,10 @@ export default function ClothOfGoldSimulator() {
           // Any living cell (A or B) with 2-3 neighbors becomes A if more A neighbors
           if (cell !== 0 && (total === 2 || total === 3)) {
             newGrid[i][j] = 1;
+            // Track conversion if cell changed from B to A
+            if (cell === 2) {
+              converted.add(`${i},${j}`);
+            }
           }
           // Empty cell with exactly 3 neighbors births as A if more A neighbors
           else if (cell === 0 && total === 3) {
@@ -125,6 +131,10 @@ export default function ClothOfGoldSimulator() {
           // Any living cell (A or B) with 2-3 neighbors becomes B if more B neighbors
           if (cell !== 0 && (total === 2 || total === 3)) {
             newGrid[i][j] = 2;
+            // Track conversion if cell changed from A to B
+            if (cell === 1) {
+              converted.add(`${i},${j}`);
+            }
           }
           // Empty cell with exactly 3 neighbors births as B if more B neighbors
           else if (cell === 0 && total === 3) {
@@ -134,7 +144,7 @@ export default function ClothOfGoldSimulator() {
       }
     }
 
-    return newGrid;
+    return { newGrid, converted };
   }
 
   // Calculate metaball influence for a player
@@ -204,7 +214,7 @@ export default function ClothOfGoldSimulator() {
             ctx.fillStyle = 'rgba(239, 68, 68, 0.15)'; // red
             break;
           case 'contested':
-            ctx.fillStyle = 'rgba(168, 85, 247, 0.15)'; // purple
+            ctx.fillStyle = 'rgba(250, 204, 21, 0.2)'; // yellow
             break;
           default:
             ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // transparent
@@ -260,7 +270,23 @@ export default function ClothOfGoldSimulator() {
         }
       }
     }
-  }, [grid]);
+
+    // Draw purple dots for recently converted cells (cells that changed ownership)
+    for (const key of recentlyConverted) {
+      const [i, j] = key.split(',').map(Number);
+
+      ctx.fillStyle = '#a855f7'; // purple
+      ctx.beginPath();
+      ctx.arc(
+        j * CELL_SIZE + CELL_SIZE / 2,
+        i * CELL_SIZE + CELL_SIZE / 2,
+        CELL_SIZE / 4, // smaller than regular cells
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
+    }
+  }, [grid, recentlyConverted]);
 
   // Animation loop
   useEffect(() => {
@@ -275,7 +301,11 @@ export default function ClothOfGoldSimulator() {
       const frameInterval = 1000 / speed;
 
       if (elapsed >= frameInterval) {
-        setGrid(prevGrid => evolveGrid(prevGrid));
+        setGrid(prevGrid => {
+          const { newGrid, converted } = evolveGrid(prevGrid);
+          setRecentlyConverted(converted);
+          return newGrid;
+        });
         setGeneration(prev => prev + 1);
         lastFrameTimeRef.current = timestamp;
       }
@@ -344,6 +374,7 @@ export default function ClothOfGoldSimulator() {
               setIsRunning(false);
               setGrid(createEmptyGrid());
               setGeneration(0);
+              setRecentlyConverted(new Set());
               lastFrameTimeRef.current = 0;
             }}
             className="px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-lg transition-colors"
@@ -359,6 +390,7 @@ export default function ClothOfGoldSimulator() {
               setIsRunning(false);
               setGrid(createEmptyGrid());
               setGeneration(0);
+              setRecentlyConverted(new Set());
             }}
             className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
           >
@@ -370,6 +402,7 @@ export default function ClothOfGoldSimulator() {
               setIsRunning(false);
               setGrid(createRandomGrid());
               setGeneration(0);
+              setRecentlyConverted(new Set());
             }}
             className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
           >
@@ -381,6 +414,7 @@ export default function ClothOfGoldSimulator() {
               setIsRunning(false);
               setGrid(createSymmetricGrid());
               setGeneration(0);
+              setRecentlyConverted(new Set());
             }}
             className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
           >
@@ -446,7 +480,7 @@ export default function ClothOfGoldSimulator() {
       {/* Legend */}
       <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
         <p><strong>Territory colors (background):</strong></p>
-        <div className="flex gap-4 mt-2">
+        <div className="flex gap-4 mt-2 flex-wrap">
           <span className="flex items-center gap-2">
             <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}></span>
             Player A territory
@@ -456,8 +490,12 @@ export default function ClothOfGoldSimulator() {
             Player B territory
           </span>
           <span className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(168, 85, 247, 0.15)' }}></span>
+            <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(250, 204, 21, 0.2)' }}></span>
             Contested
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-purple-500 opacity-70"></span>
+            Cell conversion (one frame)
           </span>
         </div>
       </div>

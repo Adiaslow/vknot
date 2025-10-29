@@ -84,7 +84,7 @@ export default function ClothOfGoldSimulator() {
     return { total, playerA, playerB };
   }
 
-  // Apply standard Conway's Game of Life with team colors
+  // Apply competitive Conway's Game of Life rules (cells can convert ownership)
   function evolveGrid(currentGrid: Grid): { newGrid: Grid; converted: Set<string> } {
     const newGrid = createEmptyGrid();
     const converted = new Set<string>(); // Tracks cells killed by opposing team
@@ -118,21 +118,19 @@ export default function ClothOfGoldSimulator() {
 
         // At this point: total is 2 or 3
 
-        // Rule 3: Survival - living cells stay alive
-        if (cell !== 0) {
-          newGrid[i][j] = cell;
-          continue;
-        }
-
-        // Rule 4: Birth - empty cell with exactly 3 neighbors
-        if (total === 3) {
+        // Rule 3 & 4: Competitive survival/birth - ownership determined by majority
+        // Living cells can CONVERT ownership, empty cells can BIRTH
+        if (cell !== 0 || total === 3) {
           if (playerA > playerB) {
-            newGrid[i][j] = 1;
+            newGrid[i][j] = 1; // Becomes/stays A
           } else if (playerB > playerA) {
-            newGrid[i][j] = 2;
+            newGrid[i][j] = 2; // Becomes/stays B
+          } else {
+            // Tie: living cells keep current state, empty cells stay empty
+            newGrid[i][j] = cell;
           }
-          // If tied, no birth (stays empty)
         }
+        // Otherwise: living cell with 2 neighbors but tied (stays empty by default)
       }
     }
 

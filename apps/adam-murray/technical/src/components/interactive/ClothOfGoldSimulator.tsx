@@ -8,7 +8,7 @@ const GRID_SIZE = 60;
 const CELL_SIZE = 8;
 const INFLUENCE_RADIUS = 10;
 const TERRITORY_THRESHOLD = 1.0;
-const CONTESTED_EPSILON = 0.5;
+const CONTESTED_EPSILON = 1.5;
 
 export default function ClothOfGoldSimulator() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -348,6 +348,16 @@ export default function ClothOfGoldSimulator() {
     return acc;
   }, { playerA: 0, playerB: 0 });
 
+  // Count territory
+  const territory = { playerA: 0, playerB: 0 };
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      const territoryState = getTerritoryState(grid, i, j);
+      if (territoryState === 'playerA') territory.playerA++;
+      if (territoryState === 'playerB') territory.playerB++;
+    }
+  }
+
   return (
     <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
       {/* Controls */}
@@ -441,13 +451,15 @@ export default function ClothOfGoldSimulator() {
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Player A (Blue)</div>
+          <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Player A</div>
           <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{populations.playerA}</div>
+          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">Territory: {territory.playerA}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-red-600 dark:text-red-400 mb-1">Player B (Red)</div>
+          <div className="text-xs text-red-600 dark:text-red-400 mb-1">Player B</div>
           <div className="text-xl font-bold text-red-600 dark:text-red-400">{populations.playerB}</div>
+          <div className="text-xs text-red-600 dark:text-red-400 mt-1">Territory: {territory.playerB}</div>
         </div>
       </div>
 
@@ -487,7 +499,7 @@ export default function ClothOfGoldSimulator() {
           </span>
           <span className="flex items-center gap-2">
             <span className="w-4 h-4 rounded bg-purple-500 opacity-70"></span>
-            Competitive death (one frame)
+            Competitive death
           </span>
         </div>
       </div>

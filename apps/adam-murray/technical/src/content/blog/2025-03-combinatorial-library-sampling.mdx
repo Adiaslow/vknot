@@ -12,11 +12,20 @@ draft: false
 readingTimeMinutes: 30
 ---
 
+import PhaseTransitionExplorer from '../../components/interactive/PhaseTransitionExplorer.tsx';
+import TemporalOptimizationFlow from '../../components/interactive/TemporalOptimizationFlow.tsx';
+
 # Information-Theoretic Limits and Phase Transitions in Combinatorial Library Sampling
 
 ## Abstract
 
 We present a mathematical framework for sampling in massive combinatorial chemical libraries where complete enumeration is computationally prohibitive. By modeling chemical libraries as quotient spaces where multiple synthesis instances map to unique chemical entities, we establish fundamental information-theoretic bounds on sample complexity, prove the existence of sharp phase transitions in coverage, and derive optimal experimental design strategies. The framework demonstrates that sampling can achieve 1000× computational speedup while maintaining complete coverage guarantees, with the efficiency gain arising from the inherent redundancy in combinatorial synthesis. We prove that adaptive sampling strategies have logarithmic advantage over uniform sampling, identify critical sampling fractions where phase transitions occur, and show that optimal batch sizes are surprisingly independent of library size under high redundancy conditions.
+
+## Interactive Demonstration
+
+*Explore the phase transition phenomenon below. The sharp S-curve transition demonstrates how sampling efficiency exhibits critical thresholds—adjust library parameters to see when dramatic phase transitions occur.*
+
+<PhaseTransitionExplorer client:load />
 
 ## 1. Introduction
 
@@ -295,6 +304,10 @@ $$\frac{dC}{db} = -|U|\log|U| \times \frac{\beta}{b^2} \times \text{per:sample:c
 Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redundancy, so is $b^*$.
 
 ### 5.4 Temporal Optimization
+
+*Explore the phase-space dynamics of temporal optimization below. Watch the optimal sampling trajectory evolve according to exponential decay, demonstrating the "front-loading principle" in action.*
+
+<TemporalOptimizationFlow client:load />
 
 **Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
 

@@ -75,9 +75,12 @@ export default function PhaseTransitionExplorer() {
   }, [alphaCritical, S]);
 
   // Speedup factor vs complete enumeration
+  // Complete enumeration: process all |S| synthesis instances
+  // Sampling: alphaCritical × |S| samples needed
+  // Speedup: |S| / (alphaCritical × |S|) = 1/alphaCritical = R/log(1/ε)
   const speedup = useMemo(() => {
-    return U / samplesCritical;
-  }, [U, samplesCritical]);
+    return S / samplesCritical;
+  }, [S, samplesCritical]);
 
   // Diagnostic: Probability at critical point (should be ≈ 0.5)
   const probabilityAtCritical = useMemo(() => {
@@ -359,7 +362,7 @@ export default function PhaseTransitionExplorer() {
           <input
             type="range"
             min="10"
-            max="10000"
+            max="100000"
             step="10"
             value={R}
             onChange={(e) => setR(Number(e.target.value))}
@@ -367,7 +370,7 @@ export default function PhaseTransitionExplorer() {
           />
           <div className="flex justify-between text-xs text-slate-500 dark:text-slate-500 mt-1">
             <span>10</span>
-            <span>10⁴</span>
+            <span>10⁵</span>
           </div>
         </div>
 
@@ -413,7 +416,7 @@ export default function PhaseTransitionExplorer() {
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
           <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Speedup Factor</div>
           <div className="text-lg font-bold text-green-600 dark:text-green-400">
-            {speedup.toFixed(1)}×
+            {speedup >= 100 ? Math.round(speedup).toLocaleString() : speedup.toFixed(1)}×
           </div>
         </div>
       </div>

@@ -61,6 +61,11 @@ export default function PhaseTransitionExplorer() {
     return U / samplesCritical;
   }, [U, samplesCritical]);
 
+  // Diagnostic: Probability at critical point (should be ≈ 0.5)
+  const probabilityAtCritical = useMemo(() => {
+    return probabilityFunction(alphaCritical);
+  }, [probabilityFunction, alphaCritical]);
+
   // Generate probability curve data
   const curveData = useMemo(() => {
     const points: Array<{ alpha: number; probability: number }> = [];
@@ -311,7 +316,7 @@ export default function PhaseTransitionExplorer() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
           <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Synthesis Space</div>
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -323,6 +328,13 @@ export default function PhaseTransitionExplorer() {
           <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Critical α_c</div>
           <div className="text-lg font-bold text-red-600 dark:text-red-400">
             {alphaCritical.toExponential(2)}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">P(α_c)</div>
+          <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+            {(probabilityAtCritical * 100).toFixed(1)}%
           </div>
         </div>
 

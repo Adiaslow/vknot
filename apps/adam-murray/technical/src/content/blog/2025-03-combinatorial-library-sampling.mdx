@@ -174,7 +174,7 @@ $$
 \end{cases}
 $$
 
-where $\alpha_c(\varepsilon) = \log(1/\varepsilon)/(R \times |U|/|S|)$.
+where $\alpha_c(\varepsilon) = \frac{\log(1/\varepsilon)}{R}$.
 
 ### Proof
 
@@ -201,9 +201,9 @@ For libraries with building blocks B, fragments F, and molecules U:
 $$
 \begin{aligned}
 \alpha_1 &= 1/|S| && \text{(first discovery)} \\
-\alpha_2 &= \log|B|/(R_B \times |B|/|S|) && \text{(building block coverage)} \\
-\alpha_3 &= \log|F|/(R_F \times |F|/|S|) && \text{(fragment coverage)} \\
-\alpha_4 &= \log|U|/(R \times |U|/|S|) && \text{(molecular coverage)}
+\alpha_2 &= \frac{\log|B|}{R_B} && \text{(building block coverage)} \\
+\alpha_3 &= \frac{\log|F|}{R_F} && \text{(fragment coverage)} \\
+\alpha_4 &= \frac{\log|U|}{R} && \text{(molecular coverage)}
 \end{aligned}
 $$
 
@@ -215,13 +215,13 @@ Each transition enables qualitatively different chemical insights.
 
 When chemicals form a similarity graph G with average degree d:
 
-$$\alpha_{\text{perc}} = \frac{\log d}{d \times R \times |U|/|S|}$$
+$$\alpha_{\text{perc}} = \frac{\log d}{d}$$
 
 Below $\alpha_{\text{perc}}$: Isolated clusters of discovered chemicals.
 Above $\alpha_{\text{perc}}$: Giant component containing $\Theta(|U|)$ chemicals forms.
 
 Proof sketch:
-Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S|$. Giant component emerges when $p > \log d/d$.
+Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S| = \alpha$ (since $R = |S|/|U|$). Giant component emerges when $p > \log d/d$.
 
 ## 5. Optimal Experimental Design
 

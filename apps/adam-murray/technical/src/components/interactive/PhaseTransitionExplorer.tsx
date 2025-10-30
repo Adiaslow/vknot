@@ -308,18 +308,32 @@ export default function PhaseTransitionExplorer() {
         <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           Phase Transition Explorer
         </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
           Explore the sharp phase transition in probability P(Coverage ≥ 1-ε) at critical threshold α_c.
           Adjust parameters to see the dramatic S-curve behavior predicted by Theorem 4.1.
         </p>
+
+        {/* Parameter Guide */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-xs text-slate-700 dark:text-slate-300">
+          <p className="font-semibold mb-2">Parameter Guide:</p>
+          <ul className="space-y-1 ml-2">
+            <li><strong>|U|</strong> (Unique entities): Number of distinct chemical entities in the library</li>
+            <li><strong>R</strong> (Redundancy): Average number of synthesis paths per unique entity (|S|/|U|)</li>
+            <li><strong>ε</strong> (Tolerance): Maximum acceptable fraction of uncovered entities (target coverage = 1-ε)</li>
+            <li><strong>α_c</strong> (Critical point): Sampling fraction where phase transition occurs = log(1/ε)/R</li>
+          </ul>
+        </div>
       </div>
 
       {/* Controls */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Library Size |U|: {U.toLocaleString()}
           </label>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+            Larger |U| makes phase transition sharper
+          </p>
           <input
             type="range"
             min="1000"
@@ -336,9 +350,12 @@ export default function PhaseTransitionExplorer() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Redundancy R: {R.toLocaleString()}
           </label>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+            Higher R moves α_c left (fewer samples needed)
+          </p>
           <input
             type="range"
             min="10"
@@ -355,9 +372,12 @@ export default function PhaseTransitionExplorer() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Target ε: {epsilon.toFixed(3)}
           </label>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+            Smaller ε moves α_c right (stricter coverage)
+          </p>
           <input
             type="range"
             min="0.001"

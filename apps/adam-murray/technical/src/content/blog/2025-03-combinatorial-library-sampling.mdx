@@ -83,9 +83,11 @@ For combinatorial libraries with $N$ positions and $B_i$ choices at position $i$
 
 ### Definition 2.3 (Compositional Space)
 
-- Maximum diversity: $|U|_{max} = \prod_i B_i$
-- Chemical redundancy: $\rho = |U|_{max}/|U|$
-- Synthesis redundancy: $R = |S|/|U|$
+- $N$ = number of variable positions in combinatorial synthesis
+- $B_i$ = number of building block choices at position $i \in \{1,\ldots,N\}$
+- $|U|_{max} = \prod_i B_i$ = maximum diversity (if all combinations were unique)
+- $\rho = |U|_{max}/|U|$ = chemical redundancy (ratio of possible to actual unique entities)
+- $R = |S|/|U|$ = synthesis redundancy (average synthesis paths per entity)
 
 ## 3. Information-Theoretic Bounds
 
@@ -137,9 +139,13 @@ Adaptive sampling requires $O(|U|)$ samples versus $O(|U| \log |U|)$ for uniform
 
 ### 3.3 Partial Information Regimes
 
+### Definition 3.2 (Knowledge Level)
+
+$\kappa \in [0,1]$ = fraction of quotient structure known a priori, where $\kappa=0$ means no knowledge and $\kappa=1$ means complete knowledge.
+
 ### Theorem 3.3 (Sample Complexity with Partial Information)
 
-Given knowledge level $\kappa \in [0,1]$ about quotient structure:
+Given knowledge level $\kappa$ about quotient structure:
 
 $$n^*(\kappa) = \frac{|U|(\log|U| + (1-\kappa)\log R)}{1 + \kappa(R-1)/R}$$
 
@@ -155,17 +161,33 @@ With partial knowledge $\kappa$:
 
 ### 4.1 Coverage Phase Transition
 
-### Definition 4.1 (Sampling Fraction)
+### Definition 4.1 (Sample Count)
 
-$\alpha = n/|S|$ where $n$ is number of samples.
+$n$ = number of samples drawn from synthesis space $S$.
 
-### Definition 4.2 (Coverage Function)
+### Definition 4.2 (Sampling Fraction)
 
-$C(\alpha) = E[|\text{observed unique}|/|U|]$.
+$\alpha = n/|S|$ = fraction of synthesis space sampled.
+
+### Definition 4.3 (Coverage Function)
+
+$C(\alpha) = E[|\text{observed unique}|/|U|]$ = expected fraction of unique entities discovered.
+
+### Definition 4.4 (Coverage Tolerance)
+
+$\varepsilon \in (0,1)$ = maximum acceptable fraction of uncovered entities. Target coverage is $1-\varepsilon$.
+
+### Definition 4.5 (Confidence Parameter)
+
+$\delta \in (0,1)$ = maximum acceptable failure probability. We seek $P(\text{success}) \geq 1-\delta$.
+
+### Definition 4.6 (Critical Sampling Fraction)
+
+The critical sampling fraction $\alpha_c(\varepsilon) = \frac{\log(1/\varepsilon)}{R}$ is the threshold where phase transition occurs.
 
 ### Theorem 4.1 (Sharp Phase Transition)
 
-For combinatorial libraries with redundancy $R = |S|/|U|$, there exists critical $\alpha_c$ such that:
+For combinatorial libraries with redundancy $R = |S|/|U|$, the probability of achieving coverage $1-\varepsilon$ exhibits a sharp transition at $\alpha_c$:
 
 $$
 \lim_{|U| \to \infty} P(C(\alpha) > 1-\varepsilon) = \begin{cases}
@@ -173,8 +195,6 @@ $$
 1 & \text{if } \alpha > \alpha_c(\varepsilon)
 \end{cases}
 $$
-
-where $\alpha_c(\varepsilon) = \frac{\log(1/\varepsilon)}{R}$.
 
 ### Proof
 
@@ -227,13 +247,15 @@ Maps to Erdős-Rényi random graph with edge probability $p = \alpha R|U|/|S| = 
 
 ### 5.1 Multi-Modal Sampling
 
-**Problem** (Multi-Modal Resource Allocation): Given K experimental modalities with:
+### Definition 5.1a (Multi-Modal Variables)
 
-- Costs: Q₁, ..., Q_K
-- Information rates: I₁, ..., I_K
-- Coverage functions: C₁(n), ..., C_K(n)
+- $K$ = number of experimental modalities (e.g., assay types)
+- $Q_k$ = cost per sample for modality $k \in \{1,\ldots,K\}$
+- $I_k$ = information rate (bits per sample) for modality $k$
+- $C_k(n)$ = coverage achieved by $n$ samples in modality $k$
+- $n_k$ = number of samples allocated to modality $k$
 
-Maximize coverage subject to budget B.
+**Problem** (Multi-Modal Resource Allocation): Given $K$ experimental modalities with costs $Q_k$, information rates $I_k$, and coverage functions $C_k(n)$, maximize coverage subject to budget $B$.
 
 ### Theorem 5.1 (Submodular Coverage)
 
@@ -276,7 +298,8 @@ Uses upper confidence bound (UCB) framework. Optimal exploration bonus is propor
 
 ### Definition 5.2 (Batch Economy)
 
-β = setup_cost/per_sample_cost.
+- $b$ = batch size (number of samples processed together)
+- $\beta$ = setup_cost/per_sample_cost = ratio of fixed setup cost to variable per-sample cost
 
 ### Theorem 5.3 (Optimal Batch Size)
 
@@ -308,6 +331,17 @@ Since coverage requirement $|U|\log|U|$ is independent of $|S|$ under high redun
 *Explore the phase-space dynamics of temporal optimization below. Watch the optimal sampling trajectory evolve according to exponential decay, demonstrating the "front-loading principle" in action.*
 
 <TemporalOptimizationFlow client:load />
+
+### Definition 5.3 (Temporal Variables)
+
+- $t$ = time from start of experiment
+- $\lambda$ = exponential decay rate of sample quality
+- $Q(t) = Q_0\exp(-\lambda t)$ = sample quality at time $t$
+- $I(t) = I_0\exp(-\lambda t)$ = information gained per sample at time $t$
+- $n(t)$ = sampling rate (samples per unit time) at time $t$
+- $C$ = cost per sample (constant)
+- $B$ = total budget constraint
+- $\mu$ = Lagrange multiplier for budget constraint
 
 **Problem**: Given sample quality decay $Q(t) = Q_0\exp(-\lambda t)$, optimize sampling schedule.
 

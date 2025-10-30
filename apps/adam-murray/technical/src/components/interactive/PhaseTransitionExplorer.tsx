@@ -1,15 +1,33 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 
+// Standard normal CDF approximation (error < 7.5e-8)
+function normalCDF(x: number): number {
+  const t = 1 / (1 + 0.2316419 * Math.abs(x));
+  const d = 0.3989423 * Math.exp(-x * x / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return x > 0 ? 1 - p : p;
+}
+
 // Poisson CDF: P(X ≤ k) for X ~ Poisson(lambda)
-// Exact implementation from probability theory
+// Uses exact calculation for small lambda, normal approximation for large lambda
 function poissonCDF(k: number, lambda: number): number {
   if (lambda === 0) return 1;
   if (k < 0) return 0;
 
+  const kFloor = Math.floor(k);
+
+  // For large lambda, use normal approximation to avoid numerical issues
+  // Poisson(λ) ≈ Normal(λ, λ) for large λ
+  if (lambda > 100) {
+    // Continuity correction: P(X ≤ k) ≈ Φ((k + 0.5 - λ) / √λ)
+    const z = (kFloor + 0.5 - lambda) / Math.sqrt(lambda);
+    return normalCDF(z);
+  }
+
+  // For small lambda, use exact iterative formula
   let sum = 0;
   let term = Math.exp(-lambda);
-  const kFloor = Math.floor(k);
 
   for (let i = 0; i <= kFloor; i++) {
     sum += term;
@@ -18,7 +36,7 @@ function poissonCDF(k: number, lambda: number): number {
     }
   }
 
-  return sum;
+  return Math.min(1, sum); // Clamp to [0, 1] for numerical stability
 }
 
 export default function PhaseTransitionExplorer() {
@@ -65,6 +83,17 @@ export default function PhaseTransitionExplorer() {
   const probabilityAtCritical = useMemo(() => {
     return probabilityFunction(alphaCritical);
   }, [probabilityFunction, alphaCritical]);
+
+  // True inflection point: λ = k + 1 (from calculus)
+  // α_inflection = log(1/(ε + 1/|U|)) / R
+  const alphaInflection = useMemo(() => {
+    return Math.log(1 / (epsilon + 1/U)) / R;
+  }, [epsilon, U, R]);
+
+  // Offset between theoretical and actual inflection point
+  const inflectionOffset = useMemo(() => {
+    return ((alphaInflection - alphaCritical) / alphaCritical) * 100; // percentage
+  }, [alphaInflection, alphaCritical]);
 
   // Generate probability curve data
   const curveData = useMemo(() => {
@@ -202,6 +231,36 @@ export default function PhaseTransitionExplorer() {
       .style('fill', '#ef4444')
       .text(`α_c = ${alphaCritical.toExponential(2)}`);
 
+    // True inflection point line (if significantly different)
+    if (Math.abs(alphaInflection - alphaCritical) / alphaCritical > 0.001) {
+      g.append('line')
+        .attr('x1', xScale(alphaInflection))
+        .attr('x2', xScale(alphaInflection))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#f97316') // Orange
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '4,4');
+
+      const inflectionProbability = probabilityFunction(alphaInflection);
+      g.append('circle')
+        .attr('cx', xScale(alphaInflection))
+        .attr('cy', yScale(inflectionProbability))
+        .attr('r', 5)
+        .attr('fill', '#f97316')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+
+      g.append('text')
+        .attr('x', xScale(alphaInflection))
+        .attr('y', -25)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('fill', '#f97316')
+        .text(`α_infl = ${alphaInflection.toExponential(2)}`);
+    }
+
     // Tooltip group (initially hidden)
     const tooltip = g.append('g')
       .attr('class', 'tooltip')
@@ -241,7 +300,7 @@ export default function PhaseTransitionExplorer() {
         tooltip.style('display', 'none');
       });
 
-  }, [curveData, alphaCritical, probabilityFunction]);
+  }, [curveData, alphaCritical, alphaInflection, probabilityFunction]);
 
   return (
     <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
@@ -316,25 +375,11 @@ export default function PhaseTransitionExplorer() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
           <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Synthesis Space</div>
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
             {S.toExponential(2)}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Critical α_c</div>
-          <div className="text-lg font-bold text-red-600 dark:text-red-400">
-            {alphaCritical.toExponential(2)}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">P(α_c)</div>
-          <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-            {(probabilityAtCritical * 100).toFixed(1)}%
           </div>
         </div>
 
@@ -349,6 +394,37 @@ export default function PhaseTransitionExplorer() {
           <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Speedup Factor</div>
           <div className="text-lg font-bold text-green-600 dark:text-green-400">
             {speedup.toFixed(1)}×
+          </div>
+        </div>
+      </div>
+
+      {/* Diagnostic Statistics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Theoretical α_c</div>
+          <div className="text-lg font-bold text-red-600 dark:text-red-400">
+            {alphaCritical.toExponential(3)}
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">True Inflection</div>
+          <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+            {alphaInflection.toExponential(3)}
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">P(α_c)</div>
+          <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+            {(probabilityAtCritical * 100).toFixed(1)}%
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Offset</div>
+          <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {Math.abs(inflectionOffset) < 0.01 ? '< 0.01' : inflectionOffset.toFixed(2)}%
           </div>
         </div>
       </div>
@@ -368,8 +444,10 @@ export default function PhaseTransitionExplorer() {
         <p><strong>Interpretation:</strong></p>
         <ul className="list-disc list-inside mt-2 space-y-1">
           <li><span className="text-blue-600 dark:text-blue-400 font-semibold">Blue curve</span>: Probability P(Coverage ≥ 1-ε) using exact Poisson CDF from Theorem 4.1</li>
-          <li><span className="text-red-600 dark:text-red-400 font-semibold">Red line</span>: Critical threshold α_c = log(1/ε)/R where phase transition occurs</li>
+          <li><span className="text-red-600 dark:text-red-400 font-semibold">Red line</span>: Theoretical critical threshold α_c = log(1/ε)/R (where E[uncovered] = ε|U|)</li>
+          <li><span className="text-orange-600 dark:text-orange-400 font-semibold">Orange line</span>: True inflection point α_infl = log(1/(ε + 1/|U|))/R (from calculus, shown if different)</li>
           <li><span className="text-yellow-600 dark:text-yellow-400 font-semibold">Yellow region</span>: Phase transition zone exhibiting sharp S-curve behavior</li>
+          <li>For large |U|, α_c ≈ α_infl (offset → 0%). For small |U|, the offset is measurable.</li>
           <li>Hover over the curve to see exact probability values at each sampling fraction</li>
         </ul>
       </div>

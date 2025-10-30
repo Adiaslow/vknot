@@ -332,7 +332,7 @@ export default function PhaseTransitionExplorer() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Library Size |U|: {U.toLocaleString()}
+            Unique Entities (|U|): {U.toLocaleString()}
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
             Larger |U| makes phase transition sharper
@@ -354,7 +354,7 @@ export default function PhaseTransitionExplorer() {
 
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Redundancy R: {R.toLocaleString()}
+            Redundancy (R = |S|/|U|): {R.toLocaleString()}
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
             Higher R moves α_c left (fewer samples needed)
@@ -376,7 +376,7 @@ export default function PhaseTransitionExplorer() {
 
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Target ε: {epsilon.toFixed(3)}
+            Coverage Tolerance (ε): {epsilon.toFixed(3)}
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
             Smaller ε moves α_c right (stricter coverage)
@@ -400,21 +400,21 @@ export default function PhaseTransitionExplorer() {
       {/* Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Synthesis Space</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Synthesis Space (|S| = |U|×R)</div>
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
             {S.toExponential(2)}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Samples Needed</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Samples Needed (α_c × |S|)</div>
           <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
             {samplesCritical.toLocaleString()}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Speedup Factor</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Speedup (|S|/samples)</div>
           <div className="text-lg font-bold text-green-600 dark:text-green-400">
             {speedup >= 100 ? Math.round(speedup).toLocaleString() : speedup.toFixed(1)}×
           </div>
@@ -424,28 +424,28 @@ export default function PhaseTransitionExplorer() {
       {/* Diagnostic Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Theoretical α_c</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Critical Point (α_c = log(1/ε)/R)</div>
           <div className="text-lg font-bold text-red-600 dark:text-red-400">
             {alphaCritical.toExponential(3)}
           </div>
         </div>
 
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">True Inflection</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">True Inflection (α_infl)</div>
           <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
             {alphaInflection.toExponential(3)}
           </div>
         </div>
 
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">P(α_c)</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Probability at α_c (P)</div>
           <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
             {(probabilityAtCritical * 100).toFixed(1)}%
           </div>
         </div>
 
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Offset</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Inflection Offset (%)</div>
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
             {Math.abs(inflectionOffset) < 0.01 ? '< 0.01' : inflectionOffset.toFixed(2)}%
           </div>

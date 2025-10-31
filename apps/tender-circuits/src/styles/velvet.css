@@ -258,3 +258,63 @@ body > header + * {
   background: transparent !important;
 }
 
+/* ============================================================================
+   HEADER AND FOOTER GLASSMORPHIC STYLING
+   Match the card glass effects but without rounded corners
+   ============================================================================ */
+
+body > header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  /* Remove rounded corners */
+  border-radius: 0 !important;
+
+  /* Remove side borders - only edges touching window */
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* Glass blur layer for header */
+body > header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  /* Match card glass blur */
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(255, 255, 255, 0.15);
+
+  /* Glass distortion - realistic refraction */
+  filter: url(#glass-distortion);
+}
+
+/* Glass shine layer for header */
+body > header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  /* Inset highlights for glass shine effect */
+  box-shadow:
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure header content appears above glass layers */
+body > header > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Footer glassmorphic styling */
+body > footer {
+  position: relative;
+  isolation: isolate;
+}
+

@@ -193,10 +193,13 @@ function resolveThemeStyles(theme: NavigationTheme): ThemeStyles {
     music: {
       header: {
         ...base.header,
-        background: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: 'transparent',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        borderLeft: 'none',
+        borderRight: 'none',
+        borderRadius: '0',
         boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 0, 0, 0.08)',
         color: '#f5f1ea'
       },

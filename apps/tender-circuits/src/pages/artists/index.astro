@@ -21,8 +21,8 @@ const artists = [
   <section class="flex flex-col gap-12">
     <div class="card rounded-2xl p-8">
       <div class="flex flex-col gap-4">
-        <h1 class="text-4xl font-bold text-white tracking-tight">Artists</h1>
-        <p class="text-lg text-slate-300 leading-relaxed max-w-3xl">
+        <h1 class="text-4xl font-medium text-cream-100 tracking-tight">Artists</h1>
+        <p class="text-lg text-cream-200 leading-relaxed max-w-3xl">
           Curating a carefully selected roster of artists working at the
           intersection of ambient electronics, experimental sound design, and
           electroacoustic composition.
@@ -33,92 +33,59 @@ const artists = [
     <div class="grid gap-12 md:gap-16">
       {
         artists.map((artist) => (
-          <article
-            class={`card group rounded-2xl p-8 ${
-              artist.featured ? "ring-1 ring-emerald-800/30" : ""
-            }`}
-          >
+          <article class="card group rounded-2xl p-8">
             <div class="flex flex-col gap-6">
               {/* Artist Header */}
               <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-3">
-                  <h2 class="text-3xl font-bold text-white group-hover:text-emerald-100 transition-colors">
+                  <h2 class="text-3xl font-medium text-cream-100 group-hover:text-cream-50 transition-colors">
                     {artist.name}
                   </h2>
                   {artist.featured && (
-                    <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
-                      Featured Artist
+                    <span class="text-sm text-terracotta-500">
+                      Featured artist
                     </span>
                   )}
                 </div>
-                <p class="text-slate-300 leading-relaxed max-w-2xl">
+                <p class="text-cream-200 leading-relaxed max-w-2xl">
                   {artist.description}
                 </p>
               </div>
 
               {/* Genres */}
-              <div class="flex flex-wrap gap-2">
-                {artist.genres.map((genre) => (
-                  <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                    {genre}
-                  </span>
-                ))}
+              <div class="text-sm text-warmGray-400">
+                {artist.genres.join(" / ")}
               </div>
 
               {/* Releases */}
               <div class="flex flex-col gap-3">
-                <h3 class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]">
+                <h3 class="text-sm font-medium text-warmGray-500">
                   Releases on Tender Circuits
                 </h3>
                 <div class="flex flex-col gap-2">
                   {artist.releases.map((release) => (
                     <div class="flex items-center gap-2">
-                      <div class="w-1 h-1 rounded-full bg-slate-500" />
-                      <span class="text-slate-300 font-medium">{release}</span>
+                      <div class="w-1 h-1 rounded-full bg-warmGray-500" />
+                      <span class="text-cream-200 font-medium">{release}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Actions */}
-              <div class="flex items-center gap-4 pt-4 border-t border-slate-800">
+              <div class="flex items-center gap-4 pt-4">
                 <a
-                  class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                  class="text-sm font-medium text-terracotta-500 hover:text-terracotta-400 transition-colors"
                   href={`/tender_circuits/artists/${artist.slug}`}
                 >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span>Artist Profile</span>
+                  Artist Profile
                 </a>
+                <span class="text-warmGray-500">•</span>
                 <a
-                  class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
+                  class="text-sm font-medium text-warmGray-400 hover:text-cream-200 transition-colors"
                   href="/tender_circuits/releases"
                 >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                    />
-                  </svg>
-                  <span>View Releases</span>
+                  View Releases
                 </a>
               </div>
             </div>
@@ -130,14 +97,14 @@ const artists = [
     {/* Future Artists Section */}
     <section class="card rounded-2xl p-8">
       <div class="flex flex-col gap-4 text-center">
-        <h2 class="text-2xl font-semibold text-white">Submissions</h2>
-        <p class="text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        <h2 class="text-2xl font-medium text-cream-100">Submissions</h2>
+        <p class="text-warmGray-400 leading-relaxed max-w-2xl mx-auto">
           Tender Circuits is always seeking new artists working in ambient,
           experimental, and electroacoustic music. We prioritize music that
           explores texture, space, and process.
         </p>
         <div class="pt-2">
-          <span class="text-sm text-slate-500">
+          <span class="text-sm text-warmGray-500">
             Submissions are currently invite-only
           </span>
         </div>

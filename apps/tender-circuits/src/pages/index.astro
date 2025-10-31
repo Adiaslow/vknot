@@ -21,13 +21,13 @@ const featuredReleases = [
   <section class="flex flex-col gap-10">
     <div class="card rounded-2xl p-8">
       <header class="flex flex-col gap-3">
-        <span class="text-xs uppercase tracking-[0.4em] text-slate-500"
+        <span class="text-xs tracking-wide text-warmGray-500"
           >Tender Circuits</span
         >
-        <h1 class="text-4xl font-semibold text-white">
+        <h1 class="text-4xl font-medium text-cream-100">
           Independent label for experimental sound and ambient electronics.
         </h1>
-        <p class="max-w-2xl text-slate-300">
+        <p class="max-w-2xl text-cream-200 leading-relaxed">
           Curating releases that explore ambient textures, avant-garde
           compositions, and the intersection of electronic and acoustic sound.
         </p>
@@ -36,60 +36,35 @@ const featuredReleases = [
 
     <section class="flex flex-col gap-10">
       <div class="card rounded-2xl p-6">
-        <h2 class="text-2xl font-semibold text-white">Latest Release</h2>
+        <h2 class="text-2xl font-medium text-cream-100">Latest Release</h2>
       </div>
       {
         featuredReleases.map((release) => (
           <article class="card flex flex-col gap-6 rounded-2xl p-8">
-            <div class="flex flex-col gap-4">
-              <div class="flex items-center gap-3">
-                <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
-                  New Release
-                </span>
-                <span class="text-xs text-slate-400 font-mono">
-                  {release.releaseDate}
-                </span>
+            <div class="flex flex-col gap-5">
+              <div class="flex items-center gap-3 text-sm text-warmGray-500">
+                <span>New release</span>
+                <span>•</span>
+                <span>{release.releaseDate}</span>
               </div>
 
               <div class="flex flex-col gap-2">
-                <h3 class="text-3xl font-bold text-white">{release.title}</h3>
-                <p class="text-lg text-slate-300">by {release.artist}</p>
+                <h3 class="text-3xl font-medium text-cream-100">{release.title}</h3>
+                <p class="text-lg text-cream-200">by {release.artist}</p>
               </div>
 
-              <div class="flex flex-wrap gap-2">
-                {release.genres.map((genre) => (
-                  <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                    {genre}
-                  </span>
-                ))}
-                {release.subgenres.map((subgenre) => (
-                  <span class="text-xs px-3 py-1 rounded-full bg-fuchsia-900/30 text-fuchsia-300 border border-fuchsia-800/50">
-                    {subgenre}
-                  </span>
-                ))}
+              <div class="text-sm text-warmGray-400">
+                {release.genres.join(" / ")}
+                {release.subgenres.length > 0 && " • " + release.subgenres.join(" / ")}
+                {" • " + release.style}
               </div>
-
-              <p class="text-sm text-slate-400 italic">{release.style}</p>
             </div>
 
-            <div class="flex items-center gap-4 pt-2 border-t border-slate-800">
+            <div class="flex items-center gap-4 pt-4">
               <a
-                class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                class="inline-flex items-center gap-2 text-sm font-medium text-terracotta-500 hover:text-terracotta-400 transition-colors"
                 href="/tender_circuits/releases"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-7a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
                 Listen Now
               </a>
             </div>

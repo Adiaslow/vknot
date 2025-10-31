@@ -18,6 +18,23 @@ export default defineConfig({
         500: '#0ea5e9',
         600: '#0284c7',
         700: '#0369a1',
+      },
+      // Warm indie color palette
+      cream: {
+        50: '#fdfcfa',
+        100: '#f5f1ea',
+        200: '#e8dcc8',
+        300: '#d9c9ab',
+      },
+      warmGray: {
+        400: '#b3a28a',
+        500: '#a39074',
+        600: '#8a7a5f',
+      },
+      terracotta: {
+        400: '#d89178',
+        500: '#c97a5f',
+        600: '#b56548',
       }
     },
     fontFamily: {

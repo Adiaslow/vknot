@@ -26,6 +26,9 @@ export interface Release {
   subgenres: string[];
   style: string;
 
+  // Artwork
+  vinylArtwork?: string; // Optional custom vinyl cover artwork with transparency
+
   // Credits & Notes
   credits: ReleaseCredits;
   notes: string;
@@ -50,6 +53,8 @@ export const releases: Release[] = [
     genres: ['Electronic', 'Ambient', 'Avant Garde'],
     subgenres: ['Lower-case Music'],
     style: 'Instrumental',
+
+    vinylArtwork: '/tender_circuits/images/releases/Life is Fragile - Website.png',
 
     credits: {
       'Composed & Produced': 'Soft Systems',

@@ -36,6 +36,7 @@ const releases = await Promise.all(
       slug: config.slug,
       description: config.description,
       artistSlug: config.artistSlug,
+      vinylArtwork: config.vinylArtwork,
     };
   })
 );
@@ -62,14 +63,14 @@ const releases = await Promise.all(
         releases.map((release) => (
           <article class="card group rounded-2xl overflow-hidden">
             <div class="flex flex-col md:flex-row gap-8">
-              {/* Album Artwork */}
-              {release.artwork && (
+              {/* Album Artwork - Use vinyl artwork if available, otherwise use Spotify artwork */}
+              {(release.vinylArtwork || release.artwork) && (
                 <div class="md:w-80 flex-shrink-0">
                   <a href={`/tender_circuits/releases/${release.slug}`}>
                     <img
-                      src={release.artwork}
+                      src={release.vinylArtwork || release.artwork}
                       alt={`${release.title} album artwork`}
-                      class="velvet-artwork-frame w-full h-full object-cover md:h-full aspect-square"
+                      class={release.vinylArtwork ? "vinyl-artwork w-full h-auto aspect-square" : "velvet-artwork-frame w-full h-full object-cover md:h-full aspect-square"}
                     />
                   </a>
                 </div>

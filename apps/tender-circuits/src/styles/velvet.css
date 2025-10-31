@@ -194,6 +194,16 @@ body > header + * {
     0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
+/* Vinyl artwork with transparency - no background, preserve transparency */
+.vinyl-artwork {
+  background: transparent !important;
+  /* No box shadow to maintain clean vinyl record aesthetic */
+  box-shadow: none;
+  /* Smooth edges for PNG transparency */
+  image-rendering: crisp-edges;
+  -webkit-image-rendering: crisp-edges;
+}
+
 } /* End @layer components */
 
 /* Override box-shadows outside @layer for proper specificity */

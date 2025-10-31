@@ -204,6 +204,19 @@ body > header + * {
   -webkit-image-rendering: crisp-edges;
 }
 
+/* Vinyl card - affects fur like glass cards, but without glassmorphic styling */
+.vinyl-card {
+  /* Remove glassmorphic effects */
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Remove glass blur and shine layers from vinyl cards */
+.vinyl-card::before,
+.vinyl-card::after {
+  display: none !important;
+}
+
 } /* End @layer components */
 
 /* Override box-shadows outside @layer for proper specificity */

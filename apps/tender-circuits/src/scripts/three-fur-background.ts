@@ -147,6 +147,8 @@ class ThreeFurBackground {
   private camera: THREE.OrthographicCamera;
   private renderer: THREE.WebGLRenderer;
   private furMesh: THREE.Mesh | null = null;
+  private leftStaticFurMesh: THREE.Mesh | null = null; // Static fur on left side
+  private rightStaticFurMesh: THREE.Mesh | null = null; // Static fur on right side
   private backgroundMesh: THREE.Mesh | null = null; // Noise field background
   private cards: CardData[] = [];
   private canvas: HTMLCanvasElement;
@@ -155,6 +157,13 @@ class ThreeFurBackground {
 
   // Track previous frame's influence bounds for proper decay
   private prevInfluenceBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+  // ============================================================================
+  // CONTENT BAND CONFIGURATION (for optimization)
+  // ============================================================================
+  private contentBandMinX = 0; // Left boundary of dynamic region in texture space
+  private contentBandMaxX = 0; // Right boundary of dynamic region in texture space
+  private readonly CONTENT_MAX_WIDTH = 1280; // Max content width in pixels (matches max-w-5xl)
 
   // ============================================================================
   // WEBGL DATA TEXTURES FOR GPU
@@ -254,6 +263,7 @@ class ThreeFurBackground {
   }
 
   private init(): void {
+    this.calculateContentBandBoundaries();
     this.initializeBuffers();
     this.createNoiseBackground(); // Create noise field background first (renders behind fur)
     this.createInstancedFurMesh();
@@ -262,6 +272,42 @@ class ThreeFurBackground {
     // Do an initial buffer update to calculate convergence for the static flow field
     this.updateBuffers();
     this.animate();
+  }
+
+  /**
+   * Calculate the boundaries of the content band in texture space
+   * Content is centered and has max-width, with buffer zones for card influence
+   */
+  private calculateContentBandBoundaries(): void {
+    const size = this.TEXTURE_SIZE;
+    const aspect = window.innerWidth / window.innerHeight;
+
+    // Calculate content width in pixels (capped at CONTENT_MAX_WIDTH)
+    const contentWidthPx = Math.min(this.CONTENT_MAX_WIDTH, window.innerWidth);
+
+    // Add buffer for glass influence radius on each side
+    const bufferPx = this.GLASS_INFLUENCE_RADIUS * 2; // Extra margin for safety
+    const dynamicWidthPx = contentWidthPx + (bufferPx * 2);
+
+    // Convert to texture space
+    // Texture space goes from 0 to size, where size maps to full screen width
+    const centerX = size / 2;
+    const dynamicHalfWidthTex = (dynamicWidthPx / window.innerWidth) * size / 2;
+
+    this.contentBandMinX = Math.max(0, centerX - dynamicHalfWidthTex);
+    this.contentBandMaxX = Math.min(size, centerX + dynamicHalfWidthTex);
+
+    console.log('[Fur Optimization] Content band calculated:', {
+      windowWidth: window.innerWidth,
+      contentWidthPx,
+      dynamicWidthPx,
+      textureSpace: {
+        minX: this.contentBandMinX.toFixed(1),
+        maxX: this.contentBandMaxX.toFixed(1),
+        width: (this.contentBandMaxX - this.contentBandMinX).toFixed(1)
+      },
+      coveragePercent: ((this.contentBandMaxX - this.contentBandMinX) / size * 100).toFixed(1) + '%'
+    });
   }
 
   private initializeBuffers(): void {
@@ -457,11 +503,28 @@ class ThreeFurBackground {
     };
 
     // Generate instance attributes for each hair
+    // Split into three regions: left static, dynamic center, right static
     const instanceCount = this.HAIR_COUNT;
-    const basePositions = new Float32Array(instanceCount * 2); // x, y in texture space
-    const hairProperties = new Float32Array(instanceCount * 2); // length, thickness
-    const opacities = new Float32Array(instanceCount * 2); // baseOpacity, tipOpacity
-    const randomSeeds = new Float32Array(instanceCount); // seed for per-hair randomness
+
+    // Separate arrays for each region
+    const leftStaticData = {
+      positions: [] as number[],
+      properties: [] as number[],
+      opacities: [] as number[],
+      seeds: [] as number[]
+    };
+    const dynamicData = {
+      positions: [] as number[],
+      properties: [] as number[],
+      opacities: [] as number[],
+      seeds: [] as number[]
+    };
+    const rightStaticData = {
+      positions: [] as number[],
+      properties: [] as number[],
+      opacities: [] as number[],
+      seeds: [] as number[]
+    };
 
     let validHairCount = 0;
 
@@ -478,28 +541,38 @@ class ThreeFurBackground {
       // Density threshold
       if (this.seededRandom() > localDensity * this.HAIR_DENSITY) continue;
 
-      // Store base position in texture space
-      basePositions[validHairCount * 2] = x;
-      basePositions[validHairCount * 2 + 1] = y;
-
       // Vary hair properties
       const length = this.HAIR_LENGTH_MIN + this.seededRandom() * (this.HAIR_LENGTH_MAX - this.HAIR_LENGTH_MIN);
       const thickness = this.HAIR_THICKNESS_MIN + this.seededRandom() * (this.HAIR_THICKNESS_MAX - this.HAIR_THICKNESS_MIN);
+      const baseOpacity = this.OPACITY_BASE_MIN + this.seededRandom() * this.OPACITY_BASE_RANGE;
+      const tipOpacity = this.OPACITY_TIP_MIN + this.seededRandom() * this.OPACITY_TIP_RANGE;
+      const seed = this.seededRandom() * 1000.0;
 
-      hairProperties[validHairCount * 2] = length;
-      hairProperties[validHairCount * 2 + 1] = thickness;
+      // Determine which region this hair belongs to
+      let targetData;
+      if (x < this.contentBandMinX) {
+        targetData = leftStaticData;
+      } else if (x > this.contentBandMaxX) {
+        targetData = rightStaticData;
+      } else {
+        targetData = dynamicData;
+      }
 
-      // Store opacity values
-      opacities[validHairCount * 2] = this.OPACITY_BASE_MIN + this.seededRandom() * this.OPACITY_BASE_RANGE;
-      opacities[validHairCount * 2 + 1] = this.OPACITY_TIP_MIN + this.seededRandom() * this.OPACITY_TIP_RANGE;
-
-      // Store random seed for this hair (for shader variation)
-      randomSeeds[validHairCount] = this.seededRandom() * 1000.0;
+      // Store hair data in appropriate region
+      targetData.positions.push(x, y);
+      targetData.properties.push(length, thickness);
+      targetData.opacities.push(baseOpacity, tipOpacity);
+      targetData.seeds.push(seed);
 
       validHairCount++;
     }
 
     console.log(`[Fur] Created ${validHairCount} valid hairs from ${this.HAIR_COUNT} attempts`);
+    console.log(`[Fur Optimization] Region distribution:`, {
+      leftStatic: leftStaticData.positions.length / 2,
+      dynamic: dynamicData.positions.length / 2,
+      rightStatic: rightStaticData.positions.length / 2
+    });
 
     // Create base geometry - single triangle for maximum instance count
     // Triangle: base-left, base-right, tip-center
@@ -513,29 +586,59 @@ class ThreeFurBackground {
     baseGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     baseGeometry.setIndex([0, 1, 2]); // Single triangle
 
-    // Create instanced geometry
-    const geometry = new THREE.InstancedBufferGeometry();
-    geometry.copy(baseGeometry);
-    geometry.instanceCount = validHairCount;
+    // Helper function to create instanced mesh for a region
+    const createRegionMesh = (data: typeof leftStaticData, name: string): THREE.Mesh | null => {
+      const count = data.positions.length / 2;
+      if (count === 0) {
+        console.log(`[Fur] No hairs in ${name} region`);
+        return null;
+      }
 
-    // Add instance attributes
-    geometry.setAttribute('basePosition', new THREE.InstancedBufferAttribute(basePositions.slice(0, validHairCount * 2), 2));
-    geometry.setAttribute('hairProperties', new THREE.InstancedBufferAttribute(hairProperties.slice(0, validHairCount * 2), 2));
-    geometry.setAttribute('opacityValues', new THREE.InstancedBufferAttribute(opacities.slice(0, validHairCount * 2), 2));
-    geometry.setAttribute('randomSeed', new THREE.InstancedBufferAttribute(randomSeeds.slice(0, validHairCount), 1));
-    // DEBUG: Check position distribution
-    const minX = Math.min(...Array.from(basePositions.slice(0, validHairCount * 2)).filter((_, i) => i % 2 === 0));
-    const maxX = Math.max(...Array.from(basePositions.slice(0, validHairCount * 2)).filter((_, i) => i % 2 === 0));
-    const minY = Math.min(...Array.from(basePositions.slice(0, validHairCount * 2)).filter((_, i) => i % 2 === 1));
-    const maxY = Math.max(...Array.from(basePositions.slice(0, validHairCount * 2)).filter((_, i) => i % 2 === 1));
-    console.log("[Fur] Position range - X:", minX.toFixed(1), "to", maxX.toFixed(1), "Y:", minY.toFixed(1), "to", maxY.toFixed(1), "Size:", size);
+      const geometry = new THREE.InstancedBufferGeometry();
+      geometry.copy(baseGeometry);
+      geometry.instanceCount = count;
 
-    // Create shader material
-    const material = new THREE.ShaderMaterial({
+      geometry.setAttribute('basePosition', new THREE.InstancedBufferAttribute(new Float32Array(data.positions), 2));
+      geometry.setAttribute('hairProperties', new THREE.InstancedBufferAttribute(new Float32Array(data.properties), 2));
+      geometry.setAttribute('opacityValues', new THREE.InstancedBufferAttribute(new Float32Array(data.opacities), 2));
+      geometry.setAttribute('randomSeed', new THREE.InstancedBufferAttribute(new Float32Array(data.seeds), 1));
+
+      console.log(`[Fur] ${name} mesh created with ${count} hairs`);
+      return new THREE.Mesh(geometry, this.createFurMaterial(aspect));
+    };
+
+    // Create three separate meshes for left static, dynamic, and right static regions
+    this.leftStaticFurMesh = createRegionMesh(leftStaticData, 'Left Static');
+    this.furMesh = createRegionMesh(dynamicData, 'Dynamic (Center)');
+    this.rightStaticFurMesh = createRegionMesh(rightStaticData, 'Right Static');
+
+    // Add meshes to scene
+    if (this.leftStaticFurMesh) {
+      this.leftStaticFurMesh.frustumCulled = false;
+      this.scene.add(this.leftStaticFurMesh);
+    }
+    if (this.furMesh) {
+      this.furMesh.frustumCulled = false;
+      this.scene.add(this.furMesh);
+    }
+    if (this.rightStaticFurMesh) {
+      this.rightStaticFurMesh.frustumCulled = false;
+      this.scene.add(this.rightStaticFurMesh);
+    }
+
+    console.log("[Fur] All region meshes created and added to scene");
+  }
+
+  /**
+   * Create shader material for fur rendering
+   * Shared across all three regions (left static, dynamic, right static)
+   */
+  private createFurMaterial(aspect: number): THREE.ShaderMaterial {
+    return new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
       blending: THREE.NormalBlending,
-      side: THREE.DoubleSide, // Render both sides of quads for proper bending visibility
+      side: THREE.DoubleSide,
       vertexShader: this.getVertexShader(),
       fragmentShader: this.getFragmentShader(),
       uniforms: {
@@ -566,12 +669,6 @@ class ThreeFurBackground {
         aspectRatio: { value: aspect },
       }
     });
-
-    // Create mesh with quad rendering for variable thickness
-    this.furMesh = new THREE.Mesh(geometry, material);
-    this.furMesh.frustumCulled = false; // Disable culling - hairs extend beyond base geometry bounds
-    this.scene.add(this.furMesh);
-    console.log("[Fur] Geometry instance count:", geometry.instanceCount, "Expected:", validHairCount);
   }
 
   private getVertexShader(): string {
@@ -735,6 +832,11 @@ class ThreeFurBackground {
     const size = this.TEXTURE_SIZE;
     const aspect = window.innerWidth / window.innerHeight;
 
+    // OPTIMIZATION: Only process the dynamic content band
+    // Static regions (left and right) never change, so skip them
+    const minXToProcess = Math.floor(this.contentBandMinX);
+    const maxXToProcess = Math.ceil(this.contentBandMaxX);
+
     // Convert Three.js world coordinates to texture space
     const worldToTexture = (worldPos: THREE.Vector2): THREE.Vector2 => {
       const normX = (worldPos.x / (this.CAMERA_FRUSTUM_SIZE * aspect / 2) + 1) / 2;
@@ -773,8 +875,12 @@ class ThreeFurBackground {
       maxY = Math.max(maxY, updateMaxY);
 
       // Update pixels in influence region
+      // OPTIMIZATION: Clamp to dynamic content band
+      const clampedMinX = Math.max(updateMinX, minXToProcess);
+      const clampedMaxX = Math.min(updateMaxX, maxXToProcess);
+
       for (let y = updateMinY; y <= updateMaxY; y++) {
-        for (let x = updateMinX; x <= updateMaxX; x++) {
+        for (let x = clampedMinX; x <= clampedMaxX; x++) {
           const bufferIndex = y * size + x;
 
           // Calculate target influence for this card
@@ -861,9 +967,10 @@ class ThreeFurBackground {
 
     // Decay influence for pixels not currently influenced by any card
     // Include BOTH current frame bounds AND previous frame bounds to catch fast-moving cards
+    // OPTIMIZATION: Clamp decay region to dynamic content band
     const decayRadius = Math.ceil(this.GLASS_INFLUENCE_RADIUS);
-    const decayMinX = Math.max(0, Math.min(minX, this.prevInfluenceBounds.minX) - decayRadius);
-    const decayMaxX = Math.min(size - 1, Math.max(maxX, this.prevInfluenceBounds.maxX) + decayRadius);
+    const decayMinX = Math.max(minXToProcess, Math.min(minX, this.prevInfluenceBounds.minX) - decayRadius);
+    const decayMaxX = Math.min(maxXToProcess, Math.max(maxX, this.prevInfluenceBounds.maxX) + decayRadius);
     const decayMinY = Math.max(0, Math.min(minY, this.prevInfluenceBounds.minY) - decayRadius);
     const decayMaxY = Math.min(size - 1, Math.max(maxY, this.prevInfluenceBounds.maxY) + decayRadius);
 
@@ -890,6 +997,7 @@ class ThreeFurBackground {
     }
 
     // Calculate convergence (divergence of flow field) for volumetric lighting
+    // OPTIMIZATION: Only calculate convergence in dynamic content band
     if (this.convergenceBuffer) {
       let minConv = Infinity;
       let maxConv = -Infinity;
@@ -897,7 +1005,7 @@ class ThreeFurBackground {
       let countConv = 0;
 
       for (let y = 1; y < size - 1; y++) {
-        for (let x = 1; x < size - 1; x++) {
+        for (let x = Math.max(1, minXToProcess); x < Math.min(size - 1, maxXToProcess); x++) {
           const bufferIndex = y * size + x;
 
           // Sample angles from neighbors
@@ -1230,9 +1338,59 @@ class ThreeFurBackground {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.updateCardPositions();
 
-    // Update shader uniform for aspect ratio
-    if (this.furMesh && this.furMesh.material instanceof THREE.ShaderMaterial) {
-      this.furMesh.material.uniforms.aspectRatio.value = aspect;
+    // Recalculate content band boundaries for new window size
+    const oldMinX = this.contentBandMinX;
+    const oldMaxX = this.contentBandMaxX;
+    this.calculateContentBandBoundaries();
+
+    // Check if boundaries changed significantly (more than 10% of texture size)
+    const bandShiftThreshold = this.TEXTURE_SIZE * 0.1;
+    const minXShift = Math.abs(this.contentBandMinX - oldMinX);
+    const maxXShift = Math.abs(this.contentBandMaxX - oldMaxX);
+
+    if (minXShift > bandShiftThreshold || maxXShift > bandShiftThreshold) {
+      console.log('[Fur Optimization] Content band shifted significantly, regenerating fur...');
+      // Remove old meshes
+      if (this.leftStaticFurMesh) {
+        this.scene.remove(this.leftStaticFurMesh);
+        this.leftStaticFurMesh.geometry.dispose();
+        (this.leftStaticFurMesh.material as THREE.Material).dispose();
+      }
+      if (this.furMesh) {
+        this.scene.remove(this.furMesh);
+        this.furMesh.geometry.dispose();
+        (this.furMesh.material as THREE.Material).dispose();
+      }
+      if (this.rightStaticFurMesh) {
+        this.scene.remove(this.rightStaticFurMesh);
+        this.rightStaticFurMesh.geometry.dispose();
+        (this.rightStaticFurMesh.material as THREE.Material).dispose();
+      }
+      if (this.backgroundMesh) {
+        this.scene.remove(this.backgroundMesh);
+        this.backgroundMesh.geometry.dispose();
+        (this.backgroundMesh.material as THREE.Material).dispose();
+      }
+
+      // Recreate fur and background
+      this.createNoiseBackground();
+      this.createInstancedFurMesh();
+    } else {
+      // Update shader uniforms for aspect ratio on all meshes
+      const updateMeshAspect = (mesh: THREE.Mesh | null) => {
+        if (mesh && mesh.material instanceof THREE.ShaderMaterial) {
+          mesh.material.uniforms.aspectRatio.value = aspect;
+        }
+      };
+
+      updateMeshAspect(this.leftStaticFurMesh);
+      updateMeshAspect(this.furMesh);
+      updateMeshAspect(this.rightStaticFurMesh);
+
+      // Update background mesh aspect ratio
+      if (this.backgroundMesh && this.backgroundMesh.material instanceof THREE.ShaderMaterial) {
+        this.backgroundMesh.material.uniforms.aspectRatio.value = aspect;
+      }
     }
   }
 

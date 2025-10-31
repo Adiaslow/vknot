@@ -25,7 +25,7 @@ const releases = await Promise.all(
         day: '2-digit'
       }),
       artwork: spotifyData.artwork,
-      tracklist: spotifyData.tracklist.map(track => track.title),
+      tracklist: spotifyData.tracklist,
       duration: spotifyData.duration,
 
       // From config
@@ -133,11 +133,56 @@ const releases = await Promise.all(
 
                 <div class="grid gap-2">
                   {release.tracklist.map((track, index) => (
-                    <div class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors">
+                    <div class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors" data-track-player>
                       <span class="text-xs text-slate-500 font-mono w-6 text-right">
                         {(index + 1).toString().padStart(2, "0")}
                       </span>
-                      <span class="text-slate-300">{track}</span>
+                      <span class="text-slate-300 flex-1">{track.title}</span>
+
+                      {/* Mini Audio Player */}
+                      {track.previewUrl && (
+                        <div class="flex items-center gap-2">
+                          {/* Skip back 15s */}
+                          <button class="skip-back text-slate-400 hover:text-slate-200 transition-colors" aria-label="Skip back 15 seconds">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
+                            </svg>
+                          </button>
+
+                          {/* Play/Pause */}
+                          <button class="play-pause text-emerald-300 hover:text-emerald-200 transition-colors" aria-label="Play/Pause">
+                            <svg class="play-icon w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <svg class="pause-icon w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                            </svg>
+                          </button>
+
+                          {/* Skip forward 15s */}
+                          <button class="skip-forward text-slate-400 hover:text-slate-200 transition-colors" aria-label="Skip forward 15 seconds">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                            </svg>
+                          </button>
+
+                          {/* Progress bar */}
+                          <div class="flex items-center gap-2 min-w-[120px]">
+                            <input type="range" min="0" max="100" value="0" class="progress-bar flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-300 [&::-moz-range-thumb]:w-2 [&::-moz-range-thumb]:h-2 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-emerald-300 [&::-moz-range-thumb]:border-0"/>
+                            <span class="time-display text-xs text-slate-500 font-mono min-w-[40px]">0:00</span>
+                          </div>
+
+                          {/* Ellipsis menu */}
+                          <button class="text-slate-400 hover:text-slate-200 transition-colors" aria-label="More options">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+                            </svg>
+                          </button>
+
+                          {/* Hidden audio element */}
+                          <audio class="hidden" preload="none" src={track.previewUrl}></audio>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -210,4 +255,98 @@ const releases = await Promise.all(
     </section>
   </section>
 </LabelLayout>
+
+<script>
+  // Audio player functionality
+  function initializeAudioPlayers() {
+    const players = document.querySelectorAll('[data-track-player]');
+    let currentlyPlaying: HTMLAudioElement | null = null;
+
+    players.forEach((player) => {
+      const audio = player.querySelector('audio') as HTMLAudioElement;
+      if (!audio) return;
+
+      const playPauseBtn = player.querySelector('.play-pause') as HTMLButtonElement;
+      const playIcon = player.querySelector('.play-icon') as SVGElement;
+      const pauseIcon = player.querySelector('.pause-icon') as SVGElement;
+      const skipBackBtn = player.querySelector('.skip-back') as HTMLButtonElement;
+      const skipForwardBtn = player.querySelector('.skip-forward') as HTMLButtonElement;
+      const progressBar = player.querySelector('.progress-bar') as HTMLInputElement;
+      const timeDisplay = player.querySelector('.time-display') as HTMLSpanElement;
+
+      // Format time as M:SS
+      const formatTime = (seconds: number): string => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      };
+
+      // Play/Pause toggle
+      playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          // Pause any currently playing audio
+          if (currentlyPlaying && currentlyPlaying !== audio) {
+            currentlyPlaying.pause();
+          }
+          audio.play();
+          currentlyPlaying = audio;
+          playIcon.classList.add('hidden');
+          pauseIcon.classList.remove('hidden');
+        } else {
+          audio.pause();
+          playIcon.classList.remove('hidden');
+          pauseIcon.classList.add('hidden');
+        }
+      });
+
+      // Skip back 15 seconds
+      skipBackBtn.addEventListener('click', () => {
+        audio.currentTime = Math.max(0, audio.currentTime - 15);
+      });
+
+      // Skip forward 15 seconds
+      skipForwardBtn.addEventListener('click', () => {
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 15);
+      });
+
+      // Update progress bar and time as audio plays
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          const progress = (audio.currentTime / audio.duration) * 100;
+          progressBar.value = progress.toString();
+          timeDisplay.textContent = formatTime(audio.currentTime);
+        }
+      });
+
+      // Seek when progress bar is changed
+      progressBar.addEventListener('input', () => {
+        const time = (parseFloat(progressBar.value) / 100) * audio.duration;
+        audio.currentTime = time;
+      });
+
+      // Reset play icon when audio ends
+      audio.addEventListener('ended', () => {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+        progressBar.value = '0';
+        timeDisplay.textContent = '0:00';
+      });
+
+      // Handle other players pausing this one
+      audio.addEventListener('pause', () => {
+        if (audio !== currentlyPlaying) {
+          playIcon.classList.remove('hidden');
+          pauseIcon.classList.add('hidden');
+        }
+      });
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAudioPlayers);
+  } else {
+    initializeAudioPlayers();
+  }
+</script>
 

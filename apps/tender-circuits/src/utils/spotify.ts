@@ -139,6 +139,7 @@ export function transformSpotifyAlbumToRelease(album: SpotifyAlbum) {
       duration: formatDuration(track.duration_ms),
       trackNumber: track.track_number,
       previewUrl: track.preview_url,
+      id: track.id,
     })),
     duration: formatTotalDuration(totalDurationMs),
     artwork: getAlbumArtwork(album),

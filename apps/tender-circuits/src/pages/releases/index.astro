@@ -61,22 +61,22 @@ const releases = await Promise.all(
     <div class="flex flex-col gap-16">
       {
         releases.map((release) => (
-          <article class="flex flex-col md:flex-row gap-8 items-start">
-            {/* Album Artwork - Separate card that affects fur but without glassmorphic styling */}
+          <article class="flex flex-col gap-8">
+            {/* Album Artwork - Full width card that affects fur but without glassmorphic styling */}
             {(release.vinylArtwork || release.artwork) && (
-              <div class={release.vinylArtwork ? "card vinyl-card md:w-80 flex-shrink-0 rounded-2xl overflow-hidden" : "card md:w-80 flex-shrink-0 rounded-2xl overflow-hidden"}>
-                <a href={`/tender_circuits/releases/${release.slug}`}>
+              <div class={release.vinylArtwork ? "card vinyl-card w-full" : "card w-full"}>
+                <a href={`/tender_circuits/releases/${release.slug}`} class="block">
                   <img
                     src={release.vinylArtwork || release.artwork}
                     alt={`${release.title} album artwork`}
-                    class={release.vinylArtwork ? "vinyl-artwork w-full h-auto aspect-square" : "velvet-artwork-frame w-full h-full object-cover md:h-full aspect-square"}
+                    class={release.vinylArtwork ? "vinyl-artwork w-full h-auto" : "velvet-artwork-frame w-full h-auto"}
                   />
                 </a>
               </div>
             )}
 
-            {/* Release Info - Separate glassmorphic card */}
-            <div class="card group rounded-2xl overflow-hidden flex-1">
+            {/* Release Info - Full width glassmorphic card */}
+            <div class="card group rounded-2xl overflow-hidden w-full">
               <div class="flex flex-col gap-8 p-8">
                 {/* Release Header */}
                 <div class="flex flex-col gap-6">

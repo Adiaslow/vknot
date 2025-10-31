@@ -236,6 +236,24 @@ body > header + * {
 
 /* No hover effects */
 
+/* Vinyl card overrides - must come after .card rules for proper specificity */
+.vinyl-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.vinyl-card::before,
+.vinyl-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Ensure the image itself has no background */
+.vinyl-card img,
+.vinyl-artwork {
+  background: transparent !important;
+}
+
 /* ============================================================================
    TEAK WOOD STYLING - Header and Footer
    Defined after .velvet-card for proper cascade specificity

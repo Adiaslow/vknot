@@ -21,7 +21,7 @@ const { title, description } = Astro.props;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
     />
   </head>
   <body class="min-h-screen velvet-background text-slate-50">
@@ -89,16 +89,30 @@ const { title, description } = Astro.props;
       <slot />
     </main>
     <footer class="py-10 mt-12">
-      <div
-        class="mx-auto flex w-full max-w-5xl flex-col gap-2 px-6 text-sm text-slate-400"
-      >
-        <span>© {new Date().getFullYear()} Tender Circuits</span>
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6">
+        <div class="card rounded-2xl p-8">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex flex-col gap-2">
+              <p class="text-sm font-medium" style="color: #f5f1ea;">Tender Circuits</p>
+              <p class="text-xs" style="color: #a39074;">Independent experimental music label</p>
+            </div>
+            <div class="flex flex-col gap-2 text-xs" style="color: #a39074;">
+              <p>© {new Date().getFullYear()} Tender Circuits</p>
+              <p>All rights reserved</p>
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
 
     <!-- Three.js Fur Background System -->
     <script>
       import "../scripts/three-fur-background.ts";
+    </script>
+
+    <!-- Smooth Momentum Scrolling -->
+    <script>
+      import "../scripts/smooth-scroll.ts";
     </script>
   </body>
 </html>

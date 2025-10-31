@@ -193,22 +193,29 @@ function resolveThemeStyles(theme: NavigationTheme): ThemeStyles {
     music: {
       header: {
         ...base.header,
-        background: 'linear-gradient(90deg,#0f172a 0%,#312e81 100%)',
-        borderBottom: 'none',
-        color: basePalette.white
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 0, 0, 0.08)',
+        color: '#f5f1ea'
       },
       homeLink: {
         ...base.homeLink,
-        color: basePalette.white
+        color: '#f5f1ea'
       },
       link: {
         ...base.link,
-        color: '#e2e8f0'
+        color: '#e8dcc8',
+        fontWeight: 500
       },
       cta: () => ({
         ...primaryButton,
-        background: 'linear-gradient(90deg,#ec4899 0%,#6366f1 100%)',
-        boxShadow: '0 10px 30px rgba(236,72,153,0.25)'
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(8px)',
+        color: '#f5f1ea',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
       })
     },
     minimal: {

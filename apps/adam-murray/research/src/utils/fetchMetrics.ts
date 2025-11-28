@@ -28,12 +28,15 @@ export interface PublicationMetrics {
   // Publication context
   references?: number;
   publicationTypes?: string[];
+
+  // Venue/Journal (fetched from APIs)
+  venue?: string;
 }
 
 /**
- * Fetch citation count from CrossRef API
+ * Fetch citation count and venue from CrossRef API
  */
-async function fetchCitationsFromCrossRef(doi: string): Promise<number | undefined> {
+async function fetchFromCrossRef(doi: string): Promise<{ citations?: number; venue?: string }> {
   try {
     const response = await fetch(
       `https://api.crossref.org/works/${encodeURIComponent(doi)}`,
@@ -44,13 +47,24 @@ async function fetchCitationsFromCrossRef(doi: string): Promise<number | undefin
       }
     );
 
-    if (!response.ok) return undefined;
+    if (!response.ok) return {};
 
     const data = await response.json();
-    return data?.message?.["is-referenced-by-count"] || 0;
+    const message = data?.message;
+
+    // Get container-title (journal name) - it's an array, take first
+    const containerTitle = message?.["container-title"]?.[0];
+
+    // For preprints, also check institution name
+    const institution = message?.institution?.[0]?.name;
+
+    return {
+      citations: message?.["is-referenced-by-count"] || 0,
+      venue: containerTitle || institution,
+    };
   } catch (error) {
-    console.warn(`Failed to fetch citations from CrossRef for DOI ${doi}:`, error);
-    return undefined;
+    console.warn(`Failed to fetch from CrossRef for DOI ${doi}:`, error);
+    return {};
   }
 }
 
@@ -145,7 +159,7 @@ async function fetchSemanticScholarData(doi: string): Promise<Partial<Publicatio
 
 /**
  * Fetch data from OpenAlex API
- * Provides citations, concepts (auto-tagged topics), and open access info
+ * Provides citations, concepts (auto-tagged topics), open access info, and venue
  * Completely free, no API key required
  */
 async function fetchOpenAlexData(doi: string): Promise<Partial<PublicationMetrics>> {
@@ -181,12 +195,17 @@ async function fetchOpenAlexData(doi: string): Promise<Partial<PublicationMetric
       }
     }
 
+    // Get venue from primary_location or host_venue
+    const venue = data?.primary_location?.source?.display_name
+      || data?.host_venue?.display_name;
+
     return {
       citations: data?.cited_by_count,
       isOpenAccess: data?.open_access?.is_oa,
       oaStatus: oaStatus,
       oaUrl: data?.open_access?.oa_url,
       concepts: concepts.length > 0 ? concepts : undefined,
+      venue: venue,
     };
   } catch (error) {
     console.warn(`Failed to fetch OpenAlex data for DOI ${doi}:`, error);
@@ -238,8 +257,8 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
   if (!doi) return {};
 
   // Fetch from all sources in parallel
-  const [crossrefCitations, altmetricData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
-    fetchCitationsFromCrossRef(doi),
+  const [crossrefData, altmetricData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
+    fetchFromCrossRef(doi),
     fetchAltmetricData(doi),
     fetchEuropePMCMetrics(doi),
     fetchSemanticScholarData(doi),
@@ -252,7 +271,7 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
   const citations = semanticScholar.citations
     ?? openAlex.citations
     ?? pmcData.citations
-    ?? crossrefCitations;
+    ?? crossrefData.citations;
 
   // Combine fields of study and concepts
   const fieldsOfStudy = semanticScholar.fieldsOfStudy?.length
@@ -275,6 +294,9 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     : 'closed';
 
   const oaUrl = unpaywall.oaUrl ?? openAlex.oaUrl;
+
+  // Venue: prefer OpenAlex, fallback to CrossRef
+  const venue = openAlex.venue || crossrefData.venue;
 
   return {
     // Citation metrics
@@ -301,5 +323,8 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     concepts,
     references: semanticScholar.references,
     publicationTypes: semanticScholar.publicationTypes,
+
+    // Venue
+    venue,
   };
 }

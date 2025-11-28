@@ -28,6 +28,9 @@ interface PublicationMetrics {
   // Publication context
   references?: number;
   publicationTypes?: string[];
+
+  // Venue/Journal (fetched from APIs)
+  venue?: string;
 }
 
 interface PublicationCardProps {

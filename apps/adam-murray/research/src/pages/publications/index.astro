@@ -30,13 +30,8 @@ try {
       if (workSummary) {
         const title = workSummary.title?.title?.value || "Untitled";
 
-        // Determine venue
-        let venue = "In Review";
-        if (workSummary["journal-title"]?.value) {
-          venue = workSummary["journal-title"].value;
-        } else if (workSummary.type === "preprint") {
-          venue = "Preprint";
-        }
+        // Determine venue (will be enhanced with API data below)
+        let venue = workSummary["journal-title"]?.value || "";
 
         // Extract DOI from external IDs
         let doi = "";
@@ -97,10 +92,13 @@ try {
           publicationDate = String(year);
         }
 
+        // Use fetched venue from metrics if ORCID doesn't have one
+        const finalVenue = venue || metrics.venue || (workSummary.type === "preprint" ? "Preprint" : "In Review");
+
         const publication = {
           title: title,
           abstract: abstract,
-          venue: venue,
+          venue: finalVenue,
           year: year,
           date: publicationDate,
           type: workSummary.type || "journal-article",
@@ -127,6 +125,7 @@ try {
         doi: "",
         url: "",
         type: "note",
+        metrics: {},
       },
     ];
   }
@@ -144,6 +143,7 @@ try {
       doi: "",
       url: "https://lokey.chemistry.ucsc.edu/",
       type: "research-focus",
+      metrics: {},
     },
     {
       title: "Research Focus: Cortical Circuit Development",
@@ -155,6 +155,7 @@ try {
       doi: "",
       url: "https://www.ejkimlab.com/",
       type: "research-focus",
+      metrics: {},
     },
     {
       title: "Research Focus: Electrophysiological Signaling",
@@ -166,6 +167,7 @@ try {
       doi: "",
       url: "https://basicscience.ucdmc.ucdavis.edu/Sack_and_Yarov-Yarovoy_Labs/index.html",
       type: "research-focus",
+      metrics: {},
     },
   ];
 }
@@ -188,21 +190,19 @@ try {
     <div class="flex flex-col gap-8">
       {
         publications.map((pub, index) => (
-          <div key={index}>
-            <PublicationCard
-              title={pub.title}
-              abstract={pub.abstract}
-              venue={pub.venue}
-              year={pub.year}
-              date={pub.date}
-              doi={pub.doi}
-              url={pub.url}
-              type={pub.type}
-              metrics={pub.metrics}
-              publicationId={`publication-${index}`}
-              client:load
-            />
-          </div>
+          <PublicationCard
+            title={pub.title}
+            abstract={pub.abstract}
+            venue={pub.venue}
+            year={pub.year}
+            date={pub.date}
+            doi={pub.doi}
+            url={pub.url}
+            type={pub.type}
+            metrics={pub.metrics}
+            publicationId={`publication-${index}`}
+            client:load
+          />
         ))
       }
     </div>

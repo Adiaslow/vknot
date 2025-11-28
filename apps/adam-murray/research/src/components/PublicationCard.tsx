@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag } from 'lucide-react';
+import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag, Newspaper, Rss, BookOpen } from 'lucide-react';
 
 interface PublicationMetrics {
   // Citation metrics
@@ -80,7 +80,10 @@ const PublicationCard: FC<PublicationCardProps> = ({
     metrics.altmetricScore !== undefined ||
     metrics.views !== undefined ||
     metrics.tweets !== undefined ||
-    metrics.influentialCitations !== undefined
+    metrics.influentialCitations !== undefined ||
+    metrics.news !== undefined ||
+    metrics.blogs !== undefined ||
+    metrics.references !== undefined
   );
 
   const hasTopics = metrics && (
@@ -233,6 +236,27 @@ const PublicationCard: FC<PublicationCardProps> = ({
                     <Users className="w-4 h-4 text-amber-6" />
                     <span className="font-medium text-gray-7">{metrics.readers}</span>
                     <span className="text-gray-5">readers</span>
+                  </div>
+                )}
+                {metrics?.news !== undefined && metrics.news > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="News media mentions">
+                    <Newspaper className="w-4 h-4 text-rose-6" />
+                    <span className="font-medium text-gray-7">{metrics.news}</span>
+                    <span className="text-gray-5">news</span>
+                  </div>
+                )}
+                {metrics?.blogs !== undefined && metrics.blogs > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Blog post mentions">
+                    <Rss className="w-4 h-4 text-orange-6" />
+                    <span className="font-medium text-gray-7">{metrics.blogs}</span>
+                    <span className="text-gray-5">blogs</span>
+                  </div>
+                )}
+                {metrics?.references !== undefined && metrics.references > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Number of references cited">
+                    <BookOpen className="w-4 h-4 text-slate-6" />
+                    <span className="font-medium text-gray-7">{metrics.references}</span>
+                    <span className="text-gray-5">refs</span>
                   </div>
                 )}
               </div>

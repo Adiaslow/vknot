@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star } from 'lucide-react';
+import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag } from 'lucide-react';
 
 interface PublicationMetrics {
   // Citation metrics
@@ -8,8 +8,6 @@ interface PublicationMetrics {
 
   // Altmetric data
   altmetricScore?: number;
-  altmetricId?: string;
-  altmetricBadgeUrl?: string;
   tweets?: number;
   news?: number;
   blogs?: number;
@@ -82,6 +80,11 @@ const PublicationCard: FC<PublicationCardProps> = ({
     metrics.influentialCitations !== undefined
   );
 
+  const hasTopics = metrics && (
+    (metrics.fieldsOfStudy && metrics.fieldsOfStudy.length > 0) ||
+    (metrics.concepts && metrics.concepts.length > 0)
+  );
+
   return (
     <article
       id={publicationId}
@@ -140,6 +143,29 @@ const PublicationCard: FC<PublicationCardProps> = ({
           </p>
         )}
 
+        {/* Auto-detected Topics */}
+        {hasTopics && (
+          <div className="flex flex-wrap gap-1.5">
+            {metrics?.fieldsOfStudy?.slice(0, 3).map((field, idx) => (
+              <span
+                key={`field-${idx}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-violet-7 bg-violet-1 border border-violet-2 rounded-full"
+              >
+                <Tag className="w-3 h-3" />
+                {field}
+              </span>
+            ))}
+            {metrics?.concepts?.slice(0, 3).map((concept, idx) => (
+              <span
+                key={`concept-${idx}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-cyan-7 bg-cyan-1 border border-cyan-2 rounded-full"
+                title={`Relevance: ${Math.round(concept.score * 100)}%`}
+              >
+                {concept.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Publication Details */}
@@ -186,18 +212,11 @@ const PublicationCard: FC<PublicationCardProps> = ({
                   </div>
                 )}
                 {metrics?.altmetricScore !== undefined && metrics.altmetricScore > 0 && (
-                  <a
-                    href={metrics.altmetricId ? `https://www.altmetric.com/details/${metrics.altmetricId}` : undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
-                    title="View Altmetric details"
-                  >
+                  <div className="flex items-center gap-1.5 text-xs">
                     <BarChart3 className="w-4 h-4 text-purple-6" />
-                    <span className="font-medium text-gray-7">{Math.round(metrics.altmetricScore)}</span>
+                    <span className="font-medium text-gray-7">{metrics.altmetricScore}</span>
                     <span className="text-gray-5">altmetric</span>
-                  </a>
+                  </div>
                 )}
                 {metrics?.tweets !== undefined && metrics.tweets > 0 && (
                   <div className="flex items-center gap-1.5 text-xs">

@@ -8,8 +8,6 @@ export interface PublicationMetrics {
 
   // Altmetric data
   altmetricScore?: number;
-  altmetricId?: string;
-  altmetricBadgeUrl?: string;
   tweets?: number;
   news?: number;
   blogs?: number;
@@ -70,16 +68,8 @@ async function fetchAltmetricData(doi: string): Promise<Partial<PublicationMetri
 
     const data = await response.json();
 
-    // Construct the badge URL using the altmetric_id
-    const altmetricId = data?.altmetric_id?.toString();
-    const badgeUrl = altmetricId
-      ? `https://badges.altmetric.com/?size=128&score=${Math.round(data?.score || 0)}&types=${encodeURIComponent(data?.images?.small || '')}`
-      : undefined;
-
     return {
       altmetricScore: data?.score,
-      altmetricId: altmetricId,
-      altmetricBadgeUrl: data?.images?.medium, // Altmetric provides pre-rendered badge URLs
       tweets: data?.cited_by_tweeters_count,
       news: data?.cited_by_msm_count,
       blogs: data?.cited_by_feeds_count,
@@ -293,8 +283,6 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
 
     // Altmetric data
     altmetricScore: altmetricData.altmetricScore,
-    altmetricId: altmetricData.altmetricId,
-    altmetricBadgeUrl: altmetricData.altmetricBadgeUrl,
     tweets: altmetricData.tweets,
     news: altmetricData.news,
     blogs: altmetricData.blogs,

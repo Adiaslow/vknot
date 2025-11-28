@@ -2,13 +2,34 @@
  * Publication metrics from various sources
  */
 export interface PublicationMetrics {
+  // Citation metrics
   citations?: number;
+  influentialCitations?: number;
+
+  // Altmetric data
   altmetricScore?: number;
+  altmetricId?: string;
+  altmetricBadgeUrl?: string;
   tweets?: number;
   news?: number;
   blogs?: number;
   readers?: number;
+
+  // Usage metrics
   views?: number;
+
+  // Open Access status
+  isOpenAccess?: boolean;
+  oaStatus?: 'gold' | 'green' | 'hybrid' | 'bronze' | 'closed';
+  oaUrl?: string;
+
+  // Auto-detected topics/fields
+  fieldsOfStudy?: string[];
+  concepts?: Array<{ name: string; score: number }>;
+
+  // Publication context
+  references?: number;
+  publicationTypes?: string[];
 }
 
 /**
@@ -49,8 +70,16 @@ async function fetchAltmetricData(doi: string): Promise<Partial<PublicationMetri
 
     const data = await response.json();
 
+    // Construct the badge URL using the altmetric_id
+    const altmetricId = data?.altmetric_id?.toString();
+    const badgeUrl = altmetricId
+      ? `https://badges.altmetric.com/?size=128&score=${Math.round(data?.score || 0)}&types=${encodeURIComponent(data?.images?.small || '')}`
+      : undefined;
+
     return {
       altmetricScore: data?.score,
+      altmetricId: altmetricId,
+      altmetricBadgeUrl: data?.images?.medium, // Altmetric provides pre-rendered badge URLs
       tweets: data?.cited_by_tweeters_count,
       news: data?.cited_by_msm_count,
       blogs: data?.cited_by_feeds_count,
@@ -90,28 +119,199 @@ async function fetchEuropePMCMetrics(doi: string): Promise<Partial<PublicationMe
 }
 
 /**
+ * Fetch data from Semantic Scholar API
+ * Provides citations, influential citations, fields of study, and more
+ * Free, no API key required (rate limited to 100 requests per 5 minutes)
+ */
+async function fetchSemanticScholarData(doi: string): Promise<Partial<PublicationMetrics>> {
+  try {
+    const fields = 'citationCount,influentialCitationCount,fieldsOfStudy,referenceCount,publicationTypes,isOpenAccess';
+    const response = await fetch(
+      `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=${fields}`,
+      {
+        headers: {
+          "User-Agent": "Adam Murray Research Site",
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+
+    return {
+      citations: data?.citationCount,
+      influentialCitations: data?.influentialCitationCount,
+      fieldsOfStudy: data?.fieldsOfStudy || [],
+      references: data?.referenceCount,
+      publicationTypes: data?.publicationTypes || [],
+      isOpenAccess: data?.isOpenAccess,
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch Semantic Scholar data for DOI ${doi}:`, error);
+    return {};
+  }
+}
+
+/**
+ * Fetch data from OpenAlex API
+ * Provides citations, concepts (auto-tagged topics), and open access info
+ * Completely free, no API key required
+ */
+async function fetchOpenAlexData(doi: string): Promise<Partial<PublicationMetrics>> {
+  try {
+    const response = await fetch(
+      `https://api.openalex.org/works/doi:${encodeURIComponent(doi)}`,
+      {
+        headers: {
+          "User-Agent": "mailto:your-email@example.com",
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+
+    // Extract top concepts (those with score > 0.3)
+    const concepts = (data?.concepts || [])
+      .filter((c: any) => c.score > 0.3)
+      .slice(0, 5)
+      .map((c: any) => ({
+        name: c.display_name,
+        score: c.score,
+      }));
+
+    // Map OpenAlex OA status to our enum
+    let oaStatus: PublicationMetrics['oaStatus'] = 'closed';
+    if (data?.open_access?.oa_status) {
+      const status = data.open_access.oa_status;
+      if (['gold', 'green', 'hybrid', 'bronze'].includes(status)) {
+        oaStatus = status as PublicationMetrics['oaStatus'];
+      }
+    }
+
+    return {
+      citations: data?.cited_by_count,
+      isOpenAccess: data?.open_access?.is_oa,
+      oaStatus: oaStatus,
+      oaUrl: data?.open_access?.oa_url,
+      concepts: concepts.length > 0 ? concepts : undefined,
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch OpenAlex data for DOI ${doi}:`, error);
+    return {};
+  }
+}
+
+/**
+ * Fetch Open Access status from Unpaywall
+ * Simple and reliable OA detection
+ */
+async function fetchUnpaywallData(doi: string): Promise<Partial<PublicationMetrics>> {
+  try {
+    // Unpaywall requires an email parameter
+    const email = "research@example.com";
+    const response = await fetch(
+      `https://api.unpaywall.org/v2/${encodeURIComponent(doi)}?email=${email}`
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+
+    // Map Unpaywall OA status
+    let oaStatus: PublicationMetrics['oaStatus'] = 'closed';
+    if (data?.oa_status) {
+      const status = data.oa_status;
+      if (['gold', 'green', 'hybrid', 'bronze'].includes(status)) {
+        oaStatus = status as PublicationMetrics['oaStatus'];
+      }
+    }
+
+    return {
+      isOpenAccess: data?.is_oa,
+      oaStatus: oaStatus,
+      oaUrl: data?.best_oa_location?.url,
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch Unpaywall data for DOI ${doi}:`, error);
+    return {};
+  }
+}
+
+/**
  * Fetch all available metrics for a publication
- * Combines data from multiple sources
+ * Combines data from multiple sources with intelligent fallbacks
  */
 export async function fetchPublicationMetrics(doi: string): Promise<PublicationMetrics> {
   if (!doi) return {};
 
   // Fetch from all sources in parallel
-  const [crossrefCitations, altmetricData, pmcData] = await Promise.all([
+  const [crossrefCitations, altmetricData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
     fetchCitationsFromCrossRef(doi),
     fetchAltmetricData(doi),
     fetchEuropePMCMetrics(doi),
+    fetchSemanticScholarData(doi),
+    fetchOpenAlexData(doi),
+    fetchUnpaywallData(doi),
   ]);
 
-  // Combine metrics, preferring more reliable sources
+  // Combine metrics with priority ordering for overlapping fields
+  // Priority: Semantic Scholar > OpenAlex > PMC > CrossRef for citations
+  const citations = semanticScholar.citations
+    ?? openAlex.citations
+    ?? pmcData.citations
+    ?? crossrefCitations;
+
+  // Combine fields of study and concepts
+  const fieldsOfStudy = semanticScholar.fieldsOfStudy?.length
+    ? semanticScholar.fieldsOfStudy
+    : undefined;
+
+  const concepts = openAlex.concepts?.length
+    ? openAlex.concepts
+    : undefined;
+
+  // OA status: prefer Unpaywall, fallback to OpenAlex, then Semantic Scholar
+  const isOpenAccess = unpaywall.isOpenAccess
+    ?? openAlex.isOpenAccess
+    ?? semanticScholar.isOpenAccess;
+
+  const oaStatus = unpaywall.oaStatus !== 'closed'
+    ? unpaywall.oaStatus
+    : openAlex.oaStatus !== 'closed'
+    ? openAlex.oaStatus
+    : 'closed';
+
+  const oaUrl = unpaywall.oaUrl ?? openAlex.oaUrl;
+
   return {
-    // Use PMC citations if available, otherwise CrossRef
-    citations: pmcData.citations ?? crossrefCitations,
+    // Citation metrics
+    citations,
+    influentialCitations: semanticScholar.influentialCitations,
+
+    // Altmetric data
     altmetricScore: altmetricData.altmetricScore,
+    altmetricId: altmetricData.altmetricId,
+    altmetricBadgeUrl: altmetricData.altmetricBadgeUrl,
     tweets: altmetricData.tweets,
     news: altmetricData.news,
     blogs: altmetricData.blogs,
     readers: altmetricData.readers,
+
+    // Usage
     views: pmcData.views,
+
+    // Open Access
+    isOpenAccess,
+    oaStatus,
+    oaUrl,
+
+    // Topics and context
+    fieldsOfStudy,
+    concepts,
+    references: semanticScholar.references,
+    publicationTypes: semanticScholar.publicationTypes,
   };
 }

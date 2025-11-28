@@ -1,14 +1,35 @@
 import type { FC } from 'react';
-import { FileText, Eye, BarChart3, Twitter, Users } from 'lucide-react';
+import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag } from 'lucide-react';
 
 interface PublicationMetrics {
+  // Citation metrics
   citations?: number;
+  influentialCitations?: number;
+
+  // Altmetric data
   altmetricScore?: number;
+  altmetricId?: string;
+  altmetricBadgeUrl?: string;
   tweets?: number;
   news?: number;
   blogs?: number;
   readers?: number;
+
+  // Usage metrics
   views?: number;
+
+  // Open Access status
+  isOpenAccess?: boolean;
+  oaStatus?: 'gold' | 'green' | 'hybrid' | 'bronze' | 'closed';
+  oaUrl?: string;
+
+  // Auto-detected topics/fields
+  fieldsOfStudy?: string[];
+  concepts?: Array<{ name: string; score: number }>;
+
+  // Publication context
+  references?: number;
+  publicationTypes?: string[];
 }
 
 interface PublicationCardProps {
@@ -25,6 +46,13 @@ interface PublicationCardProps {
   readonly isIndexPage?: boolean;
   readonly publicationId?: string;
 }
+
+const OA_STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  gold: { bg: 'bg-amber-1', text: 'text-amber-8', border: 'border-amber-3' },
+  green: { bg: 'bg-emerald-1', text: 'text-emerald-8', border: 'border-emerald-3' },
+  hybrid: { bg: 'bg-blue-1', text: 'text-blue-8', border: 'border-blue-3' },
+  bronze: { bg: 'bg-orange-1', text: 'text-orange-8', border: 'border-orange-3' },
+};
 
 const PublicationCard: FC<PublicationCardProps> = ({
   title,
@@ -46,6 +74,19 @@ const PublicationCard: FC<PublicationCardProps> = ({
     }
   };
 
+  const hasMetrics = metrics && (
+    metrics.citations !== undefined ||
+    metrics.altmetricScore !== undefined ||
+    metrics.views !== undefined ||
+    metrics.tweets !== undefined ||
+    metrics.influentialCitations !== undefined
+  );
+
+  const hasTopics = metrics && (
+    (metrics.fieldsOfStudy && metrics.fieldsOfStudy.length > 0) ||
+    (metrics.concepts && metrics.concepts.length > 0)
+  );
+
   return (
     <article
       id={publicationId}
@@ -54,20 +95,37 @@ const PublicationCard: FC<PublicationCardProps> = ({
       }`}
       onClick={handleClick}
     >
-      {/* Publication Type Badge */}
-      {type && (
-        <div className="absolute -top-2 left-4">
+      {/* Publication Type Badge and OA Status */}
+      <div className="absolute -top-2 left-4 flex items-center gap-2">
+        {type && (
           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase ${
-            type === 'journal-article' 
-              ? 'bg-emerald-1 text-emerald-8 border border-emerald-2' 
-              : type === 'preprint' 
+            type === 'journal-article'
+              ? 'bg-emerald-1 text-emerald-8 border border-emerald-2'
+              : type === 'preprint'
               ? 'bg-amber-1 text-amber-8 border border-amber-2'
               : 'bg-blue-1 text-blue-8 border border-blue-2'
           }`}>
             {type.replace('-', ' ')}
           </span>
-        </div>
-      )}
+        )}
+        {metrics?.isOpenAccess && metrics.oaStatus && metrics.oaStatus !== 'closed' && (
+          <a
+            href={metrics.oaUrl || (doi ? `https://doi.org/${doi}` : undefined)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide uppercase border transition-opacity hover:opacity-80 ${
+              OA_STATUS_COLORS[metrics.oaStatus]?.bg || 'bg-emerald-1'
+            } ${OA_STATUS_COLORS[metrics.oaStatus]?.text || 'text-emerald-8'} ${
+              OA_STATUS_COLORS[metrics.oaStatus]?.border || 'border-emerald-3'
+            }`}
+            title={`Open Access (${metrics.oaStatus})`}
+          >
+            <Unlock className="w-3 h-3" />
+            {metrics.oaStatus}
+          </a>
+        )}
+      </div>
 
       <div className="flex flex-col gap-4 pt-2">
         {/* Title */}
@@ -86,8 +144,32 @@ const PublicationCard: FC<PublicationCardProps> = ({
             {abstract}
           </p>
         )}
+
+        {/* Auto-detected Topics */}
+        {hasTopics && (
+          <div className="flex flex-wrap gap-1.5">
+            {metrics?.fieldsOfStudy?.slice(0, 3).map((field, idx) => (
+              <span
+                key={`field-${idx}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-violet-7 bg-violet-1 border border-violet-2 rounded-full"
+              >
+                <Tag className="w-3 h-3" />
+                {field}
+              </span>
+            ))}
+            {metrics?.concepts?.slice(0, 3).map((concept, idx) => (
+              <span
+                key={`concept-${idx}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-cyan-7 bg-cyan-1 border border-cyan-2 rounded-full"
+                title={`Relevance: ${Math.round(concept.score * 100)}%`}
+              >
+                {concept.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
-      
+
       {/* Publication Details */}
       <div className="mt-auto pt-4 space-y-3 border-t border-gray-1">
         {/* Venue and Date */}
@@ -105,40 +187,64 @@ const PublicationCard: FC<PublicationCardProps> = ({
         </div>
 
         {/* Metrics and DOI */}
-        {(metrics && (metrics.citations !== undefined || metrics.altmetricScore !== undefined || metrics.views !== undefined || metrics.tweets !== undefined) || doi) && (
+        {(hasMetrics || doi) && (
           <div className="flex items-start justify-between gap-4 pt-2">
             {/* Metrics */}
-            {metrics && (metrics.citations !== undefined || metrics.altmetricScore !== undefined || metrics.views !== undefined || metrics.tweets !== undefined) && (
+            {hasMetrics && (
               <div className="flex flex-wrap gap-3 flex-1">
-                {metrics.citations !== undefined && metrics.citations > 0 && (
+                {metrics?.citations !== undefined && metrics.citations > 0 && (
                   <div className="flex items-center gap-1.5 text-xs">
                     <FileText className="w-4 h-4 text-blue-6" />
                     <span className="font-medium text-gray-7">{metrics.citations}</span>
                     <span className="text-gray-5">citations</span>
                   </div>
                 )}
-                {metrics.views !== undefined && metrics.views > 0 && (
+                {metrics?.influentialCitations !== undefined && metrics.influentialCitations > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Highly influential citations from Semantic Scholar">
+                    <Star className="w-4 h-4 text-amber-5" />
+                    <span className="font-medium text-gray-7">{metrics.influentialCitations}</span>
+                    <span className="text-gray-5">influential</span>
+                  </div>
+                )}
+                {metrics?.views !== undefined && metrics.views > 0 && (
                   <div className="flex items-center gap-1.5 text-xs">
                     <Eye className="w-4 h-4 text-emerald-6" />
                     <span className="font-medium text-gray-7">{metrics.views.toLocaleString()}</span>
                     <span className="text-gray-5">views</span>
                   </div>
                 )}
-                {metrics.altmetricScore !== undefined && metrics.altmetricScore > 0 && (
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <BarChart3 className="w-4 h-4 text-purple-6" />
-                    <span className="font-medium text-gray-7">{metrics.altmetricScore}</span>
-                    <span className="text-gray-5">altmetric</span>
-                  </div>
+                {metrics?.altmetricScore !== undefined && metrics.altmetricScore > 0 && metrics.altmetricId && (
+                  <a
+                    href={`https://www.altmetric.com/details/${metrics.altmetricId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    title={`Altmetric score: ${Math.round(metrics.altmetricScore)}`}
+                  >
+                    {metrics.altmetricBadgeUrl ? (
+                      <img
+                        src={metrics.altmetricBadgeUrl}
+                        alt={`Altmetric score: ${Math.round(metrics.altmetricScore)}`}
+                        className="h-8 w-8"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <BarChart3 className="w-4 h-4 text-purple-6" />
+                        <span className="font-medium text-gray-7">{Math.round(metrics.altmetricScore)}</span>
+                        <span className="text-gray-5">altmetric</span>
+                      </div>
+                    )}
+                  </a>
                 )}
-                {metrics.tweets !== undefined && metrics.tweets > 0 && (
+                {metrics?.tweets !== undefined && metrics.tweets > 0 && (
                   <div className="flex items-center gap-1.5 text-xs">
                     <Twitter className="w-4 h-4 text-sky-6" />
                     <span className="font-medium text-gray-7">{metrics.tweets}</span>
                     <span className="text-gray-5">tweets</span>
                   </div>
                 )}
-                {metrics.readers !== undefined && metrics.readers > 0 && (
+                {metrics?.readers !== undefined && metrics.readers > 0 && (
                   <div className="flex items-center gap-1.5 text-xs">
                     <Users className="w-4 h-4 text-amber-6" />
                     <span className="font-medium text-gray-7">{metrics.readers}</span>
@@ -171,4 +277,3 @@ const PublicationCard: FC<PublicationCardProps> = ({
 };
 
 export default PublicationCard;
-

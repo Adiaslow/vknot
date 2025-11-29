@@ -1,0 +1,96 @@
+import{c as t,j as e}from"./createLucideIcon.cTLau9K1.js";import"./index.CVf8TyFT.js";/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const b=[["path",{d:"M10 2v8l3-3 3 3V2",key:"sqw3rj"}],["path",{d:"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20",key:"k3hazp"}]],k=t("book-marked",b);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const j=[["path",{d:"M12 7v14",key:"1akyts"}],["path",{d:"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",key:"ruj8y"}]],u=t("book-open",j);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const w=[["path",{d:"M3 3v16a2 2 0 0 0 2 2h16",key:"c24i48"}],["path",{d:"M18 17V9",key:"2bz60n"}],["path",{d:"M13 17V5",key:"1frdt8"}],["path",{d:"M8 17v-3",key:"17ska0"}]],M=t("chart-column",w);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const _=[["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}],["path",{d:"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3",key:"1u773s"}],["path",{d:"M12 17h.01",key:"p32p05"}]],$=t("circle-question-mark",_);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const S=[["path",{d:"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0",key:"1nclc0"}],["circle",{cx:"12",cy:"12",r:"3",key:"1v7zrd"}]],C=t("eye",S);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const z=[["path",{d:"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z",key:"1jg4f8"}]],H=t("facebook",z);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const q=[["path",{d:"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",key:"1rqfz7"}],["path",{d:"M14 2v4a2 2 0 0 0 2 2h4",key:"tnqrlb"}],["path",{d:"M10 9H8",key:"b1mrlr"}],["path",{d:"M16 13H8",key:"t4e002"}],["path",{d:"M16 17H8",key:"z1uh3a"}]],O=t("file-text",q);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const V=[["path",{d:"M10 18v-7",key:"wt116b"}],["path",{d:"M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z",key:"1m329m"}],["path",{d:"M14 18v-7",key:"vav6t3"}],["path",{d:"M18 18v-7",key:"aexdmj"}],["path",{d:"M3 22h18",key:"8prr45"}],["path",{d:"M6 18v-7",key:"1ivflk"}]],R=t("landmark",V);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const A=[["rect",{width:"18",height:"11",x:"3",y:"11",rx:"2",ry:"2",key:"1w4ew1"}],["path",{d:"M7 11V7a5 5 0 0 1 9.9-1",key:"1mm8w8"}]],L=t("lock-open",A);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const T=[["path",{d:"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719",key:"1sd12s"}]],P=t("message-circle",T);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const B=[["path",{d:"M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z",key:"18887p"}]],F=t("message-square",B);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const Q=[["path",{d:"M15 18h-5",key:"95g1m2"}],["path",{d:"M18 14h-8",key:"sponae"}],["path",{d:"M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2",key:"39pd36"}],["rect",{width:"8",height:"4",x:"10",y:"6",rx:"1",key:"aywv1n"}]],U=t("newspaper",Q);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const W=[["path",{d:"M4 11a9 9 0 0 1 9 9",key:"pv89mb"}],["path",{d:"M4 4a16 16 0 0 1 16 16",key:"k0647b"}],["circle",{cx:"5",cy:"19",r:"1",key:"bfqh0e"}]],Z=t("rss",W);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const E=[["path",{d:"m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z",key:"7g6ntu"}],["path",{d:"m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z",key:"ijws7r"}],["path",{d:"M7 21h10",key:"1b0cd5"}],["path",{d:"M12 3v18",key:"108xh3"}],["path",{d:"M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2",key:"3gwbw2"}]],D=t("scale",E);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const Y=[["path",{d:"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",key:"r04s7s"}]],G=t("star",Y);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const I=[["path",{d:"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z",key:"vktsd0"}],["circle",{cx:"7.5",cy:"7.5",r:".5",fill:"currentColor",key:"kqv944"}]],J=t("tag",I);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const K=[["path",{d:"M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z",key:"pff0z6"}]],X=t("twitter",K);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const ee=[["path",{d:"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",key:"1yyitq"}],["path",{d:"M16 3.128a4 4 0 0 1 0 7.744",key:"16gr8j"}],["path",{d:"M22 21v-2a4 4 0 0 0-3-3.87",key:"kshegd"}],["circle",{cx:"9",cy:"7",r:"4",key:"nufk8"}]],ae=t("users",ee);/**
+ * @license lucide-react v0.546.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const te=[["path",{d:"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5",key:"ftymec"}],["rect",{x:"2",y:"6",width:"14",height:"12",rx:"2",key:"158x01"}]],se=t("video",te),i={gold:{bg:"bg-amber-1",text:"text-amber-8",border:"border-amber-3"},green:{bg:"bg-emerald-1",text:"text-emerald-8",border:"border-emerald-3"},hybrid:{bg:"bg-blue-1",text:"text-blue-8",border:"border-blue-3"},bronze:{bg:"bg-orange-1",text:"text-orange-8",border:"border-orange-3"}},oe=({title:m,abstract:g,venue:r,year:c,date:x,doi:l,url:y,type:n,showAbstract:v=!0,metrics:a,isIndexPage:h=!1,publicationId:o})=>{const f=()=>{h&&o&&(window.location.href=`/adam-murray/research/publications#${o}`)},p=a&&(a.citations!==void 0||a.altmetricScore!==void 0||a.views!==void 0||a.tweets!==void 0||a.influentialCitations!==void 0||a.news!==void 0||a.blogs!==void 0||a.references!==void 0||a.readers!==void 0||a.facebook!==void 0||a.reddit!==void 0||a.wikipedia!==void 0||a.video!==void 0||a.policy!==void 0||a.patents!==void 0||a.peerReviews!==void 0||a.qna!==void 0),N=a&&(a.fieldsOfStudy&&a.fieldsOfStudy.length>0||a.concepts&&a.concepts.length>0);return e.jsxs("article",{id:o,className:`group relative flex flex-col bg-white border border-gray-2/60 rounded-lg p-8 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-3/80 ${h&&o?"cursor-pointer hover:-translate-y-1":""}`,onClick:f,children:[e.jsxs("div",{className:"absolute -top-2 left-4 flex items-center gap-2",children:[n&&e.jsx("span",{className:`inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase ${n==="journal-article"?"bg-emerald-1 text-emerald-8 border border-emerald-2":n==="preprint"?"bg-amber-1 text-amber-8 border border-amber-2":"bg-blue-1 text-blue-8 border border-blue-2"}`,children:n.replace("-"," ")}),a?.isOpenAccess&&a.oaStatus&&a.oaStatus!=="closed"&&e.jsxs("a",{href:a.oaUrl||(l?`https://doi.org/${l}`:void 0),target:"_blank",rel:"noopener noreferrer",onClick:s=>s.stopPropagation(),className:`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide uppercase border transition-opacity hover:opacity-80 ${i[a.oaStatus]?.bg||"bg-emerald-1"} ${i[a.oaStatus]?.text||"text-emerald-8"} ${i[a.oaStatus]?.border||"border-emerald-3"}`,title:`Open Access (${a.oaStatus})`,children:[e.jsx(L,{className:"w-3 h-3"}),a.oaStatus]})]}),e.jsxs("div",{className:"flex flex-col gap-4 pt-2",children:[e.jsx("h3",{className:`text-xl font-bold leading-tight text-gray-9 group-hover:text-blue-9 transition-colors ${y?"hover:text-blue-7":""}`,children:m}),v&&e.jsx("p",{className:"text-base text-gray-6 leading-relaxed line-clamp-4",style:{display:"-webkit-box",WebkitLineClamp:4,WebkitBoxOrient:"vertical",overflow:"hidden"},children:g}),N&&e.jsxs("div",{className:"flex flex-wrap gap-1.5",children:[a?.fieldsOfStudy?.slice(0,3).map((s,d)=>e.jsxs("span",{className:"inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-violet-7 bg-violet-1 border border-violet-2 rounded-full",children:[e.jsx(J,{className:"w-3 h-3"}),s]},`field-${d}`)),a?.concepts?.slice(0,3).map((s,d)=>e.jsx("span",{className:"inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-cyan-7 bg-cyan-1 border border-cyan-2 rounded-full",title:`Relevance: ${Math.round(s.score*100)}%`,children:s.name},`concept-${d}`))]})]}),e.jsxs("div",{className:"mt-auto pt-4 space-y-3 border-t border-gray-1",children:[e.jsxs("div",{className:"flex items-start justify-between gap-3",children:[e.jsx("div",{className:"min-w-0 flex-1",children:e.jsx("p",{className:"font-medium text-gray-8 italic truncate",title:r??"In Review",children:r??"In Review"})}),(x||c)&&e.jsx("time",{className:"flex-shrink-0 text-sm font-medium text-gray-5 tabular-nums",children:x||c})]}),(p||l)&&e.jsxs("div",{className:"flex items-start justify-between gap-4 pt-2",children:[p&&e.jsxs("div",{className:"flex flex-wrap gap-3 flex-1",children:[a?.citations!==void 0&&a.citations>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",children:[e.jsx(O,{className:"w-4 h-4 text-blue-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.citations}),e.jsx("span",{className:"text-gray-5",children:"citations"})]}),a?.influentialCitations!==void 0&&a.influentialCitations>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Highly influential citations from Semantic Scholar",children:[e.jsx(G,{className:"w-4 h-4 text-amber-5"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.influentialCitations}),e.jsx("span",{className:"text-gray-5",children:"influential"})]}),a?.views!==void 0&&a.views>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",children:[e.jsx(C,{className:"w-4 h-4 text-emerald-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.views.toLocaleString()}),e.jsx("span",{className:"text-gray-5",children:"views"})]}),a?.altmetricScore!==void 0&&a.altmetricScore>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",children:[e.jsx(M,{className:"w-4 h-4 text-purple-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.altmetricScore}),e.jsx("span",{className:"text-gray-5",children:"altmetric"})]}),a?.tweets!==void 0&&a.tweets>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",children:[e.jsx(X,{className:"w-4 h-4 text-sky-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.tweets}),e.jsx("span",{className:"text-gray-5",children:"tweets"})]}),a?.readers!==void 0&&a.readers>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",children:[e.jsx(ae,{className:"w-4 h-4 text-amber-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.readers}),e.jsx("span",{className:"text-gray-5",children:"readers"})]}),a?.news!==void 0&&a.news>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"News media mentions",children:[e.jsx(U,{className:"w-4 h-4 text-rose-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.news}),e.jsx("span",{className:"text-gray-5",children:"news"})]}),a?.blogs!==void 0&&a.blogs>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Blog post mentions",children:[e.jsx(Z,{className:"w-4 h-4 text-orange-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.blogs}),e.jsx("span",{className:"text-gray-5",children:"blogs"})]}),a?.references!==void 0&&a.references>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Number of references cited",children:[e.jsx(u,{className:"w-4 h-4 text-slate-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.references}),e.jsx("span",{className:"text-gray-5",children:"refs"})]}),a?.facebook!==void 0&&a.facebook>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Facebook mentions",children:[e.jsx(H,{className:"w-4 h-4 text-blue-7"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.facebook}),e.jsx("span",{className:"text-gray-5",children:"facebook"})]}),a?.reddit!==void 0&&a.reddit>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Reddit mentions",children:[e.jsx(P,{className:"w-4 h-4 text-orange-7"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.reddit}),e.jsx("span",{className:"text-gray-5",children:"reddit"})]}),a?.wikipedia!==void 0&&a.wikipedia>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Wikipedia citations",children:[e.jsx(k,{className:"w-4 h-4 text-gray-7"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.wikipedia}),e.jsx("span",{className:"text-gray-5",children:"wikipedia"})]}),a?.video!==void 0&&a.video>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Video mentions (YouTube, etc.)",children:[e.jsx(se,{className:"w-4 h-4 text-red-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.video}),e.jsx("span",{className:"text-gray-5",children:"videos"})]}),a?.policy!==void 0&&a.policy>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Policy document citations",children:[e.jsx(R,{className:"w-4 h-4 text-indigo-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.policy}),e.jsx("span",{className:"text-gray-5",children:"policy"})]}),a?.patents!==void 0&&a.patents>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Patent citations",children:[e.jsx(D,{className:"w-4 h-4 text-teal-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.patents}),e.jsx("span",{className:"text-gray-5",children:"patents"})]}),a?.peerReviews!==void 0&&a.peerReviews>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Peer review mentions",children:[e.jsx(F,{className:"w-4 h-4 text-violet-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.peerReviews}),e.jsx("span",{className:"text-gray-5",children:"reviews"})]}),a?.qna!==void 0&&a.qna>0&&e.jsxs("div",{className:"flex items-center gap-1.5 text-xs",title:"Q&A site mentions",children:[e.jsx($,{className:"w-4 h-4 text-lime-6"}),e.jsx("span",{className:"font-medium text-gray-7",children:a.qna}),e.jsx("span",{className:"text-gray-5",children:"Q&A"})]})]}),l&&e.jsxs("div",{className:"flex flex-col gap-1 items-end flex-shrink-0",children:[e.jsx("span",{className:"text-xs font-medium text-gray-5 uppercase tracking-wider",children:"DOI"}),e.jsx("a",{href:`https://doi.org/${l}`,target:"_blank",rel:"noopener noreferrer",onClick:s=>s.stopPropagation(),className:"text-xs bg-gray-0.5 border border-gray-2 rounded px-2 py-1 text-blue-6 hover:text-blue-7 hover:border-blue-3 font-mono break-all transition-colors",children:l})]})]})]})]})};export{oe as default};

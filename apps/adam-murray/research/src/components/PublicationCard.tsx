@@ -1,10 +1,15 @@
 import type { FC } from 'react';
-import { FileText, Eye, Unlock, Star, Tag, BookOpen } from 'lucide-react';
+import { FileText, Eye, Unlock, Star, Tag, BookOpen, TrendingUp, Activity, BarChart2 } from 'lucide-react';
 
 interface PublicationMetrics {
   // Citation metrics
   citations?: number;
   influentialCitations?: number;
+  recentCitations?: number; // Citations in last 2 years (Dimensions)
+
+  // Normalized impact metrics (Dimensions)
+  relativeCitationRatio?: number; // RCR - compared to NIH-funded papers
+  fieldCitationRatio?: number; // FCR - compared to same field/year
 
   // Usage metrics
   views?: number;
@@ -71,6 +76,9 @@ const PublicationCard: FC<PublicationCardProps> = ({
   const hasMetrics = metrics && (
     metrics.citations !== undefined ||
     metrics.influentialCitations !== undefined ||
+    metrics.recentCitations !== undefined ||
+    metrics.relativeCitationRatio !== undefined ||
+    metrics.fieldCitationRatio !== undefined ||
     metrics.views !== undefined ||
     metrics.references !== undefined
   );
@@ -185,6 +193,27 @@ const PublicationCard: FC<PublicationCardProps> = ({
                     <Star className="w-4 h-4 text-amber-5" />
                     <span className="font-medium text-gray-7">{metrics.influentialCitations}</span>
                     <span className="text-gray-5">influential</span>
+                  </div>
+                )}
+                {metrics?.recentCitations !== undefined && metrics.recentCitations > 0 && metrics.recentCitations !== metrics.citations && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Citations in the last 2 years (Dimensions)">
+                    <TrendingUp className="w-4 h-4 text-emerald-5" />
+                    <span className="font-medium text-gray-7">{metrics.recentCitations}</span>
+                    <span className="text-gray-5">recent</span>
+                  </div>
+                )}
+                {metrics?.relativeCitationRatio !== undefined && metrics.relativeCitationRatio !== null && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Relative Citation Ratio - compared to NIH-funded papers (>1 = above average)">
+                    <Activity className="w-4 h-4 text-purple-5" />
+                    <span className="font-medium text-gray-7">{metrics.relativeCitationRatio.toFixed(2)}</span>
+                    <span className="text-gray-5">RCR</span>
+                  </div>
+                )}
+                {metrics?.fieldCitationRatio !== undefined && metrics.fieldCitationRatio !== null && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Field Citation Ratio - compared to same field/year (>1 = above average)">
+                    <BarChart2 className="w-4 h-4 text-indigo-5" />
+                    <span className="font-medium text-gray-7">{metrics.fieldCitationRatio.toFixed(2)}</span>
+                    <span className="text-gray-5">FCR</span>
                   </div>
                 )}
                 {metrics?.views !== undefined && metrics.views > 0 && (

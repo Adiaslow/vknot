@@ -5,6 +5,11 @@ export interface PublicationMetrics {
   // Citation metrics
   citations?: number;
   influentialCitations?: number;
+  recentCitations?: number; // Citations in last 2 years (Dimensions)
+
+  // Normalized impact metrics (Dimensions)
+  relativeCitationRatio?: number; // RCR - compared to NIH-funded papers
+  fieldCitationRatio?: number; // FCR - compared to same field/year
 
   // Usage metrics
   views?: number;
@@ -224,6 +229,35 @@ async function fetchUnpaywallData(doi: string): Promise<Partial<PublicationMetri
 }
 
 /**
+ * Fetch metrics from Dimensions API
+ * Provides citation counts, recent citations, and normalized impact metrics (RCR, FCR)
+ * Free Metrics API - no authentication required
+ */
+async function fetchDimensionsData(doi: string): Promise<Partial<PublicationMetrics>> {
+  try {
+    const response = await fetch(
+      `https://badge.dimensions.ai/details/doi/${encodeURIComponent(doi)}/metrics.json`
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+
+    if (data?.status !== 200) return {};
+
+    return {
+      citations: data?.times_cited,
+      recentCitations: data?.recent_citations,
+      relativeCitationRatio: data?.relative_citation_ratio,
+      fieldCitationRatio: data?.field_citation_ratio,
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch Dimensions data for DOI ${doi}:`, error);
+    return {};
+  }
+}
+
+/**
  * Fetch all available metrics for a publication
  * Combines data from multiple sources with intelligent fallbacks
  */
@@ -231,17 +265,19 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
   if (!doi) return {};
 
   // Fetch from all sources in parallel
-  const [crossrefData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
+  const [crossrefData, pmcData, semanticScholar, openAlex, unpaywall, dimensions] = await Promise.all([
     fetchFromCrossRef(doi),
     fetchEuropePMCMetrics(doi),
     fetchSemanticScholarData(doi),
     fetchOpenAlexData(doi),
     fetchUnpaywallData(doi),
+    fetchDimensionsData(doi),
   ]);
 
   // Combine metrics with priority ordering for overlapping fields
-  // Priority: Semantic Scholar > OpenAlex > PMC > CrossRef for citations
+  // Priority: Semantic Scholar > Dimensions > OpenAlex > PMC > CrossRef for citations
   const citations = semanticScholar.citations
+    ?? dimensions.citations
     ?? openAlex.citations
     ?? pmcData.citations
     ?? crossrefData.citations;
@@ -280,6 +316,11 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     // Citation metrics
     citations,
     influentialCitations: semanticScholar.influentialCitations,
+    recentCitations: dimensions.recentCitations,
+
+    // Normalized impact metrics (Dimensions)
+    relativeCitationRatio: dimensions.relativeCitationRatio,
+    fieldCitationRatio: dimensions.fieldCitationRatio,
 
     // Usage
     views: pmcData.views,

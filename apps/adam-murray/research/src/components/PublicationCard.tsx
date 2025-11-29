@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag, Newspaper, Rss, BookOpen } from 'lucide-react';
+import { FileText, Eye, BarChart3, Twitter, Users, Unlock, Star, Tag, Newspaper, Rss, BookOpen, Facebook, MessageCircle, BookMarked, Video, Landmark, Scale, MessageSquare, HelpCircle } from 'lucide-react';
 
 interface PublicationMetrics {
   // Citation metrics
@@ -12,6 +12,14 @@ interface PublicationMetrics {
   news?: number;
   blogs?: number;
   readers?: number;
+  facebook?: number;
+  reddit?: number;
+  wikipedia?: number;
+  video?: number;
+  policy?: number;
+  patents?: number;
+  peerReviews?: number;
+  qna?: number;
 
   // Usage metrics
   views?: number;
@@ -83,7 +91,16 @@ const PublicationCard: FC<PublicationCardProps> = ({
     metrics.influentialCitations !== undefined ||
     metrics.news !== undefined ||
     metrics.blogs !== undefined ||
-    metrics.references !== undefined
+    metrics.references !== undefined ||
+    metrics.readers !== undefined ||
+    metrics.facebook !== undefined ||
+    metrics.reddit !== undefined ||
+    metrics.wikipedia !== undefined ||
+    metrics.video !== undefined ||
+    metrics.policy !== undefined ||
+    metrics.patents !== undefined ||
+    metrics.peerReviews !== undefined ||
+    metrics.qna !== undefined
   );
 
   const hasTopics = metrics && (
@@ -257,6 +274,62 @@ const PublicationCard: FC<PublicationCardProps> = ({
                     <BookOpen className="w-4 h-4 text-slate-6" />
                     <span className="font-medium text-gray-7">{metrics.references}</span>
                     <span className="text-gray-5">refs</span>
+                  </div>
+                )}
+                {metrics?.facebook !== undefined && metrics.facebook > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Facebook mentions">
+                    <Facebook className="w-4 h-4 text-blue-7" />
+                    <span className="font-medium text-gray-7">{metrics.facebook}</span>
+                    <span className="text-gray-5">facebook</span>
+                  </div>
+                )}
+                {metrics?.reddit !== undefined && metrics.reddit > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Reddit mentions">
+                    <MessageCircle className="w-4 h-4 text-orange-7" />
+                    <span className="font-medium text-gray-7">{metrics.reddit}</span>
+                    <span className="text-gray-5">reddit</span>
+                  </div>
+                )}
+                {metrics?.wikipedia !== undefined && metrics.wikipedia > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Wikipedia citations">
+                    <BookMarked className="w-4 h-4 text-gray-7" />
+                    <span className="font-medium text-gray-7">{metrics.wikipedia}</span>
+                    <span className="text-gray-5">wikipedia</span>
+                  </div>
+                )}
+                {metrics?.video !== undefined && metrics.video > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Video mentions (YouTube, etc.)">
+                    <Video className="w-4 h-4 text-red-6" />
+                    <span className="font-medium text-gray-7">{metrics.video}</span>
+                    <span className="text-gray-5">videos</span>
+                  </div>
+                )}
+                {metrics?.policy !== undefined && metrics.policy > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Policy document citations">
+                    <Landmark className="w-4 h-4 text-indigo-6" />
+                    <span className="font-medium text-gray-7">{metrics.policy}</span>
+                    <span className="text-gray-5">policy</span>
+                  </div>
+                )}
+                {metrics?.patents !== undefined && metrics.patents > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Patent citations">
+                    <Scale className="w-4 h-4 text-teal-6" />
+                    <span className="font-medium text-gray-7">{metrics.patents}</span>
+                    <span className="text-gray-5">patents</span>
+                  </div>
+                )}
+                {metrics?.peerReviews !== undefined && metrics.peerReviews > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Peer review mentions">
+                    <MessageSquare className="w-4 h-4 text-violet-6" />
+                    <span className="font-medium text-gray-7">{metrics.peerReviews}</span>
+                    <span className="text-gray-5">reviews</span>
+                  </div>
+                )}
+                {metrics?.qna !== undefined && metrics.qna > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs" title="Q&A site mentions">
+                    <HelpCircle className="w-4 h-4 text-lime-6" />
+                    <span className="font-medium text-gray-7">{metrics.qna}</span>
+                    <span className="text-gray-5">Q&A</span>
                   </div>
                 )}
               </div>

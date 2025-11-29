@@ -12,6 +12,14 @@ export interface PublicationMetrics {
   news?: number;
   blogs?: number;
   readers?: number;
+  facebook?: number;
+  reddit?: number;
+  wikipedia?: number;
+  video?: number;
+  policy?: number;
+  patents?: number;
+  peerReviews?: number;
+  qna?: number;
 
   // Usage metrics
   views?: number;
@@ -88,6 +96,14 @@ async function fetchAltmetricData(doi: string): Promise<Partial<PublicationMetri
       news: data?.cited_by_msm_count,
       blogs: data?.cited_by_feeds_count,
       readers: data?.readers_count,
+      facebook: data?.cited_by_fbwalls_count,
+      reddit: data?.cited_by_rdts_count,
+      wikipedia: data?.cited_by_wikipedia_count,
+      video: data?.cited_by_videos_count,
+      policy: data?.cited_by_policies_count,
+      patents: data?.cited_by_patents_count,
+      peerReviews: data?.cited_by_peer_review_sites_count,
+      qna: data?.cited_by_qs_count,
     };
   } catch (error) {
     console.warn(`Failed to fetch Altmetric data for DOI ${doi}:`, error);
@@ -309,6 +325,14 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     news: altmetricData.news,
     blogs: altmetricData.blogs,
     readers: altmetricData.readers,
+    facebook: altmetricData.facebook,
+    reddit: altmetricData.reddit,
+    wikipedia: altmetricData.wikipedia,
+    video: altmetricData.video,
+    policy: altmetricData.policy,
+    patents: altmetricData.patents,
+    peerReviews: altmetricData.peerReviews,
+    qna: altmetricData.qna,
 
     // Usage
     views: pmcData.views,

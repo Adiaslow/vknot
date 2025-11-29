@@ -93,9 +93,9 @@ const PublicationCard: FC<PublicationCardProps> = ({
       }`}
       onClick={handleClick}
     >
-      {/* Publication Type Badge and OA Status */}
-      <div className="absolute -top-2 left-4 flex items-center gap-2">
-        {type && (
+      {/* Publication Type Badge (top-left) */}
+      {type && (
+        <div className="absolute -top-2 left-4">
           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase ${
             type === 'journal-article'
               ? 'bg-emerald-1 text-emerald-8 border border-emerald-2'
@@ -105,25 +105,24 @@ const PublicationCard: FC<PublicationCardProps> = ({
           }`}>
             {type.replace('-', ' ')}
           </span>
-        )}
-        {metrics?.isOpenAccess && metrics.oaStatus && metrics.oaStatus !== 'closed' && (
-          <a
-            href={metrics.oaUrl || (doi ? `https://doi.org/${doi}` : undefined)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide uppercase border transition-opacity hover:opacity-80 ${
-              OA_STATUS_COLORS[metrics.oaStatus]?.bg || 'bg-emerald-1'
-            } ${OA_STATUS_COLORS[metrics.oaStatus]?.text || 'text-emerald-8'} ${
-              OA_STATUS_COLORS[metrics.oaStatus]?.border || 'border-emerald-3'
-            }`}
-            title={`Open Access (${metrics.oaStatus})`}
-          >
-            <Unlock className="w-3 h-3" />
-            {metrics.oaStatus}
-          </a>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Open Access Badge (top-right, icon only) */}
+      {metrics?.isOpenAccess && metrics.oaStatus && metrics.oaStatus !== 'closed' && (
+        <a
+          href={metrics.oaUrl || (doi ? `https://doi.org/${doi}` : undefined)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className={`absolute -top-2 right-4 inline-flex items-center justify-center rounded-full w-6 h-6 border transition-opacity hover:opacity-80 ${
+            OA_STATUS_COLORS[metrics.oaStatus]?.bg || 'bg-emerald-1'
+          } ${OA_STATUS_COLORS[metrics.oaStatus]?.border || 'border-emerald-3'}`}
+          title={`Open Access (${metrics.oaStatus})`}
+        >
+          <Unlock className={`w-3.5 h-3.5 ${OA_STATUS_COLORS[metrics.oaStatus]?.text || 'text-emerald-8'}`} />
+        </a>
+      )}
 
       <div className="flex flex-col gap-4 pt-2">
         {/* Title */}
@@ -235,14 +234,14 @@ const PublicationCard: FC<PublicationCardProps> = ({
 
             {/* DOI */}
             {doi && (
-              <div className="flex flex-col gap-1 items-end flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-xs font-medium text-gray-5 uppercase tracking-wider">DOI</span>
                 <a
                   href={`https://doi.org/${doi}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-xs bg-gray-0.5 border border-gray-2 rounded px-2 py-1 text-blue-6 hover:text-blue-7 hover:border-blue-3 font-mono break-all transition-colors"
+                  className="text-xs bg-gray-0.5 border border-gray-2 rounded px-2 py-1 text-blue-6 hover:text-blue-7 hover:border-blue-3 font-mono transition-colors"
                 >
                   {doi}
                 </a>

@@ -6,21 +6,6 @@ export interface PublicationMetrics {
   citations?: number;
   influentialCitations?: number;
 
-  // Altmetric data
-  altmetricScore?: number;
-  tweets?: number;
-  news?: number;
-  blogs?: number;
-  readers?: number;
-  facebook?: number;
-  reddit?: number;
-  wikipedia?: number;
-  video?: number;
-  policy?: number;
-  patents?: number;
-  peerReviews?: number;
-  qna?: number;
-
   // Usage metrics
   views?: number;
 
@@ -44,7 +29,7 @@ export interface PublicationMetrics {
 /**
  * Fetch citation count and venue from CrossRef API
  */
-async function fetchFromCrossRef(doi: string): Promise<{ citations?: number; venue?: string }> {
+async function fetchFromCrossRef(doi: string): Promise<{ citations?: number; venue?: string; references?: number }> {
   try {
     const response = await fetch(
       `https://api.crossref.org/works/${encodeURIComponent(doi)}`,
@@ -69,44 +54,10 @@ async function fetchFromCrossRef(doi: string): Promise<{ citations?: number; ven
     return {
       citations: message?.["is-referenced-by-count"] || 0,
       venue: containerTitle || institution,
+      references: message?.["references-count"],
     };
   } catch (error) {
     console.warn(`Failed to fetch from CrossRef for DOI ${doi}:`, error);
-    return {};
-  }
-}
-
-/**
- * Fetch Altmetric data (social media mentions, news, etc.)
- * Altmetric API is free for basic queries
- */
-async function fetchAltmetricData(doi: string): Promise<Partial<PublicationMetrics>> {
-  try {
-    const response = await fetch(
-      `https://api.altmetric.com/v1/doi/${encodeURIComponent(doi)}`
-    );
-
-    if (!response.ok) return {};
-
-    const data = await response.json();
-
-    return {
-      altmetricScore: data?.score,
-      tweets: data?.cited_by_tweeters_count,
-      news: data?.cited_by_msm_count,
-      blogs: data?.cited_by_feeds_count,
-      readers: data?.readers_count,
-      facebook: data?.cited_by_fbwalls_count,
-      reddit: data?.cited_by_rdts_count,
-      wikipedia: data?.cited_by_wikipedia_count,
-      video: data?.cited_by_videos_count,
-      policy: data?.cited_by_policies_count,
-      patents: data?.cited_by_patents_count,
-      peerReviews: data?.cited_by_peer_review_sites_count,
-      qna: data?.cited_by_qs_count,
-    };
-  } catch (error) {
-    console.warn(`Failed to fetch Altmetric data for DOI ${doi}:`, error);
     return {};
   }
 }
@@ -143,7 +94,7 @@ async function fetchEuropePMCMetrics(doi: string): Promise<Partial<PublicationMe
  * Provides citations, influential citations, fields of study, and more
  * Free, no API key required (rate limited to 100 requests per 5 minutes)
  */
-async function fetchSemanticScholarData(doi: string): Promise<Partial<PublicationMetrics>> {
+async function fetchSemanticScholarData(doi: string, retryCount = 0): Promise<Partial<PublicationMetrics>> {
   try {
     const fields = 'citationCount,influentialCitationCount,fieldsOfStudy,referenceCount,publicationTypes,isOpenAccess';
     const response = await fetch(
@@ -155,6 +106,13 @@ async function fetchSemanticScholarData(doi: string): Promise<Partial<Publicatio
       }
     );
 
+    // Handle rate limiting with exponential backoff
+    if (response.status === 429 && retryCount < 2) {
+      const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return fetchSemanticScholarData(doi, retryCount + 1);
+    }
+
     if (!response.ok) return {};
 
     const data = await response.json();
@@ -162,9 +120,9 @@ async function fetchSemanticScholarData(doi: string): Promise<Partial<Publicatio
     return {
       citations: data?.citationCount,
       influentialCitations: data?.influentialCitationCount,
-      fieldsOfStudy: data?.fieldsOfStudy || [],
+      fieldsOfStudy: data?.fieldsOfStudy,
       references: data?.referenceCount,
-      publicationTypes: data?.publicationTypes || [],
+      publicationTypes: data?.publicationTypes,
       isOpenAccess: data?.isOpenAccess,
     };
   } catch (error) {
@@ -273,9 +231,8 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
   if (!doi) return {};
 
   // Fetch from all sources in parallel
-  const [crossrefData, altmetricData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
+  const [crossrefData, pmcData, semanticScholar, openAlex, unpaywall] = await Promise.all([
     fetchFromCrossRef(doi),
-    fetchAltmetricData(doi),
     fetchEuropePMCMetrics(doi),
     fetchSemanticScholarData(doi),
     fetchOpenAlexData(doi),
@@ -303,36 +260,26 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     ?? openAlex.isOpenAccess
     ?? semanticScholar.isOpenAccess;
 
-  const oaStatus = unpaywall.oaStatus !== 'closed'
-    ? unpaywall.oaStatus
-    : openAlex.oaStatus !== 'closed'
-    ? openAlex.oaStatus
-    : 'closed';
+  // OA status: use the first source that has a valid non-closed status
+  let oaStatus: PublicationMetrics['oaStatus'] = 'closed';
+  if (unpaywall.oaStatus && unpaywall.oaStatus !== 'closed') {
+    oaStatus = unpaywall.oaStatus;
+  } else if (openAlex.oaStatus && openAlex.oaStatus !== 'closed') {
+    oaStatus = openAlex.oaStatus;
+  }
 
   const oaUrl = unpaywall.oaUrl ?? openAlex.oaUrl;
 
   // Venue: prefer OpenAlex, fallback to CrossRef
   const venue = openAlex.venue || crossrefData.venue;
 
+  // References: prefer Semantic Scholar, fallback to CrossRef
+  const references = semanticScholar.references ?? crossrefData.references;
+
   return {
     // Citation metrics
     citations,
     influentialCitations: semanticScholar.influentialCitations,
-
-    // Altmetric data
-    altmetricScore: altmetricData.altmetricScore,
-    tweets: altmetricData.tweets,
-    news: altmetricData.news,
-    blogs: altmetricData.blogs,
-    readers: altmetricData.readers,
-    facebook: altmetricData.facebook,
-    reddit: altmetricData.reddit,
-    wikipedia: altmetricData.wikipedia,
-    video: altmetricData.video,
-    policy: altmetricData.policy,
-    patents: altmetricData.patents,
-    peerReviews: altmetricData.peerReviews,
-    qna: altmetricData.qna,
 
     // Usage
     views: pmcData.views,
@@ -345,7 +292,7 @@ export async function fetchPublicationMetrics(doi: string): Promise<PublicationM
     // Topics and context
     fieldsOfStudy,
     concepts,
-    references: semanticScholar.references,
+    references,
     publicationTypes: semanticScholar.publicationTypes,
 
     // Venue

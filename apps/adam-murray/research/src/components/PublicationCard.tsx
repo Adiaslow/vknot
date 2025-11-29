@@ -103,10 +103,7 @@ const PublicationCard: FC<PublicationCardProps> = ({
     metrics.qna !== undefined
   );
 
-  const hasTopics = metrics && (
-    (metrics.fieldsOfStudy && metrics.fieldsOfStudy.length > 0) ||
-    (metrics.concepts && metrics.concepts.length > 0)
-  );
+  const hasTopics = metrics && metrics.fieldsOfStudy && metrics.fieldsOfStudy.length > 0;
 
   return (
     <article
@@ -176,15 +173,6 @@ const PublicationCard: FC<PublicationCardProps> = ({
               >
                 <Tag className="w-3 h-3" />
                 {field}
-              </span>
-            ))}
-            {metrics?.concepts?.slice(0, 3).map((concept, idx) => (
-              <span
-                key={`concept-${idx}`}
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-cyan-7 bg-cyan-1 border border-cyan-2 rounded-full"
-                title={`Relevance: ${Math.round(concept.score * 100)}%`}
-              >
-                {concept.name}
               </span>
             ))}
           </div>

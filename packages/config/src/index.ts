@@ -3,19 +3,27 @@ export const siteMeta = {
   apps: {
     landing: {
       base: '/',
-      title: 'VKnot — Creative Technology Collective'
+      title: 'VKnot'
     },
     research: {
       base: '/adam-murray/research',
-      title: 'Adam Murray — Computational Research'
+      title: 'Research',
+      description: 'Computational peptide drug design and developmental neuroscience at UC Santa Cruz and UC Davis.'
     },
     technical: {
       base: '/adam-murray/technical',
-      title: 'Adam Murray — Technical Writing'
+      title: 'Technical',
+      description: 'Long-form engineering notes, tutorials, and design systems.'
+    },
+    projects: {
+      base: '/adam-murray/projects',
+      title: 'Projects',
+      description: 'Software, tools, and creative experiments.'
     },
     tenderCircuits: {
       base: '/tender_circuits',
-      title: 'Tender Circuits — Independent Label'
+      title: 'Tender Circuits',
+      description: 'Independent music label for experimental and electronic releases.'
     }
   }
 } as const;

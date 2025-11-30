@@ -4,36 +4,246 @@ import ResearchLayout from "../layouts/ResearchLayout.astro";
 
 <ResearchLayout
   title="Curriculum Vitae"
-  description="Curriculum vitae for Adam Murray."
+  description="Curriculum vitae for Adam Murray - Biomolecular Engineering researcher at UC Santa Cruz."
 >
-  <section class="flex flex-col gap-8">
+  <section class="flex flex-col gap-10">
     <header class="flex flex-col gap-2">
       <h1 class="text-3xl font-semibold text-slate-900">Curriculum Vitae</h1>
       <p class="text-slate-600">
-        Summary of academic, professional, and creative work.
+        Academic and professional background in computational biology, drug design, and neuroscience.
       </p>
     </header>
 
+    <!-- Education -->
     <section class="flex flex-col gap-4">
-      <h2 class="text-2xl font-semibold text-slate-900">Experience</h2>
-      <ul class="flex flex-col gap-3 text-sm text-slate-600">
-        <li>
-          <strong>Principal Researcher</strong>, Computational Design Studio ·
-          2023 – Present
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Education</h2>
+      <ul class="flex flex-col gap-4 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">University of California, Santa Cruz</strong>
+            <span class="text-slate-500 text-xs">January 2024 – June 2026</span>
+          </div>
+          <p>Bachelor of Science, Biomolecular Engineering Major / Statistics Minor</p>
+          <p class="text-slate-500">GPA: 3.09</p>
         </li>
-        <li>
-          <strong>Visiting Lecturer</strong>, Art & Technology Program · 2022 –
-          2024
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Monterey Peninsula College</strong>
+            <span class="text-slate-500 text-xs">August 2019 – December 2023</span>
+          </div>
+          <p>Associate degrees in Chemistry, Mathematics, and Psychology</p>
+          <p class="text-slate-500">GPA: 3.707</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">San Joaquin Valley College</strong>
+            <span class="text-slate-500 text-xs">April 2012 – June 2013</span>
+          </div>
+          <p>Associate of Science, Pharmacy Technology</p>
         </li>
       </ul>
     </section>
 
+    <!-- Research Experience -->
     <section class="flex flex-col gap-4">
-      <h2 class="text-2xl font-semibold text-slate-900">Education</h2>
-      <ul class="flex flex-col gap-3 text-sm text-slate-600">
-        <li>MFA, Computational Arts · 2022</li>
-        <li>BS, Computer Science & Design · 2018</li>
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Research Experience</h2>
+      <ul class="flex flex-col gap-5 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Kim Lab — UC Santa Cruz</strong>
+            <span class="text-slate-500 text-xs">November 2024 – Present</span>
+          </div>
+          <p class="italic text-slate-700">Undergraduate Researcher</p>
+          <p>Building a from-scratch intrinsic signal imaging macroscope system including optics setup, custom compute workstation, and full stack software development. Quantification and statistical analysis of viral axon tracing, automated cell counting, and Allen Brain Atlas data. Clustering and information-theoretic analysis of datasets.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">RosettaCommons — UC Davis / Johns Hopkins University</strong>
+            <span class="text-slate-500 text-xs">September 2023 – Present</span>
+          </div>
+          <p class="italic text-slate-700">Undergraduate Researcher</p>
+          <p>Co-authored computational protein design research with David Baker, 2024 Nobel Prize laureate in Chemistry, focusing on NaV1.7 sodium channel binders. Authored most-read paper in Channels journal for 2024 on ion channel structural modeling using AlphaFold2, RoseTTAFold2, and ESMFold. Engineered novel protein binders for ion channels using state-of-the-art ML techniques including ProteinMPNN and RFDiffusion. Built comprehensive workflows from target input to optimized, validated protein designs.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Lokey Lab — UC Santa Cruz</strong>
+            <span class="text-slate-500 text-xs">September 2022 – Present</span>
+          </div>
+          <p class="italic text-slate-700">Undergraduate Researcher</p>
+          <p>Developed transformer models for molecular property prediction and cheminformatics applications. Created optimization pipelines for peptide library design and combinatorial chemistry. Built analysis pipelines for high-throughput, single-molecule fidelity DEL library assessment. Designed innovative tools for analyzing massive combinatorial library datasets.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">ACCESS Summer REU — Lokey Lab, UC Santa Cruz</strong>
+            <span class="text-slate-500 text-xs">June 2022 – August 2022</span>
+          </div>
+          <p class="italic text-slate-700">Research Intern</p>
+          <p>Developed peptide library generation and chemoinformatic analysis utilities as well as a deep learning model for predicting cell membrane permeability of cyclic peptides.</p>
+        </li>
       </ul>
+    </section>
+
+    <!-- Professional Experience -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Professional Experience</h2>
+      <ul class="flex flex-col gap-5 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">NIH-MARC Program — Santa Cruz, CA</strong>
+            <span class="text-slate-500 text-xs">August 2025 – Present</span>
+          </div>
+          <p class="italic text-slate-700">MARC Scholar</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Unnatural Products — Santa Cruz, CA</strong>
+            <span class="text-slate-500 text-xs">July 2025 – Present</span>
+          </div>
+          <p class="italic text-slate-700">Software Consultant</p>
+          <p>Profiled internal software and provided comprehensive reports and optimization recommendations.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Freelance Consultant/Developer</strong>
+            <span class="text-slate-500 text-xs">2019 – Present</span>
+          </div>
+          <p>Programming and data analysis consultant for start-ups. Develop pipelines for data analysis, machine learning models, and website designs.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Monterey Bay Neurofeedback Center — Carmel, CA</strong>
+            <span class="text-slate-500 text-xs">November 2018 – May 2023</span>
+          </div>
+          <p class="italic text-slate-700">Technical Director</p>
+          <p>Managed and trained technicians, analyzed EEG time series data using traditional and machine learning based methods, collaborated with doctors to develop treatment plans, maintained hardware, and oversaw buying and implementation of new hardware and software.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Conference Presentations -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Conference Presentations</h2>
+      <ul class="flex flex-col gap-4 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">SACNAS NDiSTEM Conference 2023 — Portland, OR</strong>
+            <span class="text-slate-500 text-xs">October 2023</span>
+          </div>
+          <p>"De novo design of peptides targeting the pore domain of Kv1.3 potassium channel."</p>
+          <p class="text-emerald-600 font-medium">Poster Presentation Award Winner</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">RosettaCon 2023 — Leavenworth, WA</strong>
+            <span class="text-slate-500 text-xs">August 2023</span>
+          </div>
+          <p>"De novo design of peptides targeting the pore domain of Kv1.3 potassium channel."</p>
+          <p class="text-emerald-600 font-medium">Poster Presentation Award Winner</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">ACCESS Symposium 2022 — Santa Cruz, CA</strong>
+            <span class="text-slate-500 text-xs">August 2022</span>
+          </div>
+          <p>"Digging Deeper Into Cyclic Peptides: Predicting Permeability of Enumerated Cyclic Peptide Libraries Using Deep Learning."</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Teaching & Mentoring -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Teaching & Mentoring</h2>
+      <ul class="flex flex-col gap-4 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Research Peer Mentor — UC Santa Cruz</strong>
+            <span class="text-slate-500 text-xs">September 2024 – Present</span>
+          </div>
+          <p>Working with other undergraduate students, teaching them coding skills, tools, frameworks, methods, theory, and applications in drug design, data analysis, and neuroscience.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">TRIO Tutor — Monterey Peninsula College</strong>
+            <span class="text-slate-500 text-xs">February 2023 – September 2023</span>
+          </div>
+          <p>Tutored biology, chemistry, computer science, and math during the school semester at the high school level.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">STEMCEL Tutor — Monterey Peninsula College</strong>
+            <span class="text-slate-500 text-xs">February 2022 – May 2023</span>
+          </div>
+          <p>Tutored biology, chemistry, computer science, and math during the school semester at the collegiate level.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Leadership -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Leadership</h2>
+      <ul class="flex flex-col gap-4 text-sm text-slate-600">
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">SACNAS Club Founder — Monterey Peninsula College</strong>
+            <span class="text-slate-500 text-xs">Fall 2022 – Fall 2023</span>
+          </div>
+          <p>Founded club, spearheaded initial paperwork, coordinated acquisition of officers, organized undergraduate research panels, coordinated booths at Family STEM Day, spoke at events to promote the club and SACNAS, and built connections between students and researchers.</p>
+        </li>
+        <li class="flex flex-col gap-1">
+          <div class="flex items-baseline justify-between gap-4 flex-wrap">
+            <strong class="text-slate-800">Engineering and Computer Science Club Co-founder — Monterey Peninsula College</strong>
+            <span class="text-slate-500 text-xs">Fall 2023</span>
+          </div>
+          <p>Co-founded club, worked as lead programmer for MPC STEAM content project, and mentored members in programming, circuit design, and engineering principles.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Technical Skills -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold text-slate-900 border-b border-slate-200 pb-2">Technical Skills</h2>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="flex flex-col gap-3">
+          <h3 class="font-semibold text-slate-800">Computational Methods</h3>
+          <ul class="flex flex-col gap-2 text-sm text-slate-600">
+            <li><span class="font-medium text-slate-700">Protein/Peptide Design:</span> RoseTTAFold2, AlphaFold2, ESMFold, ProteinMPNN, RFDiffusion, Rosetta Suite</li>
+            <li><span class="font-medium text-slate-700">Machine Learning:</span> PyTorch, TensorFlow/Keras, Torch Geometric, Scikit-learn, transformers, CNNs, GNNs</li>
+            <li><span class="font-medium text-slate-700">Molecular Modeling:</span> MOE, ChimeraX, molecular docking, MD simulation, QSAR modeling</li>
+            <li><span class="font-medium text-slate-700">Mathematical Methods:</span> Statistics, graph theory, signal processing, PCA, wavelet transforms</li>
+          </ul>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-semibold text-slate-800">Programming Languages</h3>
+          <ul class="flex flex-col gap-2 text-sm text-slate-600">
+            <li><span class="font-medium text-slate-700">Expert:</span> Python, C#</li>
+            <li><span class="font-medium text-slate-700">Proficient:</span> MATLAB, Java, JavaScript, TypeScript, Bash, SQL, R, C++</li>
+            <li><span class="font-medium text-slate-700">Web Development:</span> React, Node.js, Tailwind, Flask, Three.js</li>
+            <li><span class="font-medium text-slate-700">GPU Programming:</span> CUDA, OpenCL, WebGL, MPS</li>
+          </ul>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-semibold text-slate-800">Laboratory & Instrumentation</h3>
+          <ul class="flex flex-col gap-2 text-sm text-slate-600">
+            <li><span class="font-medium text-slate-700">Chemistry:</span> Mass spectrometry, HPLC, NMR, organic synthesis, split pool peptide library synthesis</li>
+            <li><span class="font-medium text-slate-700">Molecular Biology:</span> HMW DNA extraction, sequencing, nanopore sequencing, PCR</li>
+            <li><span class="font-medium text-slate-700">Imaging:</span> Intrinsic signal imaging, macroscope design, fluorescence microscopy</li>
+            <li><span class="font-medium text-slate-700">Neuroscience:</span> EEG/ERP analysis, viral tracing quantification, automated cell counting</li>
+          </ul>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-semibold text-slate-800">Specialized Software</h3>
+          <ul class="flex flex-col gap-2 text-sm text-slate-600">
+            <li><span class="font-medium text-slate-700">Bioinformatics:</span> BLAST, UCSC Genome Browser, IGV, JalView, Reactome</li>
+            <li><span class="font-medium text-slate-700">Cheminformatics:</span> RDKIT, OpenBabel, MDAnalysis, Gromacs, OpenMM</li>
+            <li><span class="font-medium text-slate-700">Documentation:</span> LaTeX, Markdown, Mermaid</li>
+            <li><span class="font-medium text-slate-700">Graphics/Game Dev:</span> Godot, Unity, p5.js, Processing</li>
+          </ul>
+        </div>
+      </div>
     </section>
   </section>
 </ResearchLayout>

@@ -108,7 +108,15 @@ const spotifyUrl = spotifyData?.spotifyUrl;
     <div class="flex flex-col gap-12">
 
       {/* Album Artwork */}
-      {artwork && (
+      {releaseConfig.vinylArtwork ? (
+        <div class="card vinyl-card w-full">
+          <img
+            src={releaseConfig.vinylArtwork}
+            alt={`${title} album artwork`}
+            class="vinyl-artwork w-full h-auto"
+          />
+        </div>
+      ) : artwork && (
         <div class="card rounded-2xl overflow-hidden max-w-2xl">
           <img
             src={artwork}

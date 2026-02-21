@@ -90,6 +90,8 @@ export const releases: Release[] = [
     subgenres: [],
     style: '',
 
+    vinylArtwork: '/tender_circuits/images/releases/Welcome to the Tonesperience - Website.png',
+
     credits: {
       'Label': 'Tender Circuits',
     },

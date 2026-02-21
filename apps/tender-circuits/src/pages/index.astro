@@ -1,17 +1,20 @@
 ---
 import LabelLayout from "../layouts/LabelLayout.astro";
+import { releases as releaseConfigs } from "../data/releases";
 
-const featuredReleases = [
-  {
-    title: "Life Is Fragile",
-    artist: "Soft Systems",
-    year: 2025,
-    releaseDate: "Oct. 06, 2025",
-    genres: ["Ambient", "Experimental"],
-    subgenres: [],
-    style: "Instrumental",
-  },
-];
+// Get all releases for homepage display
+const allReleases = releaseConfigs.map((config) => ({
+  title: config.title || '',
+  artistName: config.artistName,
+  catalogNumber: config.catalogNumber,
+  genres: config.genres,
+  subgenres: config.subgenres,
+  style: config.style,
+  slug: config.slug,
+  artistSlug: config.artistSlug,
+  comingSoon: config.comingSoon || false,
+  preRelease: config.preRelease || false,
+}));
 ---
 
 <LabelLayout
@@ -34,77 +37,58 @@ const featuredReleases = [
       </header>
     </div>
 
-    <section class="flex flex-col gap-10">
-      <div class="card rounded-2xl p-6">
-        <h2 class="text-2xl font-medium text-cream-100">Latest Release</h2>
-      </div>
+    <div class="flex flex-col gap-6">
       {
-        featuredReleases.map((release) => (
-          <article class="card flex flex-col gap-6 rounded-2xl p-8">
-            <div class="flex flex-col gap-5">
-              <div class="flex items-center gap-3 text-sm text-warmGray-500">
-                <span>New release</span>
-                <span>•</span>
-                <span>{release.releaseDate}</span>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <h3 class="text-3xl font-medium text-cream-100">{release.title}</h3>
-                <p class="text-lg text-cream-200">by {release.artist}</p>
-              </div>
-
-              <div class="text-sm text-warmGray-400">
-                {release.genres.join(" / ")}
-                {release.subgenres.length > 0 && " • " + release.subgenres.join(" / ")}
-                {" • " + release.style}
-              </div>
+        allReleases.map((release) => (
+          <article class="card flex flex-col gap-5 rounded-2xl p-8">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="text-warmGray-500">{release.catalogNumber}</span>
+              {release.comingSoon && (
+                <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
+                  Coming Soon
+                </span>
+              )}
+              {release.preRelease && (
+                <span class="text-xs uppercase tracking-[0.3em] text-violet-300 bg-violet-900/30 px-3 py-1 rounded-full">
+                  Pre-Release
+                </span>
+              )}
             </div>
 
-            <div class="flex items-center gap-4 pt-4">
+            <div class="flex flex-col gap-2">
+              <h3 class="text-3xl font-medium text-cream-100">{release.title}</h3>
+              <p class="text-lg text-cream-200">by {release.artistName}</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              {release.genres.map((genre) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  {genre}
+                </span>
+              ))}
+              {release.subgenres.map((sub) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-fuchsia-900/30 text-fuchsia-300 border border-fuchsia-800/50">
+                  {sub}
+                </span>
+              ))}
+              {release.style && (
+                <span class="text-xs px-3 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/50">
+                  {release.style}
+                </span>
+              )}
+            </div>
+
+            <div class="flex items-center gap-4 pt-2">
               <a
                 class="inline-flex items-center gap-2 text-sm font-medium text-terracotta-500 hover:text-terracotta-400 transition-colors"
-                href="/tender_circuits/releases"
+                href={`/tender_circuits/releases/${release.slug}`}
               >
-                Listen Now
+                {release.comingSoon || release.preRelease ? "View Release" : "Listen Now"}
               </a>
             </div>
           </article>
         ))
       }
-    </section>
-
-    <section class="flex flex-col gap-10">
-      <div class="card rounded-2xl p-6">
-        <h2 class="text-2xl font-medium text-cream-100">Coming Soon</h2>
-      </div>
-      <article class="card flex flex-col gap-6 rounded-2xl p-8">
-        <div class="flex flex-col gap-5">
-          <div class="flex items-center gap-3 text-sm">
-            <span class="text-warmGray-500">TC003</span>
-            <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
-              Coming Soon
-            </span>
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <h3 class="text-3xl font-medium text-cream-100">Slow Light</h3>
-            <p class="text-lg text-cream-200">by Soft Systems</p>
-          </div>
-
-          <div class="text-sm text-warmGray-400">
-            Ambient / Post-Minimalist • Instrumental
-          </div>
-        </div>
-
-        <div class="flex items-center gap-4 pt-4">
-          <a
-            class="inline-flex items-center gap-2 text-sm font-medium text-terracotta-500 hover:text-terracotta-400 transition-colors"
-            href="/tender_circuits/releases/slow-light"
-          >
-            View Release
-          </a>
-        </div>
-      </article>
-    </section>
+    </div>
   </section>
 </LabelLayout>

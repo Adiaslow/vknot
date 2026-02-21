@@ -80,11 +80,11 @@ if (!releaseConfig) {
 
       {/* Album Artwork */}
       {releaseConfig.vinylArtwork && (
-        <div class="card rounded-2xl overflow-hidden max-w-2xl">
+        <div class="card vinyl-card w-full">
           <img
             src={releaseConfig.vinylArtwork}
             alt={`${releaseConfig.title} album artwork`}
-            class="velvet-artwork-frame w-full h-auto"
+            class="vinyl-artwork w-full h-auto"
           />
         </div>
       )}

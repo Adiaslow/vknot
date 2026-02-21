@@ -1,20 +1,35 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
+import { getArtistGenres, getReleasesByArtist } from "../../data/releases";
 
-const artists = [
+const artistDefs = [
   {
     name: "Soft Systems",
     description:
       "The solo ambient and post-minimalist project of Addie. Music built with uncommon structural precision but experienced as something closer to weather than architecture.",
-    genres: ["Ambient", "Experimental", "Post-Minimalist"],
-    releases: [
-      { title: "Life Is Fragile", comingSoon: false },
-      { title: "Slow Light", comingSoon: true },
-    ],
     slug: "soft-systems",
     featured: true,
   },
+  {
+    name: "Tony",
+    description: "",
+    slug: "tony",
+    featured: false,
+  },
 ];
+
+const artists = artistDefs.map((def) => {
+  const releases = getReleasesByArtist(def.slug).map((r) => ({
+    title: r.title || r.slug,
+    comingSoon: r.comingSoon || false,
+    preRelease: r.preRelease || false,
+  }));
+  return {
+    ...def,
+    genres: getArtistGenres(def.slug),
+    releases,
+  };
+});
 ---
 
 <LabelLayout
@@ -56,9 +71,15 @@ const artists = [
               </div>
 
               {/* Genres */}
-              <div class="text-sm text-warmGray-400">
-                {artist.genres.join(" / ")}
-              </div>
+              {artist.genres.length > 0 && (
+                <div class="flex flex-wrap gap-2">
+                  {artist.genres.map((genre) => (
+                    <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                      {genre}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* Releases */}
               <div class="flex flex-col gap-3">
@@ -72,6 +93,9 @@ const artists = [
                       <span class="text-cream-200 font-medium">{release.title}</span>
                       {release.comingSoon && (
                         <span class="text-xs text-amber-300">Coming Soon</span>
+                      )}
+                      {release.preRelease && (
+                        <span class="text-xs text-violet-300">Pre-Release</span>
                       )}
                     </div>
                   ))}

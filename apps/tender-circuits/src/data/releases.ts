@@ -26,8 +26,9 @@ export interface Release {
   subgenres: string[];
   style: string;
 
-  // Coming soon releases without Spotify data
+  // Release status: omit for published, or set to a pre-release state
   comingSoon?: boolean;
+  preRelease?: boolean;
   title?: string;
 
   // Artwork
@@ -73,6 +74,30 @@ export const releases: Release[] = [
   },
 
   {
+    slug: 'high-visibility-sweatsuit',
+    catalogNumber: 'TC002',
+    spotifyAlbumId: '06pQjxvBCzoBwMq1N6K7yi',
+
+    artistName: 'Tony',
+    artistSlug: 'tony',
+
+    preRelease: true,
+    title: 'High Visibility Sweatsuit',
+
+    description: '',
+
+    genres: [],
+    subgenres: [],
+    style: '',
+
+    credits: {
+      'Label': 'Tender Circuits',
+    },
+
+    notes: '',
+  },
+
+  {
     slug: 'slow-light',
     catalogNumber: 'TC003',
     spotifyAlbumId: '',
@@ -115,4 +140,30 @@ export function getReleaseBySlug(slug: string): Release | undefined {
  */
 export function getReleasesByArtist(artistSlug: string): Release[] {
   return releases.filter(release => release.artistSlug === artistSlug);
+}
+
+/**
+ * Get genres for an artist derived from their releases,
+ * ordered by frequency (descending) then alphabetically.
+ * Includes genres, subgenres, and style.
+ */
+export function getArtistGenres(artistSlug: string): string[] {
+  const artistReleases = getReleasesByArtist(artistSlug);
+  const counts = new Map<string, number>();
+
+  for (const r of artistReleases) {
+    for (const g of r.genres) {
+      counts.set(g, (counts.get(g) || 0) + 1);
+    }
+    for (const s of r.subgenres) {
+      counts.set(s, (counts.get(s) || 0) + 1);
+    }
+    if (r.style) {
+      counts.set(r.style, (counts.get(r.style) || 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([genre]) => genre);
 }

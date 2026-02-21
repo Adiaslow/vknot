@@ -3,9 +3,9 @@ import LabelLayout from "../../layouts/LabelLayout.astro";
 import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
 import { releases as releaseConfigs } from "../../data/releases";
 
-// Split releases into published (with Spotify data) and coming soon
-const publishedConfigs = releaseConfigs.filter(c => !c.comingSoon);
-const comingSoonConfigs = releaseConfigs.filter(c => c.comingSoon);
+// Split releases into published (with Spotify data) and upcoming (coming soon or pre-release)
+const publishedConfigs = releaseConfigs.filter(c => !c.comingSoon && !c.preRelease);
+const upcomingConfigs = releaseConfigs.filter(c => c.comingSoon || c.preRelease);
 
 // Fetch Spotify data for published releases only
 const releases = await Promise.all(
@@ -104,10 +104,20 @@ const releases = await Promise.all(
                 </div>
 
                 {/* Genres and Style */}
-                <div class="text-sm text-warmGray-400">
-                  {release.genres.join(" / ")}
-                  {release.subgenres.length > 0 && " • " + release.subgenres.join(" / ")}
-                  {" • " + release.style}
+                <div class="flex flex-wrap gap-2">
+                  {release.genres.map((genre) => (
+                    <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                      {genre}
+                    </span>
+                  ))}
+                  {release.subgenres.map((sub) => (
+                    <span class="text-xs px-3 py-1 rounded-full bg-fuchsia-900/30 text-fuchsia-300 border border-fuchsia-800/50">
+                      {sub}
+                    </span>
+                  ))}
+                  <span class="text-xs px-3 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/50">
+                    {release.style}
+                  </span>
                 </div>
               </div>
 
@@ -197,21 +207,21 @@ const releases = await Promise.all(
     </div>
 
     {/* Upcoming Releases */}
-    {comingSoonConfigs.length > 0 && (
+    {upcomingConfigs.length > 0 && (
       <section class="flex flex-col gap-10">
         <div class="card rounded-2xl p-6">
           <h2 class="text-2xl font-medium text-cream-100">Upcoming Releases</h2>
         </div>
 
-        {comingSoonConfigs.map((config) => (
+        {upcomingConfigs.map((config) => (
           <article class="flex flex-col gap-8">
             {config.vinylArtwork && (
-              <div class="card w-full">
+              <div class="card vinyl-card w-full">
                 <a href={`/tender_circuits/releases/${config.slug}`} class="block">
                   <img
                     src={config.vinylArtwork}
                     alt={`${config.title} album artwork`}
-                    class="velvet-artwork-frame w-full h-auto"
+                    class="vinyl-artwork w-full h-auto"
                   />
                 </a>
               </div>
@@ -221,9 +231,16 @@ const releases = await Promise.all(
               <div class="flex flex-col gap-6 p-8">
                 <div class="flex items-center gap-3 text-sm">
                   <span class="text-warmGray-500">{config.catalogNumber}</span>
-                  <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
-                    Coming Soon
-                  </span>
+                  {config.comingSoon && (
+                    <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
+                      Coming Soon
+                    </span>
+                  )}
+                  {config.preRelease && (
+                    <span class="text-xs uppercase tracking-[0.3em] text-violet-300 bg-violet-900/30 px-3 py-1 rounded-full">
+                      Pre-Release
+                    </span>
+                  )}
                 </div>
 
                 <div class="flex flex-col gap-2">
@@ -233,14 +250,26 @@ const releases = await Promise.all(
                   <p class="text-xl text-cream-200">by {config.artistName}</p>
                 </div>
 
-                <p class="text-warmGray-400 leading-relaxed max-w-3xl">
-                  {config.description}
-                </p>
+                {config.description && (
+                  <p class="text-warmGray-400 leading-relaxed max-w-3xl">
+                    {config.description}
+                  </p>
+                )}
 
-                <div class="text-sm text-warmGray-400">
-                  {config.genres.join(" / ")}
-                  {" • " + config.style}
-                </div>
+                {(config.genres.length > 0 || config.style) && (
+                  <div class="flex flex-wrap gap-2">
+                    {config.genres.map((genre) => (
+                      <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                        {genre}
+                      </span>
+                    ))}
+                    {config.style && (
+                      <span class="text-xs px-3 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/50">
+                        {config.style}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div class="flex items-center gap-4 pt-4">
                   <a

@@ -1,0 +1,274 @@
+---
+import LabelLayout from "../../layouts/LabelLayout.astro";
+import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
+import { getReleaseBySlug } from "../../data/releases";
+
+const releaseConfig = getReleaseBySlug('high-visibility-sweatsuit');
+
+if (!releaseConfig) {
+  throw new Error('Release not found in catalog');
+}
+
+// Try to fetch Spotify data if available
+let spotifyData: any = null;
+if (releaseConfig.spotifyAlbumId) {
+  const spotifyAlbum = await fetchSpotifyAlbum(releaseConfig.spotifyAlbumId);
+  if (spotifyAlbum) {
+    spotifyData = transformSpotifyAlbumToRelease(spotifyAlbum);
+  }
+}
+
+const title = spotifyData?.title || releaseConfig.title || 'High Visibility Sweatsuit';
+const artist = spotifyData?.artist || releaseConfig.artistName;
+const artwork = spotifyData?.artwork;
+const tracklist = spotifyData?.tracklist || [];
+const duration = spotifyData?.duration;
+const releaseDate = spotifyData?.releaseDate;
+const spotifyUrl = spotifyData?.spotifyUrl;
+---
+
+<LabelLayout
+  title={`${title} - ${artist}`}
+  description={`${title} by ${artist} on Tender Circuits.`}
+>
+  <section class="flex flex-col gap-16">
+    {/* Navigation and Release Header */}
+    <div class="card rounded-2xl p-8">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-2 text-sm text-slate-400">
+          <a
+            href="/tender_circuits/releases"
+            class="hover:text-slate-300 transition-colors">Releases</a
+          >
+          <span>/</span>
+          <span>{title}</span>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <span
+            class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full"
+          >
+            {releaseConfig.catalogNumber}
+          </span>
+          <span
+            class="text-xs uppercase tracking-[0.3em] text-violet-300 bg-violet-900/30 px-3 py-1 rounded-full"
+          >
+            Pre-Release
+          </span>
+          {releaseDate && (
+            <span class="text-xs text-slate-400 font-mono">
+              {releaseDate}
+            </span>
+          )}
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h1 class="text-4xl font-bold text-white tracking-tight">
+            {title}
+          </h1>
+          <div class="flex items-center gap-2">
+            <span class="text-xl text-slate-300">by</span>
+            <a
+              href={`/tender_circuits/artists/${releaseConfig.artistSlug}`}
+              class="text-xl text-emerald-300 hover:text-emerald-200 transition-colors font-medium"
+            >
+              {artist}
+            </a>
+          </div>
+        </div>
+
+        {releaseConfig.description && (
+          <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
+            {releaseConfig.description}
+          </p>
+        )}
+
+        {/* Genres and Tags */}
+        {(releaseConfig.genres.length > 0 || releaseConfig.style) && (
+          <div class="flex flex-wrap gap-2">
+            {
+              releaseConfig.genres.map((genre) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  {genre}
+                </span>
+              ))
+            }
+            {releaseConfig.style && (
+              <span
+                class="text-xs px-3 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-600/50"
+              >
+                {releaseConfig.style}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-12">
+
+      {/* Album Artwork */}
+      {artwork && (
+        <div class="card rounded-2xl overflow-hidden max-w-2xl">
+          <img
+            src={artwork}
+            alt={`${title} album artwork`}
+            class="velvet-artwork-frame w-full h-auto"
+          />
+        </div>
+      )}
+
+      {/* Release Info */}
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="card rounded-2xl p-6">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]"
+            >
+              Release Information
+            </h3>
+            <div class="grid gap-3">
+              {duration && (
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Duration:</span>
+                  <span class="text-slate-300 font-mono">{duration}</span>
+                </div>
+              )}
+              <div class="flex justify-between">
+                <span class="text-slate-500">Format:</span>
+                <span class="text-slate-300">Digital</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Catalog:</span>
+                <span class="text-slate-300 font-mono"
+                  >{releaseConfig.catalogNumber}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Status:</span>
+                <span class="text-violet-300">Pre-Release</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rounded-2xl p-6">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]"
+            >
+              Availability
+            </h3>
+            <div class="flex flex-col gap-3 items-center justify-center py-4">
+              {spotifyUrl ? (
+                <a
+                  href={spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-full rounded-lg bg-emerald-900/30 border border-emerald-800/50 py-3 px-4 text-emerald-300 hover:bg-emerald-900/50 hover:text-emerald-200 transition-all duration-200 font-medium text-center flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                  </svg>
+                  Listen on Spotify
+                </a>
+              ) : (
+                <>
+                  <span class="text-violet-300 text-sm font-medium">Pre-Release</span>
+                  <p class="text-slate-400 text-sm text-center">
+                    This release will be available on all major streaming platforms.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Track Listing */}
+    {tracklist.length > 0 && (
+      <section class="card rounded-2xl p-8">
+        <div class="flex flex-col gap-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-white">Tracklist</h2>
+            {duration && (
+              <span class="text-xs text-slate-500 font-mono">
+                {duration}
+              </span>
+            )}
+          </div>
+
+          <div class="grid gap-1">
+            {
+              tracklist.map((track, index) => (
+                <div class="flex items-center gap-4 py-3 px-3 rounded-lg hover:bg-slate-800/50 transition-colors group">
+                  <span class="text-xs text-slate-500 font-mono w-8 text-right">
+                    {(index + 1).toString().padStart(2, "0")}
+                  </span>
+                  <span class="text-slate-300 flex-1 group-hover:text-white transition-colors">
+                    {track.title}
+                  </span>
+                  <span class="text-xs text-slate-500 font-mono">
+                    {track.duration}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* Credits */}
+    <section class="card rounded-2xl p-8">
+      <div class="flex flex-col gap-6">
+        <h2 class="text-xl font-semibold text-white">Credits</h2>
+
+        <div class="grid gap-3">
+          {
+            Object.entries(releaseConfig.credits).map(([role, credit]) => (
+              <div class="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span class="text-slate-500 text-sm">{role}:</span>
+                <span class="text-slate-300">{credit}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* Related */}
+    <section class="flex flex-col gap-10">
+      <div class="card rounded-2xl p-6">
+        <h2 class="text-xl font-semibold text-white">More from {artist}</h2>
+      </div>
+
+      <div class="card rounded-2xl p-8">
+        <div class="flex flex-col gap-4 text-center">
+          <div class="flex items-center gap-4 justify-center pt-2">
+            <a
+              class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+              href={`/tender_circuits/artists/${releaseConfig.artistSlug}`}
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              <span>View Artist Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</LabelLayout>

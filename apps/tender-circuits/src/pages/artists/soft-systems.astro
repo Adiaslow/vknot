@@ -1,11 +1,12 @@
 ---
 import LabelLayout from "../../layouts/LabelLayout.astro";
+import { getArtistGenres } from "../../data/releases";
 
 const artist = {
   name: "Soft Systems",
   description:
     "Soft Systems is the solo ambient and post-minimalist project of Addie, released through Tender Circuits. The music is built with uncommon structural precision but experienced as something closer to weather than architecture \u2014 dense with detail that rewards attention but never demands it. When not composing, Addie works as a computational researcher specializing in biomolecular engineering and biophysics.",
-  genres: ["Ambient", "Experimental", "Post-Minimalist"],
+  genres: getArtistGenres('soft-systems'),
   location: "California",
   releases: [
     {
@@ -13,7 +14,6 @@ const artist = {
       year: 2025,
       catalogNumber: "TC001",
       slug: "life-is-fragile",
-      comingSoon: false,
     },
     {
       title: "Slow Light",

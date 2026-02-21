@@ -1,0 +1,126 @@
+---
+import LabelLayout from "../../layouts/LabelLayout.astro";
+import { getArtistGenres, getReleasesByArtist } from "../../data/releases";
+
+const artistReleases = getReleasesByArtist('tony');
+
+const artist = {
+  name: "Tony",
+  description: "",
+  genres: getArtistGenres('tony'),
+  location: "",
+  releases: artistReleases.map((r) => ({
+    title: r.title || r.slug,
+    year: 2025,
+    catalogNumber: r.catalogNumber,
+    slug: r.slug,
+    comingSoon: r.comingSoon || false,
+    preRelease: r.preRelease || false,
+  })),
+};
+---
+
+<LabelLayout
+  title={`${artist.name} - Artist`}
+  description={`${artist.name} on Tender Circuits.`}
+>
+  <section class="flex flex-col gap-16">
+    {/* Artist Header */}
+    <div class="card rounded-2xl p-8">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-2 text-sm text-slate-400">
+          <a
+            href="/tender_circuits/artists"
+            class="hover:text-slate-300 transition-colors">Artists</a
+          >
+          <span>/</span>
+          <span>{artist.name}</span>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <h1 class="text-4xl font-bold text-white tracking-tight">
+            {artist.name}
+          </h1>
+        </div>
+
+        {artist.description && (
+          <p class="text-lg text-slate-300 leading-relaxed max-w-4xl">
+            {artist.description}
+          </p>
+        )}
+
+        {artist.genres.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {
+              artist.genres.map((genre) => (
+                <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  {genre}
+                </span>
+              ))
+            }
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Releases */}
+    <section class="flex flex-col gap-12">
+      <div class="card rounded-2xl p-6">
+        <h2 class="text-2xl font-semibold text-white">
+          Releases on Tender Circuits
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-6">
+        {
+          artist.releases.map((release) => (
+            <article class="card group rounded-2xl p-6">
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs uppercase tracking-[0.3em] text-emerald-300 bg-emerald-900/30 px-3 py-1 rounded-full">
+                    {release.catalogNumber}
+                  </span>
+                  <span class="text-xs text-slate-400 font-mono">
+                    {release.year}
+                  </span>
+                  {release.comingSoon && (
+                    <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
+                      Coming Soon
+                    </span>
+                  )}
+                  {release.preRelease && (
+                    <span class="text-xs uppercase tracking-[0.3em] text-violet-300 bg-violet-900/30 px-3 py-1 rounded-full">
+                      Pre-Release
+                    </span>
+                  )}
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-xl font-bold text-white group-hover:text-emerald-100 transition-colors">
+                    {release.title}
+                  </h3>
+                </div>
+
+                <div class="flex items-center gap-4 pt-2">
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                    href={`/tender_circuits/releases/${release.slug}`}
+                  >
+                    <span>{release.comingSoon || release.preRelease ? "View" : "Listen"}</span>
+                  </a>
+
+                  <a
+                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-300 transition-colors"
+                    href="/tender_circuits/releases"
+                  >
+                    <span>View Discography</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </section>
+</LabelLayout>

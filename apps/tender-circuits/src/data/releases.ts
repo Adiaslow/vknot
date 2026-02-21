@@ -26,6 +26,10 @@ export interface Release {
   subgenres: string[];
   style: string;
 
+  // Coming soon releases without Spotify data
+  comingSoon?: boolean;
+  title?: string;
+
   // Artwork
   vinylArtwork?: string; // Optional custom vinyl cover artwork with transparency
 
@@ -48,10 +52,10 @@ export const releases: Release[] = [
     artistSlug: 'soft-systems',
 
     description:
-      'A contemplative exploration of transient beauty through processed field recordings and generative synthesis. Life Is Fragile examines the delicate balance between structure and dissolution, using algorithmic composition and environmental sound to create an immersive meditation on impermanence.',
+      'The debut from Soft Systems. Seven tracks in fifteen minutes, rooted in a life that began in the sharp hum of a NICU and has been softening toward the world ever since. Everything arrives at once \u2014 warm tones that fill the room and stay, sudden bright ruptures that offer no warning and no explanation. Between the jaggedness, gentleness. Between the overwhelm, grace. The album sits inside the too-muchness of things and settles where it can, finding love and peace in the spaces a lifelong sharpness leaves behind.',
 
-    genres: ['Electronic', 'Ambient', 'Avant Garde'],
-    subgenres: ['Lower-case Music'],
+    genres: ['Ambient', 'Experimental'],
+    subgenres: [],
     style: 'Instrumental',
 
     vinylArtwork: '/tender_circuits/images/releases/Life is Fragile - Website.png',
@@ -68,7 +72,35 @@ export const releases: Release[] = [
       'Recorded using generative Max/MSP patches, field recordings captured with handheld devices, and processed through custom granular synthesis tools. All sounds sourced from environmental recordings made between 2024-2025.',
   },
 
-  // Future releases: just add a new object here following the same structure
+  {
+    slug: 'slow-light',
+    catalogNumber: 'TC003',
+    spotifyAlbumId: '',
+
+    artistName: 'Soft Systems',
+    artistSlug: 'soft-systems',
+
+    comingSoon: true,
+    title: 'Slow Light',
+
+    description:
+      'The second Soft Systems album begins where the first settled \u2014 but deeper, and with more room to breathe. Everything sunken a little lower. Piano and analog synthesizer move through long stretches of near-silence. What was frenetic has become patient. What was sharp has worn smooth. The album doesn\u2019t reach for the listener \u2014 it trusts you to come to it. Less a record about survival, more about choice.',
+
+    genres: ['Ambient', 'Post-Minimalist'],
+    subgenres: [],
+    style: 'Instrumental',
+
+    vinylArtwork: '/tender_circuits/images/releases/Slow Light - Website.png',
+
+    credits: {
+      'Composed & Produced': 'Soft Systems',
+      'Mastered': 'Soft Systems',
+      'Artwork': 'Tender Circuits',
+      'Label': 'Tender Circuits',
+    },
+
+    notes: '',
+  },
 ];
 
 /**

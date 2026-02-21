@@ -5,9 +5,12 @@ const artists = [
   {
     name: "Soft Systems",
     description:
-      "Ambient electronic compositions exploring texture and space through algorithmic processes and field recordings.",
-    genres: ["Electronic", "Ambient", "Experimental"],
-    releases: ["Life Is Fragile"],
+      "The solo ambient and post-minimalist project of Addie. Music built with uncommon structural precision but experienced as something closer to weather than architecture.",
+    genres: ["Ambient", "Experimental", "Post-Minimalist"],
+    releases: [
+      { title: "Life Is Fragile", comingSoon: false },
+      { title: "Slow Light", comingSoon: true },
+    ],
     slug: "soft-systems",
     featured: true,
   },
@@ -66,7 +69,10 @@ const artists = [
                   {artist.releases.map((release) => (
                     <div class="flex items-center gap-2">
                       <div class="w-1 h-1 rounded-full bg-warmGray-500" />
-                      <span class="text-cream-200 font-medium">{release}</span>
+                      <span class="text-cream-200 font-medium">{release.title}</span>
+                      {release.comingSoon && (
+                        <span class="text-xs text-amber-300">Coming Soon</span>
+                      )}
                     </div>
                   ))}
                 </div>

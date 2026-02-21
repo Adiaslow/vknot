@@ -3,9 +3,13 @@ import LabelLayout from "../../layouts/LabelLayout.astro";
 import { fetchSpotifyAlbum, transformSpotifyAlbumToRelease } from "../../utils/spotify";
 import { releases as releaseConfigs } from "../../data/releases";
 
-// Fetch Spotify data for all releases
+// Split releases into published (with Spotify data) and coming soon
+const publishedConfigs = releaseConfigs.filter(c => !c.comingSoon);
+const comingSoonConfigs = releaseConfigs.filter(c => c.comingSoon);
+
+// Fetch Spotify data for published releases only
 const releases = await Promise.all(
-  releaseConfigs.map(async (config) => {
+  publishedConfigs.map(async (config) => {
     const spotifyAlbum = await fetchSpotifyAlbum(config.spotifyAlbumId);
 
     if (!spotifyAlbum) {
@@ -192,21 +196,73 @@ const releases = await Promise.all(
       }
     </div>
 
-    {/* Future Releases Section */}
-    <section class="card rounded-2xl p-8">
-      <div class="flex flex-col gap-4 text-center">
-        <h2 class="text-2xl font-medium text-cream-100">Upcoming Releases</h2>
-        <p class="text-warmGray-400 leading-relaxed max-w-2xl mx-auto">
-          More ambient and experimental releases are in development. Follow the
-          label for announcements and previews.
-        </p>
-        <div class="pt-2">
-          <span class="text-sm text-warmGray-500">
-            More coming soon
-          </span>
+    {/* Upcoming Releases */}
+    {comingSoonConfigs.length > 0 && (
+      <section class="flex flex-col gap-10">
+        <div class="card rounded-2xl p-6">
+          <h2 class="text-2xl font-medium text-cream-100">Upcoming Releases</h2>
         </div>
-      </div>
-    </section>
+
+        {comingSoonConfigs.map((config) => (
+          <article class="flex flex-col gap-8">
+            {config.vinylArtwork && (
+              <div class="card w-full">
+                <a href={`/tender_circuits/releases/${config.slug}`} class="block">
+                  <img
+                    src={config.vinylArtwork}
+                    alt={`${config.title} album artwork`}
+                    class="velvet-artwork-frame w-full h-auto"
+                  />
+                </a>
+              </div>
+            )}
+
+            <div class="card group rounded-2xl overflow-hidden w-full">
+              <div class="flex flex-col gap-6 p-8">
+                <div class="flex items-center gap-3 text-sm">
+                  <span class="text-warmGray-500">{config.catalogNumber}</span>
+                  <span class="text-xs uppercase tracking-[0.3em] text-amber-300 bg-amber-900/30 px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <h3 class="text-3xl font-medium text-cream-100 group-hover:text-cream-50 transition-colors">
+                    {config.title}
+                  </h3>
+                  <p class="text-xl text-cream-200">by {config.artistName}</p>
+                </div>
+
+                <p class="text-warmGray-400 leading-relaxed max-w-3xl">
+                  {config.description}
+                </p>
+
+                <div class="text-sm text-warmGray-400">
+                  {config.genres.join(" / ")}
+                  {" • " + config.style}
+                </div>
+
+                <div class="flex items-center gap-4 pt-4">
+                  <a
+                    class="text-sm font-medium text-terracotta-500 hover:text-terracotta-400 transition-colors"
+                    href={`/tender_circuits/releases/${config.slug}`}
+                  >
+                    View Release
+                  </a>
+                  <span class="text-warmGray-500">•</span>
+                  <a
+                    class="text-sm font-medium text-warmGray-400 hover:text-cream-200 transition-colors"
+                    href={`/tender_circuits/artists/${config.artistSlug}`}
+                  >
+                    Artist Profile
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </section>
+    )}
   </section>
 </LabelLayout>
 

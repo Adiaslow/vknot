@@ -3,9 +3,12 @@
  * Tracklist with a per-song Spotify player.
  *
  * Spotify removed `preview_url` from the Web API, so a custom audio player has
- * no source to play. Instead we embed Spotify's official per-track iframe
- * (keyed on the Spotify track id), which reliably plays a preview — or the full
- * song for listeners signed into Spotify.
+ * no source to play. Instead we embed Spotify's official per-track player.
+ *
+ * Players are created through the Spotify IFrame API (rather than plain
+ * <iframe> embeds) so we can coordinate playback: starting one track pauses
+ * any other that's currently playing. Each track renders a placeholder element
+ * that the API replaces with the player.
  *
  * Renders the "Tracklist" header + a row per track. No outer card wrapper, so
  * callers can place it inside their own card/section.
@@ -40,15 +43,11 @@ const { tracks, totalDuration } = Astro.props;
         </span>
         {track.id ? (
           <div class="spotify-embed flex-1 overflow-hidden rounded-xl">
-            <iframe
-              src={`https://open.spotify.com/embed/track/${track.id}?utm_source=generator`}
-              width="100%"
-              height="80"
-              frameborder="0"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              title={`${track.title} — Spotify player`}
-            ></iframe>
+            <div
+              data-spotify-embed
+              data-spotify-uri={`spotify:track:${track.id}`}
+              data-spotify-title={track.title}
+            ></div>
           </div>
         ) : (
           <div class="flex flex-1 items-center justify-between py-3 px-3 rounded-lg hover:bg-slate-800/50 transition-colors">
@@ -65,9 +64,70 @@ const { tracks, totalDuration } = Astro.props;
   /* Keep the embed flush with the site's rounded card language */
   .spotify-embed {
     line-height: 0;
+    min-height: 80px;
   }
-  .spotify-embed iframe {
+  .spotify-embed :global(iframe) {
     display: block;
     border-radius: 0.75rem;
   }
 </style>
+
+<script>
+  // Drive the per-track players through Spotify's IFrame API so that starting
+  // one track pauses whichever other track is currently playing. This script is
+  // hoisted by Astro and runs once per page, coordinating every embed on it.
+  function initSpotifyTracklist() {
+    const placeholders = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-spotify-embed]"),
+    );
+    if (placeholders.length === 0) return;
+
+    const controllers: any[] = [];
+    const isPausedByController = new WeakMap<any, boolean>();
+
+    window.onSpotifyIframeApiReady = (IFrameAPI: any) => {
+      placeholders.forEach((el) => {
+        const uri = el.getAttribute("data-spotify-uri");
+        if (!uri) return;
+
+        IFrameAPI.createController(
+          el,
+          { uri, width: "100%", height: 80 },
+          (controller: any) => {
+            controllers.push(controller);
+            isPausedByController.set(controller, true);
+
+            controller.addListener("playback_update", (e: any) => {
+              const isPaused = Boolean(e.data.isPaused);
+              const wasPaused = isPausedByController.get(controller);
+              isPausedByController.set(controller, isPaused);
+
+              // Transitioned from paused -> playing: stop the others.
+              if (wasPaused && !isPaused) {
+                controllers.forEach((other) => {
+                  if (
+                    other !== controller &&
+                    isPausedByController.get(other) === false
+                  ) {
+                    other.pause();
+                  }
+                });
+              }
+            });
+          },
+        );
+      });
+    };
+
+    // Load the IFrame API once.
+    const SRC = "https://open.spotify.com/embed/iframe-api/v1";
+    if (!document.querySelector(`script[src="${SRC}"]`)) {
+      const s = document.createElement("script");
+      s.src = SRC;
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }
+
+  initSpotifyTracklist();
+</script>

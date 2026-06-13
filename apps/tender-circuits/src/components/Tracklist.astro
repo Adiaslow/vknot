@@ -1,0 +1,73 @@
+---
+/**
+ * Tracklist with a per-song Spotify player.
+ *
+ * Spotify removed `preview_url` from the Web API, so a custom audio player has
+ * no source to play. Instead we embed Spotify's official per-track iframe
+ * (keyed on the Spotify track id), which reliably plays a preview — or the full
+ * song for listeners signed into Spotify.
+ *
+ * Renders the "Tracklist" header + a row per track. No outer card wrapper, so
+ * callers can place it inside their own card/section.
+ */
+interface Track {
+  id?: string;
+  title: string;
+  duration: string;
+}
+
+interface Props {
+  tracks: Track[];
+  totalDuration?: string | null;
+}
+
+const { tracks, totalDuration } = Astro.props;
+---
+
+<div class="flex flex-col gap-6">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-semibold text-white">Tracklist</h2>
+    {totalDuration && (
+      <span class="text-xs text-slate-500 font-mono">{totalDuration}</span>
+    )}
+  </div>
+
+  <div class="flex flex-col gap-3">
+    {tracks.map((track, index) => (
+      <div class="flex items-center gap-3 sm:gap-4">
+        <span class="text-xs text-slate-500 font-mono w-6 text-right shrink-0">
+          {(index + 1).toString().padStart(2, "0")}
+        </span>
+        {track.id ? (
+          <div class="spotify-embed flex-1 overflow-hidden rounded-xl">
+            <iframe
+              src={`https://open.spotify.com/embed/track/${track.id}?utm_source=generator`}
+              width="100%"
+              height="80"
+              frameborder="0"
+              loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              title={`${track.title} — Spotify player`}
+            ></iframe>
+          </div>
+        ) : (
+          <div class="flex flex-1 items-center justify-between py-3 px-3 rounded-lg hover:bg-slate-800/50 transition-colors">
+            <span class="text-slate-300">{track.title}</span>
+            <span class="text-xs text-slate-500 font-mono">{track.duration}</span>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* Keep the embed flush with the site's rounded card language */
+  .spotify-embed {
+    line-height: 0;
+  }
+  .spotify-embed iframe {
+    display: block;
+    border-radius: 0.75rem;
+  }
+</style>

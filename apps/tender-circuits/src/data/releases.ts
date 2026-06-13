@@ -31,6 +31,12 @@ export interface Release {
   preRelease?: boolean;
   title?: string;
 
+  // Optional year for listings that don't fetch Spotify (e.g. artist pages)
+  year?: number;
+
+  // Visibility: set to hide this release everywhere on the site without removing it
+  hidden?: boolean;
+
   // Artwork
   vinylArtwork?: string; // Optional custom vinyl cover artwork with transparency
 
@@ -51,6 +57,9 @@ export const releases: Release[] = [
 
     artistName: 'Soft Systems',
     artistSlug: 'soft-systems',
+
+    year: 2025,
+    title: 'Life Is Fragile',
 
     description:
       'The debut from Soft Systems. Seven tracks in fifteen minutes, rooted in a life that began in the sharp hum of a NICU and has been softening toward the world ever since. Everything arrives at once \u2014 warm tones that fill the room and stay, sudden bright ruptures that offer no warning and no explanation. Between the jaggedness, gentleness. Between the overwhelm, grace. The album sits inside the too-muchness of things and settles where it can, finding love and peace in the spaces a lifelong sharpness leaves behind.',
@@ -82,6 +91,7 @@ export const releases: Release[] = [
     artistSlug: 'tony',
 
     preRelease: true,
+    hidden: true,
     title: 'High Visibility Sweatsuit',
 
     description: '',
@@ -102,12 +112,13 @@ export const releases: Release[] = [
   {
     slug: 'slow-light',
     catalogNumber: 'TC003',
-    spotifyAlbumId: '',
+    spotifyAlbumId: '5U5DpSql1A82wj32g7rKsV',
 
     artistName: 'Soft Systems',
     artistSlug: 'soft-systems',
 
-    comingSoon: true,
+    year: 2026,
+
     title: 'Slow Light',
 
     description:
@@ -142,6 +153,32 @@ export function getReleaseBySlug(slug: string): Release | undefined {
  */
 export function getReleasesByArtist(artistSlug: string): Release[] {
   return releases.filter(release => release.artistSlug === artistSlug);
+}
+
+/**
+ * All releases that should appear on the site (excludes hidden)
+ */
+export function getVisibleReleases(): Release[] {
+  return releases.filter(release => !release.hidden);
+}
+
+/**
+ * Visible releases by artist (excludes hidden) — for listings
+ */
+export function getVisibleReleasesByArtist(artistSlug: string): Release[] {
+  return getReleasesByArtist(artistSlug).filter(release => !release.hidden);
+}
+
+export type ReleaseStatus = 'published' | 'preRelease' | 'comingSoon';
+
+/**
+ * Single source of truth for a release's status, used to drive badges and
+ * conditional rendering across pages.
+ */
+export function getReleaseStatus(release: Release): ReleaseStatus {
+  if (release.preRelease) return 'preRelease';
+  if (release.comingSoon) return 'comingSoon';
+  return 'published';
 }
 
 /**

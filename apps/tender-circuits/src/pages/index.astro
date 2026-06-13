@@ -1,9 +1,9 @@
 ---
 import LabelLayout from "../layouts/LabelLayout.astro";
-import { releases as releaseConfigs } from "../data/releases";
+import { getVisibleReleases } from "../data/releases";
 
-// Get all releases for homepage display
-const allReleases = releaseConfigs.map((config) => ({
+// Get all visible releases for homepage display (hidden releases excluded)
+const allReleases = getVisibleReleases().map((config) => ({
   title: config.title || '',
   artistName: config.artistName,
   catalogNumber: config.catalogNumber,

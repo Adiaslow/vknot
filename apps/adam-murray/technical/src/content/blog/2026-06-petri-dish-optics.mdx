@@ -1,0 +1,126 @@
+---
+title: "Light at the Specimen Surface: Geometric Optics of Petri Dish Imaging"
+description: "A geometric optics framework for predicting and avoiding specular artifacts in routine biological photography, derived from first principles and illustrated through an interactive ray-tracing simulation of a layered petri dish system."
+date: 2026-06-14
+tags:
+  - optics
+  - imaging
+  - geometric-optics
+  - experimental-methods
+  - bioscience-methods
+draft: true
+---
+
+import PetriDishOpticsSimulator from '../../components/interactive/PetriDishOpticsSimulator.tsx';
+
+# Light at the Specimen Surface: Geometric Optics of Petri Dish Imaging
+
+## Abstract
+
+_TODO — to be drafted after the simulator is complete. Will summarize: the practical problem of specular artifacts in routine petri dish photography; the geometric optics framework developed here; the interactive ray-tracing simulation that accompanies the formal treatment; the practical implications for experimental imaging configurations; the cross-modality applicability of the same principles to other layered optical systems including cranial-window microscopy._
+
+## Interactive Demonstration
+
+_Adjust the geometry, lighting, and camera position below to explore how light interacts with the layered optical system of a petri dish. Toggling the liquid layer and lid on or off, and switching between overhead and directional illumination, reveals which configurations produce specular artifacts at the camera and which avoid them._
+
+<PetriDishOpticsSimulator client:load />
+
+## 1. Introduction
+
+### 1.1 Imaging Artifacts in Biological Photography
+
+_TODO — Motivates from the practical problem: routine biological photography of petri dishes (colony counting, antimicrobial assays, etc.) using consumer-grade cameras under typical laboratory lighting frequently produces images with bright reflective regions that do not correspond to biological features. These artifacts confound downstream image analysis pipelines (e.g., colony segmentation in FIJI). Frames the problem as deserving a principled treatment._
+
+### 1.2 The Cross-Domain Geometry of the Specimen Surface
+
+_TODO — Surfaces the observation that the same geometric optics governs cranial-window imaging in two-photon microscopy, slide-based pathology, microfluidic device photography, and petri dish imaging. The recurring structure — a curved liquid interface above an opaque or semi-transparent specimen, viewed through air or an additional transparent layer — appears across imaging modalities. The framework developed here applies to all of them._
+
+### 1.3 Contributions
+
+_TODO — Enumerates the article's contributions: (1) a closed-form treatment of the petri dish as a layered optical system, including the meniscus geometry derived from the Young-Laplace equation; (2) explicit analysis of the curved-surface specular problem; (3) an interactive raytracing simulation that traces real rays through the system with proper Snell's law refraction, Fresnel splitting, and Beer-Lambert attenuation; (4) a catalog of imaging configurations with their failure modes and remedies; (5) discussion of cross-modality applicability._
+
+## 2. The Layered Optical System
+
+### 2.1 Geometry of the Petri Dish, Agar, and Optional Liquid Layer
+
+_TODO — Establishes the cross-sectional geometry. Standard 100 mm × 15 mm polystyrene petri dish with 18 mL of MRS agar (depth ≈ 2.3 mm). Optional aqueous liquid layer on top of the agar (e.g., poured bacterial suspension). Optional lid with small air gap. Defines coordinate system and notation. Justifies the rotationally-symmetric cross-section as fully capturing the relevant geometry._
+
+### 2.2 Meniscus Formation and the Young-Laplace Equation
+
+_TODO — Derives the meniscus profile from the Young-Laplace equation balancing surface tension against gravity. Introduces the capillary length λ_c = √(γ/ρg) and shows that for water, λ_c ≈ 2.7 mm. Presents the exact wall-meniscus solution and justifies the cosh-based approximation used in the simulator. Treats both the agar surface (set in place when the agar solidified) and any liquid layer poured on top._
+
+### 2.3 Material Properties at the Wavelengths of Interest
+
+_TODO — Tabulates the refractive indices and absorption coefficients of each material in the system across the visible spectrum: air (n=1), polystyrene dish/lid (n≈1.59), agar gel (n≈1.33, mildly absorbing in the blue producing the amber color), aqueous mixtures (n≈1.33, nearly transparent). Notes the partially-specular nature of the agar surface (the gel is slightly opalescent) versus the strongly-specular nature of clear liquid interfaces. These material parameters are what the simulator uses._
+
+## 3. Reflection at Smooth and Curved Surfaces
+
+### 3.1 Specular and Diffuse Reflection: A Material Property Distinction
+
+_TODO — Defines specular reflection (directional, governed by the law of reflection) and diffuse reflection (Lambertian, scattered uniformly across the hemisphere). Frames real materials as a continuum, with most surfaces exhibiting some mix of both. Argues that the specular component is what generates imaging artifacts because it carries spatial information from sources that have nothing to do with the specimen._
+
+### 3.2 The Law of Reflection
+
+_TODO — States the law (angle of incidence equals angle of reflection, both measured from the surface normal). Brief derivation from Fermat's principle for completeness. Sets up notation: incoming direction d_in, surface normal n̂, reflected direction d_out = d_in − 2(d_in · n̂)n̂._
+
+### 3.3 The Curved-Surface Problem: Continuous Families of Mirror Orientations
+
+_TODO — The key conceptual move of the article. A curved surface is, locally, a family of flat mirrors at varying orientations. For any pair (light source, camera), there exists a continuous set of surface points whose local normals bisect the source-to-point and point-to-camera directions. This is the geometric reason that any non-zero meniscus magnitude guarantees specular paths between any overhead-ish light source and a directly-overhead camera. Quantifies this for the cosh meniscus model._
+
+<Remark>
+_TODO — Picture-level version: when a surface is curved, every angle is available somewhere on it. If light comes from many directions, some point on the curve will always be oriented to bounce it into the camera. The fix is to make either the light or the surface uniform in direction — directional lighting from one place, or a flat surface with one consistent normal._
+</Remark>
+
+## 4. Refraction and the Fresnel Split
+
+### 4.1 Snell's Law at Planar and Curved Interfaces
+
+_TODO — Snell's law in vector form, applied to planar interfaces (lid, dish bottom) and curved interfaces (meniscus). Worked Example showing how a ray traveling from air into the liquid layer bends toward the normal, and the subsequent refraction at the agar interface._
+
+### 4.2 Total Internal Reflection
+
+_TODO — Derives the critical angle from Snell's law for the limit case n₁ sin θ₁ = n₂ × 1. Shows that for the air-liquid interface, the critical angle from below is around 49°. Notes that this matters for light trapped between the lid and the liquid surface, where multiple bounces can occur before light escapes._
+
+### 4.3 The Fresnel Equations: Energy Partition at an Interface
+
+_TODO — States the Fresnel equations for s-polarized and p-polarized light, including Brewster's angle where the p-component goes to zero. Discusses the averaging convention for unpolarized light. Plots reflection coefficient vs. incidence angle for the air-liquid interface to make the angle dependence visible. This is what the simulator uses to compute how much energy reflects vs. transmits at each interaction._
+
+### 4.4 Beer-Lambert Attenuation Through Absorbing Media
+
+_TODO — States the Beer-Lambert law I(d) = I₀ exp(−αd) for intensity decay through an absorbing medium of absorption coefficient α and path length d. Tabulates approximate α values for MRS agar at R, G, B wavelengths. Notes that this is what gives the agar its amber color: blue is preferentially absorbed, leaving the transmitted light yellow-amber._
+
+## 5. Imaging Configurations
+
+### 5.1 The Overhead-Lighting Failure Mode
+
+_TODO — Applies the curved-surface argument of §3.3 to a typical room-lighting configuration. Quantitative analysis: shows that for any non-zero meniscus magnitude, there exists a continuous set of surface points contributing specular paths to a directly-overhead camera. Recommends turning the simulator to "overhead lighting only, liquid layer on" to see the result._
+
+### 5.2 Directional Off-Axis Illumination
+
+_TODO — The geometric solution. For a single point source at angle θ above the horizon, on the same side as the camera (camera directly above), the surface normal required to specularly bisect the path is at angle (θ+φ)/2 from vertical. By choosing θ appropriately, this required normal is outside the range that any point on the near-horizontal agar/liquid surface presents. Practical recommendations: lamp at 30°–45° above the table, with the room lights off._
+
+### 5.3 Flattening the Surface: Cover Slips and Spread Plates
+
+_TODO — The Peichao reframe. Rather than redirecting the light, flatten the surface so its normals are all parallel. Two implementations: an optical cover slip (used in cranial-window imaging, slide microscopy) and a methodological one (the spread plate technique, where bacterial suspension is absorbed into the agar rather than left as a curved liquid layer on top). Both collapse the family of normal orientations to a single direction._
+
+### 5.4 Polarization-Based Specular Suppression
+
+_TODO — Brewster's angle and partial polarization of specular reflections from dielectric surfaces. A linear polarizer oriented orthogonally to the reflected light suppresses specular highlights while leaving diffuse scattering largely intact. Practical implementation with phone-camera polarizing filters._
+
+### 5.5 Imaging from Below
+
+_TODO — Inversion of the imaging geometry. The dish bottom is the flattest available surface; backlit imaging through it bypasses most of the curved-interface problems entirely. This is the technique used by clinical colony counters and many automated imaging systems._
+
+## 6. Discussion
+
+### 6.1 Cross-Modality Applications
+
+_TODO — Returns explicitly to the cranial-window example (motivating discussion with P. Li at UC Davis), and gives additional instances: slide microscopy through cover slips, photography of art behind varnish, satellite imaging through the atmosphere, fluorescence microscopy of cells in aqueous media. Each is the same geometric problem in a different physical setting._
+
+### 6.2 Limitations of the Geometric Optics Framework
+
+_TODO — What this treatment ignores: diffraction effects at features comparable to or smaller than the wavelength of light (relevant for high-resolution microscopy but not for macroscopic petri-dish imaging); Mie scattering by particulate matter (relevant for densely-cultured plates); birefringence and polarization rotation by structured biological materials; quantum-mechanical phenomena (irrelevant at this scale). Notes that for the macroscopic imaging problem treated here, the geometric optics framework is adequate._
+
+## References
+
+_TODO — Hecht, Optics (5th ed); Born & Wolf, Principles of Optics (7th ed); de Gennes, Brochard-Wyart & Quéré, Capillarity and Wetting Phenomena (for the Young-Laplace derivation); Fisher Scientific Lactobacilli MRS Agar specification sheet; personal communication with P. Li (Zhejiang University / Kim Lab, UCSC) regarding cover-slip optics in cranial-window imaging._

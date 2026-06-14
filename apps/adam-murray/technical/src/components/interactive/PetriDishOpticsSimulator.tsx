@@ -19,8 +19,8 @@ const LID_THICKNESS = 1;
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
 const CANVAS_HEIGHT = 420;
-const PX_PER_MM = 6;
-const WORLD_X_MIN = -65;
+const PX_PER_MM = 4;
+const WORLD_X_MIN = -90;
 const WORLD_Y_MIN = -4;
 
 // World-to-canvas transforms. World x is horizontal, world y is vertical
@@ -73,7 +73,7 @@ export default function PetriDishOpticsSimulator() {
   const [liquidMeniscus, setLiquidMeniscus] = useState(0.5); // mm at wall
 
   // Camera and lights (placeholders for next step)
-  const [cameraHeight, setCameraHeight] = useState(35); // mm above dish bottom
+  const [cameraHeight, setCameraHeight] = useState(70); // mm above dish bottom
   const [lampAngle1, setLampAngle1] = useState(30); // degrees from vertical
   const [lampAngle2, setLampAngle2] = useState(-30); // degrees from vertical
 
@@ -204,8 +204,8 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillText('camera', camPx + 10, camPy + 4);
 
     // ── light source markers ─────────────────────────────────────
-    const lightY = 38;
-    const overheadXs = [-50, -25, 0, 25, 50];
+    const lightY = 95;
+    const overheadXs = [-70, -35, 0, 35, 70];
     if (overheadOn) {
       ctx.fillStyle = 'rgba(220, 180, 60, 0.85)';
       for (const lx of overheadXs) {
@@ -215,7 +215,7 @@ export default function PetriDishOpticsSimulator() {
       }
     }
     // Directional lamps: positioned by angle off-axis from above the dish
-    const lampDistance = 30;
+    const lampDistance = 60;
     if (lamp1On) {
       const lx = Math.sin((lampAngle1 * Math.PI) / 180) * lampDistance;
       const ly = Math.cos((lampAngle1 * Math.PI) / 180) * lampDistance + 8;
@@ -340,11 +340,11 @@ export default function PetriDishOpticsSimulator() {
         <Slider
           label="Camera height (mm)"
           value={cameraHeight}
-          min={20}
-          max={50}
+          min={40}
+          max={100}
           step={1}
           display={cameraHeight.toString()}
-          scale={['20', '50']}
+          scale={['40', '100']}
           onChange={setCameraHeight}
         />
         <Slider

@@ -1,4 +1,5 @@
 // Export all math components for easy importing
+export { default as Environment } from './Environment.astro';
 export { default as Theorem } from './Theorem.astro';
 export { default as Definition } from './Definition.astro';
 export { default as Proof } from './Proof.astro';

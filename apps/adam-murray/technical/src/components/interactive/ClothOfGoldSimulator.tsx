@@ -1,4 +1,17 @@
-import { useEffect, useRef, useState, useCallback, useMemo, useTransition } from 'react';
+import { useEffect, useRef, useState, useMemo, useTransition } from 'react';
+import {
+  useThemeTokens,
+  VizFigure,
+  VizSurface,
+  Slider,
+  Button,
+  StatCard,
+  Legend,
+} from './_viz';
+
+const PLAYER_B = '#ef4444'; // semantic: Player B
+const CONTESTED = 'rgba(250, 204, 21, 0.2)'; // semantic: contested territory
+const DEATH = '#a855f7'; // semantic: competitive death
 
 type CellState = 0 | 1 | 2; // 0 = empty, 1 = Player A, 2 = Player B
 type Grid = CellState[][];
@@ -21,11 +34,14 @@ export default function ClothOfGoldSimulator() {
   const lastFrameTimeRef = useRef<number>(0);
 
   // React 18 concurrent features for performance
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [gridVersion, setGridVersion] = useState(0);
 
   // Influence cache (useRef to avoid re-render cost on cache update)
   const influenceCacheRef = useRef<Map<string, { influenceA: number; influenceB: number }>>(new Map());
+
+  // Resolved design tokens — drive the canvas palette and re-render on theme toggle.
+  const tokens = useThemeTokens();
 
   // Create empty grid
   function createEmptyGrid(): Grid {
@@ -226,6 +242,9 @@ export default function ClothOfGoldSimulator() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Canvas can't consume CSS vars, so use the resolved tokens (Player A = brand accent).
+    const accent = tokens.accent;
+
     const width = GRID_SIZE * CELL_SIZE;
     const height = GRID_SIZE * CELL_SIZE;
 
@@ -239,13 +258,13 @@ export default function ClothOfGoldSimulator() {
 
         switch (territory) {
           case 'playerA':
-            ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; // blue
+            ctx.fillStyle = 'color-mix(in oklch, ' + accent + ' 15%, transparent)'; // accent
             break;
           case 'playerB':
             ctx.fillStyle = 'rgba(239, 68, 68, 0.15)'; // red
             break;
           case 'contested':
-            ctx.fillStyle = 'rgba(250, 204, 21, 0.2)'; // yellow
+            ctx.fillStyle = CONTESTED; // yellow
             break;
           default:
             ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // transparent
@@ -255,8 +274,8 @@ export default function ClothOfGoldSimulator() {
       }
     }
 
-    // Draw grid lines
-    ctx.strokeStyle = 'rgba(203, 213, 225, 0.3)';
+    // Draw grid lines (token hairline)
+    ctx.strokeStyle = tokens.rule;
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= GRID_SIZE; i++) {
@@ -277,7 +296,7 @@ export default function ClothOfGoldSimulator() {
         const cell = grid[i][j];
 
         if (cell === 1) {
-          ctx.fillStyle = '#3b82f6'; // blue - Player A
+          ctx.fillStyle = accent; // accent - Player A
           ctx.beginPath();
           ctx.arc(
             j * CELL_SIZE + CELL_SIZE / 2,
@@ -288,7 +307,7 @@ export default function ClothOfGoldSimulator() {
           );
           ctx.fill();
         } else if (cell === 2) {
-          ctx.fillStyle = '#ef4444'; // red - Player B
+          ctx.fillStyle = PLAYER_B; // red - Player B
           ctx.beginPath();
           ctx.arc(
             j * CELL_SIZE + CELL_SIZE / 2,
@@ -306,7 +325,7 @@ export default function ClothOfGoldSimulator() {
     for (const key of recentlyConverted) {
       const [i, j] = key.split(',').map(Number);
 
-      ctx.fillStyle = '#a855f7'; // purple
+      ctx.fillStyle = DEATH; // purple
       ctx.beginPath();
       ctx.arc(
         j * CELL_SIZE + CELL_SIZE / 2,
@@ -317,7 +336,7 @@ export default function ClothOfGoldSimulator() {
       );
       ctx.fill();
     }
-  }, [grid, recentlyConverted, gridVersion]); // Render when grid or cache updates
+  }, [grid, recentlyConverted, gridVersion, tokens]); // re-render on grid/cache/theme change
 
   // Animation loop
   useEffect(() => {
@@ -395,151 +414,95 @@ export default function ClothOfGoldSimulator() {
     return result;
   }, [gridVersion]); // Only recalculate when cache updates
 
+  const reset = (next: Grid) => {
+    setIsRunning(false);
+    setGrid(next);
+    setGeneration(0);
+    setRecentlyConverted(new Set());
+    lastFrameTimeRef.current = 0;
+  };
+
   return (
-    <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+    <VizFigure
+      footer={
+        <Legend
+          items={[
+            { color: tokens.accent, label: 'Player A — cells & territory' },
+            { color: PLAYER_B, label: 'Player B — cells & territory' },
+            { color: 'rgba(202,138,4,0.7)', label: 'Contested territory' },
+            { color: DEATH, label: 'Competitive death' },
+          ]}
+        />
+      }
+    >
       {/* Controls */}
-      <div className="flex flex-col gap-4 mb-6">
-        {/* Primary controls */}
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsRunning(!isRunning)}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-          >
-            {isRunning ? 'Pause' : 'Start'}
-          </button>
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <Button onClick={() => setIsRunning(!isRunning)}>{isRunning ? 'Pause' : 'Start'}</Button>
+        <Button variant="secondary" onClick={() => reset(createEmptyGrid())}>
+          Reset
+        </Button>
+        <div className="flex-1" />
+        <Button variant="ghost" onClick={() => reset(createEmptyGrid())}>
+          Empty
+        </Button>
+        <Button variant="ghost" onClick={() => reset(createRandomGrid())}>
+          Random
+        </Button>
+        <Button variant="ghost" onClick={() => reset(createSymmetricGrid())}>
+          Symmetric
+        </Button>
+      </div>
 
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setGrid(createEmptyGrid());
-              setGeneration(0);
-              setRecentlyConverted(new Set());
-              lastFrameTimeRef.current = 0;
-            }}
-            className="px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-lg transition-colors"
-          >
-            Reset
-          </button>
-
-          <div className="flex-1"></div>
-
-          {/* Preset buttons */}
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setGrid(createEmptyGrid());
-              setGeneration(0);
-              setRecentlyConverted(new Set());
-            }}
-            className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
-          >
-            Empty
-          </button>
-
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setGrid(createRandomGrid());
-              setGeneration(0);
-              setRecentlyConverted(new Set());
-            }}
-            className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
-          >
-            Random
-          </button>
-
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setGrid(createSymmetricGrid());
-              setGeneration(0);
-              setRecentlyConverted(new Set());
-            }}
-            className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
-          >
-            Symmetric
-          </button>
-        </div>
-
-        {/* Speed control */}
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[60px]">
-            Speed:
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="60"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-          />
-          <span className="text-sm font-mono text-slate-600 dark:text-slate-400 min-w-[80px]">
-            {speed} gen/sec
-          </span>
-        </div>
+      <div className="mb-6">
+        <Slider
+          label="Speed"
+          value={speed}
+          min={1}
+          max={60}
+          display={`${speed} gen/sec`}
+          onChange={setSpeed}
+        />
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Generation</div>
-          <div className="text-xl font-bold text-slate-900 dark:text-slate-100">{generation}</div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Player A</div>
-          <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{populations.playerA}</div>
-          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">Territory: {territory.playerA}</div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-300 dark:border-slate-600">
-          <div className="text-xs text-red-600 dark:text-red-400 mb-1">Player B</div>
-          <div className="text-xl font-bold text-red-600 dark:text-red-400">{populations.playerB}</div>
-          <div className="text-xs text-red-600 dark:text-red-400 mt-1">Territory: {territory.playerB}</div>
-        </div>
+        <StatCard label="Generation" value={generation} />
+        <StatCard
+          label="Player A"
+          tone="accent"
+          value={
+            <>
+              {populations.playerA}
+              <div className="viz-stat-sub">Territory {territory.playerA}</div>
+            </>
+          }
+        />
+        <StatCard
+          label="Player B"
+          valueColor={PLAYER_B}
+          value={
+            <>
+              {populations.playerB}
+              <div className="viz-stat-sub">Territory {territory.playerB}</div>
+            </>
+          }
+        />
       </div>
 
-      {/* Canvas */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm">
+      <VizSurface>
         <canvas
           ref={canvasRef}
           width={GRID_SIZE * CELL_SIZE}
           height={GRID_SIZE * CELL_SIZE}
           onClick={handleCanvasClick}
-          className="cursor-pointer mx-auto block"
-          style={{ imageRendering: 'pixelated' }}
+          style={{ imageRendering: 'pixelated', cursor: 'pointer' }}
         />
-
         {!isRunning && (
-          <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-3">
-            Click cells to cycle: Empty → Player A (blue) → Player B (red)
+          <p className="text-center text-sm mt-3" style={{ color: 'var(--muted)' }}>
+            Click cells to cycle: empty → Player A → Player B
           </p>
         )}
-      </div>
-
-      {/* Legend */}
-      <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
-        <p><strong>Territory colors (background):</strong></p>
-        <div className="flex gap-4 mt-2 flex-wrap">
-          <span className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}></span>
-            Player A territory
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)' }}></span>
-            Player B territory
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(250, 204, 21, 0.2)' }}></span>
-            Contested
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded bg-purple-500 opacity-70"></span>
-            Competitive death
-          </span>
-        </div>
-      </div>
-    </div>
+      </VizSurface>
+    </VizFigure>
   );
 }

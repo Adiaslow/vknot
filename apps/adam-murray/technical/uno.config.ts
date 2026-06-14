@@ -1,47 +1,48 @@
-import { defineConfig, presetUno, presetTypography } from 'unocss';
+import { defineConfig, presetUno } from 'unocss';
 
+/**
+ * UnoCSS theme is bound to the design tokens declared in
+ * src/styles/tokens.css (the single source of truth). Utilities such as
+ * `bg-surface`, `text-ink`, `border-rule`, `font-serif` resolve to the
+ * CSS variables, so they automatically follow the active theme
+ * (Paper / Ink) with no per-component `dark:` colour variants.
+ *
+ * Add a new colour ONCE in tokens.css, mirror its name here, and it is
+ * available as a utility everywhere.
+ */
 export default defineConfig({
+  // Long-form prose is hand-authored in src/styles/prose.css against the
+  // design tokens, so presetTypography() is intentionally NOT used — it would
+  // emit a second, gray-defaulted `.prose` system competing with the tokens.
   presets: [
-    presetUno(),
-    presetTypography(),
+    presetUno({ dark: 'class' }),
   ],
   content: {
     filesystem: [
       './src/**/*.{astro,html,md,mdx,svelte,vue,js,jsx,ts,tsx}',
-      '../../packages/ui/src/**/*.{ts,tsx,astro}'
-    ]
+      '../../packages/ui/src/**/*.{ts,tsx,astro}',
+    ],
   },
   theme: {
     colors: {
-      primary: {
-        50: '#f0f9ff',
-        500: '#0ea5e9',
-        600: '#0284c7',
-        700: '#0369a1',
-      }
-    }
+      paper:       'var(--paper)',
+      surface:     'var(--surface)',
+      'surface-2': 'var(--surface-2)',
+      ink:         'var(--ink)',
+      'ink-soft':  'var(--ink-soft)',
+      muted:       'var(--muted)',
+      faint:       'var(--faint)',
+      rule:        'var(--rule)',
+      'rule-strong': 'var(--rule-strong)',
+      accent:      'var(--accent)',
+      'accent-soft': 'var(--accent-soft)',
+      'accent-ink': 'var(--accent-ink)',
+    },
+    fontFamily: {
+      serif: 'var(--font-serif)',
+      mono:  'var(--font-mono)',
+    },
   },
-  safelist: [
-    // Math component colors
-    'border-blue-600', 'bg-blue-50', 'text-blue-900',
-    'border-amber-600', 'bg-amber-50', 'text-amber-900',
-    'border-emerald-600', 'bg-emerald-50', 'text-emerald-900',
-    'border-purple-600', 'bg-purple-50', 'text-purple-900',
-    'border-cyan-600', 'bg-cyan-50', 'text-cyan-900',
-    'border-teal-600', 'bg-teal-50', 'text-teal-900',
-    'border-rose-600', 'bg-rose-50', 'text-rose-900',
-    'border-orange-600', 'bg-orange-50', 'text-orange-900',
-    'border-slate-400', 'bg-slate-50', 'text-slate-700',
-    // Dark mode variants
-    'dark:bg-blue-950/20', 'dark:border-blue-500', 'dark:text-blue-100',
-    'dark:bg-amber-950/20', 'dark:border-amber-500', 'dark:text-amber-100',
-    'dark:bg-emerald-950/20', 'dark:border-emerald-500', 'dark:text-emerald-100',
-    'dark:bg-purple-950/20', 'dark:border-purple-500', 'dark:text-purple-100',
-    'dark:bg-cyan-950/20', 'dark:border-cyan-500', 'dark:text-cyan-100',
-    'dark:bg-teal-950/20', 'dark:border-teal-500', 'dark:text-teal-100',
-    'dark:bg-rose-950/20', 'dark:border-rose-500', 'dark:text-rose-100',
-    'dark:bg-orange-950/20', 'dark:border-orange-500', 'dark:text-orange-100',
-    'dark:bg-slate-900/20', 'dark:border-slate-600', 'dark:text-slate-300',
-  ]
+  // No colour safelist needed: math environments are styled in
+  // environments.css via hue tokens, not generated utility classes.
 });
-

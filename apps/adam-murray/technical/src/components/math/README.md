@@ -1,122 +1,58 @@
 # Mathematical Structure Components
 
-Styled components for academic mathematical writing in MDX blog posts.
+Styled callouts for academic mathematical writing in MDX blog posts.
+
+## Architecture
+
+Every callout is a thin wrapper over a single `Environment.astro` block:
+
+```
+Theorem.astro ─┐
+Definition.astro ┤
+Lemma.astro    ─┼─▶ Environment.astro (data-kind="…") ─▶ styles/environments.css
+…              ─┘
+```
+
+`Environment` renders one consistent layout (label · number · title · body)
+and sets `data-kind`. All visual styling lives in `src/styles/environments.css`,
+which is **token-driven**: the family shares one lightness/chroma and varies only
+the hue (`--h-theorem`, `--h-definition`, …) declared in `src/styles/tokens.css`.
+Because the colours resolve from CSS variables, the callouts follow the Paper /
+Ink theme automatically — there are no per-component `dark:` classes.
+
+To re-tint a kind, change its `--h-*` hue in `tokens.css`. To add a new kind, add
+a hue token, a thin wrapper here, and one `.env[data-kind="…"]` line.
 
 ## Available Components
 
-### Theorem
-
-Blue-styled component for theorems.
+`Theorem`, `Definition`, `Lemma`, `Corollary`, `Conjecture`, `Example`,
+`Assumption`, `Remark`, `Proof`.
 
 ```mdx
-import { Theorem } from "../../components/math";
+import { Theorem, Proof } from "../../components/math";
 
-<Theorem title="Theorem" number="2.1">
+<Theorem title="Decomposition" number="2.1">
   Parallel decomposition preserves at least as much information as any serial
   decomposition.
 </Theorem>
-```
-
-### Definition
-
-Amber-styled component for definitions.
-
-```mdx
-import { Definition } from "../../components/math";
-
-<Definition title="Definition" number="2.1">
-  A **serial hierarchy** processes information through a single intermediate
-  level.
-</Definition>
-```
-
-### Proof
-
-Gray-styled component for proofs (includes ∎ symbol at end).
-
-```mdx
-import { Proof } from "../../components/math";
 
 <Proof>
-  Let I(A; M) be the mutual information between atoms and molecular
-  properties...
+  Let I(A; M) be the mutual information between atoms and molecular properties…
 </Proof>
-```
-
-### Lemma
-
-Green-styled component for lemmas.
-
-```mdx
-import { Lemma } from "../../components/math";
-
-<Lemma title="Lemma" number="2.2">
-  The meet (intersection) of two partitions provides finer granularity.
-</Lemma>
-```
-
-### Corollary
-
-Cyan-styled component for corollaries.
-
-```mdx
-import { Corollary } from "../../components/math";
-
-<Corollary number="2.3">Direct consequence of Theorem 2.1...</Corollary>
-```
-
-### Remark
-
-Purple-styled component for remarks.
-
-```mdx
-import { Remark } from "../../components/math";
-
-<Remark>Note that this approach differs from traditional methods...</Remark>
-```
-
-### Example
-
-Teal-styled component for examples.
-
-```mdx
-import { Example } from "../../components/math";
-
-<Example number="3.1">
-  Consider a cyclic peptide with sequence CYCLO(Arg-D-Phe-Pro)...
-</Example>
-```
-
-### Conjecture
-
-Rose-styled component for conjectures.
-
-```mdx
-import { Conjecture } from "../../components/math";
-
-<Conjecture number="4.1">
-  The parallel hierarchy learns compositional rules that generalize...
-</Conjecture>
 ```
 
 ## Props
 
 All components accept:
 
-- `title` (optional): Custom title (defaults to component name)
-- `number` (optional): Number/reference for the structure (e.g., "2.1", "4.3")
+- `title` (optional): label suffix shown in parentheses, e.g. `(Decomposition)`.
+- `number` (optional): reference number, e.g. `"2.1"`.
 
-Proof component only uses `title` (no numbering).
+`Remark` takes only `number`; `Proof` takes only `title` and appends a ▪ (Q.E.D.)
+tombstone.
 
-## Color Scheme
+## Colour Scheme
 
-- **Theorem**: Blue (scientific, formal)
-- Definition: Amber (foundational, important)
-- Proof: Gray (supporting, detailed)
-- **Lemma**: Green (auxiliary result)
-- Corollary: Cyan (derived result)
-- **Remark**: Purple (observation, note)
-- Example: Teal (illustration)
-- Conjecture: Rose (hypothesis)
-
-All components support dark mode with appropriate color adjustments.
+One typeset block style; hue selected per kind from the `--h-*` tokens. `Proof`
+is intentionally neutral (a ruled left border, no tint). All kinds adapt to dark
+mode through the shared tokens rather than hand-tuned colour variants.

@@ -1,0 +1,10 @@
+/* ============================================================
+   GLOBAL ENTRY — import once in the layout.
+   Order matters: tokens first (define vars), then base/element
+   styles, then component-scope CSS.
+   ============================================================ */
+@import "./tokens.css";
+@import "./base.css";
+@import "./prose.css";
+@import "./environments.css";
+@import "./code-blocks.css";

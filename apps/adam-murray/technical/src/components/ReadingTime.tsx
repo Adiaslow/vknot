@@ -11,8 +11,8 @@ export const ReadingTime: FC<ReadingTimeProps> = ({ minutes }) => {
 
   const rounded = Math.max(1, Math.round(minutes));
   return (
-    <span className="inline-flex items-center gap-2 text-sm text-slate-500">
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+    <span className="inline-flex items-center gap-1.5">
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5">
         <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.5" />
         <path d="M12 7v5l3 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>

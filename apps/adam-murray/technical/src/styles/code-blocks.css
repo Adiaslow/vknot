@@ -1,47 +1,54 @@
-/* Custom code block styling for better readability */
+/* ============================================================
+   CODE — Shiki blocks + inline code, bound to tokens.
+   Shiki runs in DUAL-THEME mode (github-light / github-dark) with
+   defaultColor:false (see astro.config.mjs), so every token span
+   carries both `--shiki-light` and `--shiki-dark`. We select per
+   theme below — real syntax colours in both Paper and Ink, with no
+   invert()/filter approximation. The frame stays token-driven.
+   ============================================================ */
 
-/* Override Shiki syntax highlighting for better contrast */
-pre.astro-code {
-  background-color: #f6f8fa !important;
-  border: 1px solid #e1e4e8;
-  border-radius: 6px;
-  padding: 1rem;
+pre.astro-code,
+.prose pre {
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  padding: 1.1rem 1.25rem;
   overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  line-height: 1.7;
+  margin: 1.6em 0;
 }
 
-/* Ensure text is dark and readable */
-pre.astro-code code {
-  color: #24292e !important;
-  font-size: 0.9em;
-  line-height: 1.6;
+pre.astro-code code,
+.prose pre code {
+  font-family: var(--font-mono);
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  pre.astro-code {
-    background-color: #1e1e1e !important;
-    border-color: #404040;
-  }
-
-  pre.astro-code code {
-    color: #d4d4d4 !important;
-  }
+/* Paper: github-light token colours */
+pre.astro-code,
+pre.astro-code span {
+  color: var(--shiki-light);
 }
 
-/* Inline code styling */
-not(pre) > code {
-  background-color: #f6f8fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 3px;
-  padding: 0.2em 0.4em;
-  font-size: 0.9em;
-  color: #24292e;
+/* Ink: swap to github-dark token colours via the class toggle */
+:root.dark pre.astro-code,
+:root.dark pre.astro-code span {
+  color: var(--shiki-dark);
 }
 
-@media (prefers-color-scheme: dark) {
-  :not(pre) > code {
-    background-color: #2d2d2d;
-    border-color: #404040;
-    color: #d4d4d4;
-  }
+:root.dark pre.astro-code::selection,
+:root.dark pre.astro-code *::selection { background: var(--selection); }
+
+/* Inline code */
+:not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  padding: 0.05em 0.4em;
+  color: var(--accent-ink);
 }

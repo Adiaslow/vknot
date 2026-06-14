@@ -1,0 +1,78 @@
+/* ============================================================
+   MATH ENVIRONMENTS — Theorem / Definition / Lemma / …
+   One typeset block style, hue selected per kind from tokens.
+   Driven by data-kind so a single Astro component covers all.
+   ============================================================ */
+
+.env {
+  --h: var(--h-theorem);
+  --fg: oklch(var(--env-fg-l) var(--env-fg-c) var(--h));
+  --bg: oklch(var(--env-bg-l) var(--env-bg-c) var(--h));
+  background: var(--bg);
+  border: 1px solid color-mix(in oklch, var(--fg) 32%, transparent);
+  border-left: 2px solid var(--fg);
+  padding: 1.1rem 1.35rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.env__tag {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  margin-bottom: 0.55rem;
+  flex-wrap: wrap;
+}
+.env__name {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.env__num {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--fg);
+  opacity: 0.7;
+}
+.env__title {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+.env__body {
+  color: var(--ink);
+  font-size: 1.03rem;
+  line-height: 1.58;
+}
+.env__body > :first-child { margin-top: 0; }
+.env__body > :last-child { margin-bottom: 0; }
+
+/* per-kind hue */
+.env[data-kind="theorem"]    { --h: var(--h-theorem); }
+.env[data-kind="definition"] { --h: var(--h-definition); }
+.env[data-kind="lemma"]      { --h: var(--h-lemma); }
+.env[data-kind="corollary"]  { --h: var(--h-corollary); }
+.env[data-kind="conjecture"] { --h: var(--h-conjecture); }
+.env[data-kind="example"]    { --h: var(--h-example); }
+.env[data-kind="assumption"] { --h: var(--h-assumption); }
+.env[data-kind="remark"]     { --h: var(--h-remark); }
+
+/* proof: neutral, ruled, with a Q.E.D. tombstone */
+.env[data-kind="proof"] {
+  --fg: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--rule-strong);
+  padding: 0.25rem 0 0.25rem 1.35rem;
+  margin: 1.5rem 0;
+}
+.env[data-kind="proof"] .env__name { color: var(--ink-soft); }
+.env[data-kind="proof"] .env__body::after {
+  content: "▪";
+  margin-left: 0.5rem;
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  vertical-align: 1px;
+}

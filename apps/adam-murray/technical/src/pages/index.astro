@@ -1,9 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BlogLayout from "../layouts/BlogLayout.astro";
-import ArticleHeader from "../components/ArticleHeader.astro";
 
-// Get all blog posts and sort by date (newest first)
 const allPosts = await getCollection("blog");
 const posts = allPosts
   .filter((post) => !post.data.draft)
@@ -11,49 +9,107 @@ const posts = allPosts
   .map((post) => ({
     title: post.data.title,
     summary: post.data.description,
-    publishDate: post.data.date.toISOString(),
+    date: post.data.date,
     tags: post.data.tags,
     href: `/adam-murray/technical/posts/${post.slug}`,
     readingTimeMinutes: post.data.readingTimeMinutes,
   }));
+
+const fmtDate = (d: Date) =>
+  `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, "0")}·${String(d.getDate()).padStart(2, "0")}`;
 ---
 
 <BlogLayout
   title="Adam Murray — Research Notes"
   description="Computational cyclic peptide researcher exploring geometric deep learning, graph theory, complex systems, and mathematical frameworks."
 >
-  <section class="flex flex-col gap-6">
-    <header class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold text-slate-900">Recent Posts</h1>
-      <p class="text-slate-600">
-        Research explorations in computational drug discovery, geometric deep learning,
-        and mathematical theory—from rigorous frameworks to playful curiosities.
-      </p>
-    </header>
-    <div class="flex flex-col gap-8">
-      {
-        posts.map((post) => (
-          <a
-            href={post.href}
-            class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-slate-300 hover:shadow-md no-underline"
-          >
-            <ArticleHeader
-              title={post.title}
-              summary={post.summary}
-              publishDate={post.publishDate}
-              showTags={false}
-              readingTimeMinutes={post.readingTimeMinutes}
-            />
-            <div class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
-              {post.tags.map((tag) => (
-                <span class="rounded-full bg-slate-900 px-3 py-1 text-white" data-tag={tag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </a>
-        ))
-      }
-    </div>
+  <section class="intro">
+    <span class="kicker">Research Notes</span>
+    <h1>Rigour and metaphor, kept in the same paragraph.</h1>
+    <p>
+      Explorations in computational drug discovery, geometric deep learning, and
+      mathematical theory — from peer-review-ready frameworks to playful
+      curiosities.
+    </p>
   </section>
+
+  <ol class="contents">
+    {posts.map((post) => (
+      <li>
+        <a class="row" href={post.href}>
+          <span class="date">{fmtDate(post.date)}</span>
+          <span class="body">
+            <span class="t">{post.title}</span>
+            <span class="d">{post.summary}</span>
+            <span class="tags">
+              {post.tags.map((tag) => <span class="tag">{tag}</span>)}
+            </span>
+          </span>
+          {post.readingTimeMinutes ? (
+            <span class="rt">{post.readingTimeMinutes} min</span>
+          ) : <span class="rt" />}
+        </a>
+      </li>
+    ))}
+  </ol>
 </BlogLayout>
+
+<style>
+  .intro { display: flex; flex-direction: column; gap: 0.75rem; }
+  .intro h1 {
+    font-size: 2.1rem;
+    letter-spacing: -0.02em;
+    max-width: 24ch;
+  }
+  .intro p {
+    color: var(--ink-soft);
+    max-width: 58ch;
+    line-height: 1.55;
+  }
+
+  .contents { list-style: none; margin: 0; padding: 0; }
+  .contents .row {
+    display: grid;
+    grid-template-columns: 6rem 1fr auto;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1.4rem 0.75rem;
+    border-top: 1px solid var(--rule);
+    text-decoration: none;
+    color: inherit;
+    transition: background .2s;
+  }
+  .contents li:last-child .row { border-bottom: 1px solid var(--rule); }
+  .contents .row:hover {
+    background: color-mix(in oklch, var(--accent) 5%, transparent);
+  }
+  .date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .t { display: block; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
+  .d {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-top: 0.35rem;
+    line-height: 1.45;
+    max-width: 60ch;
+  }
+  /* .tags / .tag chip styling is shared — see styles/base.css; only the
+     contents-row spacing is local. */
+  .tags { margin-top: 0.7rem; }
+  .rt {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .contents .row { grid-template-columns: 1fr; gap: 0.4rem; }
+    .rt { display: none; }
+  }
+</style>

@@ -1,0 +1,30 @@
+---
+/**
+ * Environment — the single styled block behind every math callout
+ * (Theorem, Definition, Lemma, …). Kind selects the hue via
+ * data-kind (see styles/environments.css). The thin named wrappers
+ * in this folder (Theorem.astro, etc.) call this so existing MDX
+ * — <Theorem number="2.1">…</Theorem> — keeps working unchanged.
+ */
+export type EnvKind = "theorem" | "definition" | "lemma" | "corollary" | "conjecture" | "example" | "assumption" | "remark" | "proof";
+
+export interface Props {
+  kind: EnvKind;
+  /** display label; defaults to the capitalised kind */
+  name?: string;
+  title?: string;
+  number?: string;
+}
+
+const { kind, name, title, number } = Astro.props;
+const label = name ?? kind.charAt(0).toUpperCase() + kind.slice(1);
+---
+
+<div class="env" data-kind={kind}>
+  <div class="env__tag">
+    <span class="env__name">{label}</span>
+    {number && <span class="env__num">{number}</span>}
+    {title && <span class="env__title">({title})</span>}
+  </div>
+  <div class="env__body"><slot /></div>
+</div>

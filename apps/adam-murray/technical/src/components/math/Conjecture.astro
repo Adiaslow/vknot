@@ -1,4 +1,7 @@
 ---
+/** Conjecture — thin wrapper over <Environment kind="conjecture">. */
+import Environment from "./Environment.astro";
+
 export interface Props {
   title?: string;
   number?: string;
@@ -7,15 +10,6 @@ export interface Props {
 const { title, number } = Astro.props;
 ---
 
-<div class="my-6 rounded-lg border-l-4 border-rose-600 bg-white p-5 dark:bg-slate-900 dark:border-rose-400">
-  <div class="flex items-baseline gap-2 mb-2">
-    <strong class="font-semibold text-rose-700 dark:text-rose-300">
-      Conjecture
-      {number && <span class="ml-1">{number}</span>}
-      {title && <span class="ml-1">({title})</span>}
-    </strong>
-  </div>
-  <div class="text-slate-900 dark:text-slate-100 leading-relaxed">
-    <slot />
-  </div>
-</div>
+<Environment kind="conjecture" title={title} number={number}>
+  <slot />
+</Environment>

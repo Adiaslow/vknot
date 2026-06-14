@@ -1,0 +1,122 @@
+/* ============================================================
+   PROSE — long-form reading styles for article bodies.
+   Replaces UnoCSS `prose prose-slate`; bound to tokens so it
+   flips with the theme. Apply with class="prose".
+   ============================================================ */
+
+.prose {
+  color: var(--ink);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  max-width: var(--measure);
+}
+
+.prose > * + * { margin-top: 1.25em; }
+
+.prose h2 {
+  font-size: 1.75rem;
+  margin-top: 2.2em;
+  margin-bottom: 0.1em;
+  letter-spacing: -0.015em;
+}
+.prose h3 {
+  font-size: 1.34rem;
+  margin-top: 1.8em;
+  margin-bottom: 0.1em;
+  letter-spacing: -0.01em;
+}
+.prose h4 {
+  font-size: 1.08rem;
+  margin-top: 1.6em;
+  margin-bottom: 0.1em;
+}
+
+.prose p { text-wrap: pretty; }
+
+.prose a {
+  color: var(--accent-ink);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in oklch, var(--accent) 35%, transparent);
+  transition: border-color .2s, background .2s;
+}
+.prose a:hover {
+  border-bottom-color: var(--accent);
+  background: color-mix(in oklch, var(--accent) 8%, transparent);
+}
+
+.prose strong { font-weight: 600; color: var(--ink); }
+.prose em { font-style: italic; }
+
+.prose blockquote {
+  margin: 1.6em 0;
+  padding: 0.1em 0 0.1em 1.25rem;
+  border-left: 2px solid var(--accent);
+  font-style: italic;
+  font-size: 1.18em;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.prose ul, .prose ol { padding-left: 1.4em; }
+.prose li { margin-top: 0.4em; }
+.prose ul > li::marker { color: var(--accent-ink); }
+.prose ol > li::marker { color: var(--muted); font-family: var(--font-mono); font-size: 0.85em; }
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2.6em 0;
+}
+
+/* Tables — token-driven; the header row reads as mono apparatus. */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.8em 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.prose thead th {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.prose tbody tr:last-child td { border-bottom: 0; }
+
+.prose img,
+.prose figure { margin: 1.8em 0; }
+.prose figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  margin-top: 0.6em;
+}
+
+/* KaTeX display blocks: let wide math scroll instead of overflow */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.4em 0;
+}
+
+/* First paragraph of an article gets a quiet drop-cap (opt-in via
+   .lead on the article or first paragraph). */
+.prose .lead::first-letter {
+  font-size: 3.1em;
+  line-height: 0.82;
+  float: left;
+  padding: 0.04em 0.12em 0 0;
+  font-weight: 600;
+  color: var(--accent-ink);
+}

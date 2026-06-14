@@ -1,0 +1,248 @@
+/* ============================================================
+   Interactive figures — shared chrome, bound to design tokens.
+   One token-driven look for every visualiser's frame, controls,
+   stat cards and legend, so the widgets read as part of the site
+   and flip with Paper / Ink automatically.
+   ============================================================ */
+
+.viz-figure {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 0.75rem;
+}
+
+.viz-head { margin: 0 0 1.25rem; }
+.viz-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.viz-desc {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* Chart surface (holds a <canvas> or a Plot figure) */
+.viz-surface {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+.viz-surface canvas { display: block; margin: 0 auto; }
+.viz-surface figure { margin: 0; }
+
+/* ---- Controls -------------------------------------------------- */
+
+.viz-control { display: flex; flex-direction: column; gap: 0.35rem; }
+.viz-control-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.viz-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.viz-value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-ink);
+}
+.viz-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 0;
+}
+.viz-scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+/* Range slider — themed track + accent thumb */
+.viz-range {
+  width: 100%;
+  height: 0.4rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--surface-2);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.viz-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  cursor: pointer;
+}
+.viz-range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+/* Buttons */
+.viz-btn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s, color 0.2s;
+}
+.viz-btn--primary { background: var(--accent); color: var(--paper); }
+.viz-btn--primary:hover { opacity: 0.9; }
+.viz-btn--secondary { background: var(--ink); color: var(--paper); }
+.viz-btn--secondary:hover { opacity: 0.9; }
+.viz-btn--ghost {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--rule);
+}
+.viz-btn--ghost:hover { background: var(--surface); }
+
+/* Select */
+.viz-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.viz-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Stat cards */
+.viz-stat {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.85rem;
+}
+.viz-stat-label {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.25rem;
+}
+.viz-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.viz-stat-value[data-tone='accent'] { color: var(--accent-ink); }
+.viz-stat-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* Panels, checklists and read-outs (used by richer widgets) */
+.viz-panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+}
+.viz-check-list { display: flex; flex-direction: column; gap: 0.1rem; }
+.viz-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+.viz-check:hover { background: var(--surface-2); }
+.viz-check input { accent-color: var(--accent); width: 0.95rem; height: 0.95rem; }
+.viz-check-sym { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
+.viz-check-mass { font-size: 0.72rem; color: var(--muted); }
+
+.viz-readout {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  padding: 0.18rem 0;
+}
+.viz-readout-key { color: var(--ink-soft); }
+.viz-readout-val { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+
+.viz-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.viz-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.viz-divider { border: 0; border-top: 1px solid var(--rule); margin: 0.6rem 0; }
+.viz-link-btn {
+  background: none;
+  border: 0;
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+.viz-link-btn:hover { text-decoration: underline; }
+.viz-empty {
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Legend */
+.viz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.viz-legend-item { display: inline-flex; align-items: center; gap: 0.45rem; }
+.viz-legend-swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 0.2rem;
+  flex: none;
+}

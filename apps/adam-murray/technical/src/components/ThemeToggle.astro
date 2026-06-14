@@ -1,0 +1,63 @@
+---
+/**
+ * ThemeToggle — Paper / Ink switch. Toggles `.dark` on <html>,
+ * persists to localStorage under "am-theme". The blocking script
+ * that prevents a flash-of-wrong-theme lives in BlogLayout <head>;
+ * this component only handles the click + label state.
+ */
+---
+
+<div class="theme-toggle" role="group" aria-label="Colour theme">
+  <button type="button" data-theme-set="light" aria-pressed="true">Paper</button>
+  <button type="button" data-theme-set="dark" aria-pressed="false">Ink</button>
+</div>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .theme-toggle button {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--muted);
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    padding: 0.5rem 0.85rem;
+    transition: color .2s, background .2s;
+  }
+  .theme-toggle button[aria-pressed="true"] {
+    color: var(--paper);
+    background: var(--ink);
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const KEY = "am-theme";
+  const btns = document.querySelectorAll<HTMLButtonElement>(".theme-toggle button");
+
+  function sync(theme: string) {
+    root.classList.toggle("dark", theme === "dark");
+    btns.forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.themeSet === theme)),
+    );
+    try { localStorage.setItem(KEY, theme); } catch {}
+  }
+
+  btns.forEach((b) =>
+    b.addEventListener("click", () => sync(b.dataset.themeSet || "light")),
+  );
+
+  // reflect whatever the head script already applied
+  sync(root.classList.contains("dark") ? "dark" : "light");
+</script>

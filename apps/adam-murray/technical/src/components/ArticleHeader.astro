@@ -1,5 +1,9 @@
 ---
-import { ReadingTime } from "../components/ReadingTime.tsx";
+/**
+ * ArticleHeader — title block for a post (and the index cards).
+ * Token-driven; the mono "by-line" and tag style match the identity.
+ */
+import { ReadingTime } from "./ReadingTime.tsx";
 
 export interface Props {
   readonly title: string;
@@ -8,6 +12,8 @@ export interface Props {
   readonly showTags?: boolean;
   readonly tags?: ReadonlyArray<string>;
   readonly readingTimeMinutes?: number;
+  /** render as a large standalone header (post page) vs compact (card) */
+  readonly variant?: "page" | "card";
 }
 
 const {
@@ -17,33 +23,63 @@ const {
   showTags = false,
   tags = [],
   readingTimeMinutes,
+  variant = "page",
 } = Astro.props;
+
+const dateLabel = new Date(publishDate).toLocaleDateString("en-US", {
+  year: "numeric", month: "long", day: "numeric",
+});
 ---
 
-<header class="flex flex-col gap-4">
-  <h1 class="text-4xl font-bold tracking-tight text-slate-900">{title}</h1>
-  <time
-    datetime={publishDate}
-    class="text-sm text-slate-500"
-  >
-    {new Date(publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-  </time>
-  <p class="max-w-3xl text-lg text-slate-600">{summary}</p>
+<header class:list={["article-header", variant]}>
+  <h1>{title}</h1>
+  <div class="byline">
+    <span>Adam Murray</span>
+    <span class="sep">/</span>
+    <time datetime={publishDate}>{dateLabel}</time>
+    {readingTimeMinutes ? (
+      <>
+        <span class="sep">/</span>
+        <ReadingTime minutes={readingTimeMinutes} />
+      </>
+    ) : null}
+  </div>
+  <p class="summary">{summary}</p>
   {showTags && tags.length > 0 && (
-    <div
-      class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]"
-    >
-      {
-        tags.map((tag) => (
-          <span
-            class="rounded-full bg-slate-900 px-3 py-1 text-white"
-            data-tag={tag}
-          >
-            {tag}
-          </span>
-        ))
-      }
+    <div class="tags">
+      {tags.map((tag) => <span class="tag" data-tag={tag}>{tag}</span>)}
     </div>
   )}
-  {readingTimeMinutes ? <ReadingTime minutes={readingTimeMinutes} /> : null}
 </header>
+
+<style>
+  .article-header { display: flex; flex-direction: column; gap: 0.9rem; }
+  .article-header h1 {
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    max-width: 22ch;
+  }
+  .article-header.page h1 { font-size: 2.5rem; }
+  .article-header.card h1 { font-size: 1.35rem; max-width: none; }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .byline .sep { color: var(--rule-strong); }
+
+  .summary {
+    color: var(--ink-soft);
+    max-width: 54ch;
+    line-height: 1.5;
+  }
+  .article-header.page .summary { font-size: 1.18rem; }
+  .article-header.card .summary { font-size: 0.95rem; }
+  /* .tags / .tag chip styling is shared — see styles/base.css */
+</style>

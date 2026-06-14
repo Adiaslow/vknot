@@ -1,19 +1,14 @@
 ---
+/** Remark — thin wrapper over <Environment kind="remark">. */
+import Environment from "./Environment.astro";
+
 export interface Props {
-  title?: string;
+  number?: string;
 }
 
-const { title } = Astro.props;
+const { number } = Astro.props;
 ---
 
-<div class="my-6 rounded-lg border-l-4 border-purple-600 bg-white p-5 dark:bg-slate-900 dark:border-purple-400">
-  <div class="flex items-baseline gap-2 mb-2">
-    <strong class="font-semibold text-purple-700 dark:text-purple-300">
-      Remark
-      {title && <span class="ml-1">({title})</span>}
-    </strong>
-  </div>
-  <div class="text-slate-900 dark:text-slate-100 leading-relaxed">
-    <slot />
-  </div>
-</div>
+<Environment kind="remark" number={number}>
+  <slot />
+</Environment>

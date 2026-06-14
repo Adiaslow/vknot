@@ -1,50 +1,122 @@
 ---
-import { Navigation, SEO } from "@vknot/ui";
-import '../styles/code-blocks.css';
+/**
+ * BlogLayout — the page shell. Owns: design-token CSS, the web fonts,
+ * the flash-free theme bootstrap, the local themed header, the
+ * reading column, and the footer.
+ *
+ * The shared @vknot/ui <Navigation> is intentionally NOT used here —
+ * see SiteHeader.astro.
+ */
+import { SEO } from "@vknot/ui";
+import SiteHeader from "../components/SiteHeader.astro";
+import NodeRing from "../components/NodeRing.astro";
+import "../styles/global.css";
 
 export interface Props {
   readonly title: string;
   readonly description?: string;
-  readonly hero?: Astro.Slot;
+  readonly article?: boolean;
+  readonly publishDate?: string;
+  readonly tags?: ReadonlyArray<string>;
 }
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  article = false,
+  publishDate,
+  tags = [],
+} = Astro.props;
+
+const year = new Date().getFullYear();
 ---
 
-<html lang="en" class="bg-white text-slate-900">
+<!doctype html>
+<html lang="en">
   <head>
     <SEO
       title={title}
-      description={description ?? "Research explorations in geometric deep learning, graph theory, and computational chemistry."}
+      description={description ??
+        "Research explorations in geometric deep learning, graph theory, and computational chemistry."}
+      article={article}
+      publishedTime={publishDate}
+      tags={tags}
     />
+
+    <!-- Flash-free theme: apply saved/system choice before first paint -->
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem("am-theme");
+          var dark = saved
+            ? saved === "dark"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Fonts: Spectral (prose) + IBM Plex Mono (apparatus) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+    />
+    <!-- KaTeX (math) -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
     />
   </head>
-  <body class="min-h-screen bg-white text-slate-900">
-    <Navigation
-      theme="blog"
-      siteName="Adam Murray - Research Explorations"
-      baseUrl="/adam-murray/technical"
-      links={[
-        { href: "/adam-murray/technical", label: "Posts" },
-        { href: "/adam-murray/technical/about", label: "About" },
-      ]}
-      ctas={[]}
-    />
-    <main
-      class="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 pb-24 pt-12"
-    >
+
+  <body>
+    <SiteHeader />
+
+    <main class="page">
       <slot name="hero" />
-      <article class="prose prose-slate max-w-none">
+      <article class="prose">
         <slot />
       </article>
     </main>
-    <footer class="border-t border-slate-200 py-10 text-sm text-slate-500">
-      <div class="mx-auto flex w-full max-w-4xl flex-col gap-2 px-6">
-        <span>© {new Date().getFullYear()} Adam Murray</span>
+
+    <footer class="colophon">
+      <div class="colophon-inner">
+        <NodeRing nodes={7} chords={2} size={34} />
+        <div class="colophon-text">
+          <p>© {year} Adam Murray · Research Notes</p>
+          <p class="mono">Typeset in Spectral &amp; IBM Plex Mono</p>
+        </div>
       </div>
     </footer>
+
+    <style>
+      .page {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        width: 100%;
+        padding: 3rem 1.5rem 6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+      }
+      .prose { max-width: none; }
+
+      .colophon { border-top: 1px solid var(--rule); }
+      .colophon-inner {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+      }
+      .colophon-text p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+      .colophon-text .mono {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        margin-top: 0.3rem;
+      }
+    </style>
   </body>
 </html>

@@ -1,0 +1,102 @@
+---
+/**
+ * SiteHeader — local, themed navigation for the technical site.
+ * Replaces the shared @vknot/ui <Navigation> here so the brand mark
+ * and Paper/Ink toggle live in this app, leaving the shared package
+ * (used by other sites) untouched.
+ */
+import NodeRing from "./NodeRing.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+export interface Props {
+  siteName?: string;
+  baseUrl?: string;
+  links?: ReadonlyArray<{ href: string; label: string }>;
+}
+
+const {
+  siteName = "Adam Murray — Research Notes",
+  baseUrl = "/adam-murray/technical",
+  links = [
+    { href: "/adam-murray/technical", label: "Posts" },
+    { href: "/adam-murray/technical/about", label: "About" },
+  ],
+} = Astro.props;
+
+// current path for active-link state (tolerant of trailing slash)
+const here = Astro.url.pathname.replace(/\/$/, "");
+const isActive = (href: string) => here === href.replace(/\/$/, "");
+---
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href={baseUrl} aria-label={siteName}>
+      <NodeRing nodes={7} chords={2} size={28} title={siteName} />
+      <span class="brand-name">{siteName}</span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      {links.map((l) => (
+        <a href={l.href} class:list={["link", { "is-active": isActive(l.href) }]}>
+          {l.label}
+        </a>
+      ))}
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: color-mix(in oklch, var(--paper) 86%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .brand-name {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .links {
+    margin-left: auto;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+    padding: 0.45rem 0.75rem;
+    transition: color .2s;
+  }
+  .link:hover { color: var(--ink); }
+  .link.is-active {
+    color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .brand-name { display: none; }
+    .inner { gap: 0.75rem; padding: 0.75rem 1rem; }
+  }
+</style>

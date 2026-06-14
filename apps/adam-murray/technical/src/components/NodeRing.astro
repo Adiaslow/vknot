@@ -1,0 +1,74 @@
+---
+/**
+ * NodeRing — the cyclic node-ring mark, server-rendered as inline SVG.
+ * Deterministic & dependency-free (see ../lib/node-ring.ts). No client JS.
+ * Colours come from tokens, so it follows Paper / Ink automatically.
+ *
+ *   <NodeRing nodes={7} chords={2} size={64} title="Adam Murray" />
+ *
+ * `tone="reverse"` renders for a plate borrowed from the other theme
+ * (used on dark/accent grounds).
+ */
+import { buildRing } from "../lib/node-ring";
+
+export interface Props {
+  nodes?: number;
+  chords?: number;
+  size?: number;        // px
+  seed?: number;
+  roughness?: number;
+  tone?: "auto" | "reverse";
+  title?: string;
+  class?: string;
+}
+
+const {
+  nodes = 7,
+  chords = 2,
+  size = 64,
+  seed = 7,
+  roughness = 1.0,
+  tone = "auto",
+  title,
+  class: className = "",
+} = Astro.props;
+
+const g = buildRing({ nodes, chords, seed, roughness });
+
+const inkColor = tone === "reverse" ? "var(--reverse-ink, var(--paper))" : "var(--ink)";
+const accentColor = "var(--accent)";
+const nodeFill = tone === "reverse" ? "var(--reverse-surface)" : "var(--paper)";
+const sw = 1.5;
+---
+
+<svg
+  class={`node-ring ${className}`}
+  width={size}
+  height={size}
+  viewBox={`0 0 ${g.size} ${g.size}`}
+  fill="none"
+  role={title ? "img" : "presentation"}
+  aria-label={title}
+  aria-hidden={title ? undefined : "true"}
+>
+  {g.edges.map((d) => (
+    <path d={d} stroke={inkColor} stroke-width={sw} stroke-linecap="round" />
+  ))}
+  {g.chords.map((d) => (
+    <path d={d} stroke={accentColor} stroke-width={sw} stroke-linecap="round" />
+  ))}
+  {g.nodes.map((nd) => (
+    <circle
+      cx={nd.x.toFixed(2)}
+      cy={nd.y.toFixed(2)}
+      r={g.nodeRadius}
+      fill={nd.origin ? accentColor : nodeFill}
+      stroke={nd.origin ? accentColor : inkColor}
+      stroke-width={1.3}
+    />
+  ))}
+</svg>
+
+<style>
+  .node-ring { display: block; overflow: visible; }
+</style>

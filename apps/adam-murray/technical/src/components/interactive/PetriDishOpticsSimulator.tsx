@@ -14,14 +14,16 @@ const DISH_WALL_HEIGHT = 15; // interior wall height
 const DISH_WALL_THICKNESS = 1; // polystyrene wall (visual)
 const AGAR_FILL_DEPTH = 2.3; // 18 mL / (π · 50²) mm³
 const LID_GAP = 1; // small air gap below lid
-const LID_THICKNESS = 1;
+const LID_THICKNESS = 1; // lid wall thickness
+const LID_OVERHANG = 0.5; // how far lid extends beyond dish wall (per side)
+const LID_HEIGHT = 10; // total vertical extent of the lid
 
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
-const CANVAS_HEIGHT = 420;
-const PX_PER_MM = 4;
-const WORLD_X_MIN = -90;
-const WORLD_Y_MIN = -4;
+const CANVAS_HEIGHT = 720;
+const PX_PER_MM = 2.5;
+const WORLD_X_MIN = -144;
+const WORLD_Y_MIN = -8;
 
 // World-to-canvas transforms. World x is horizontal, world y is vertical
 // (positive y is upward in physical space). Canvas y is inverted so that
@@ -73,7 +75,7 @@ export default function PetriDishOpticsSimulator() {
   const [liquidMeniscus, setLiquidMeniscus] = useState(0.5); // mm at wall
 
   // Camera and lights (placeholders for next step)
-  const [cameraHeight, setCameraHeight] = useState(70); // mm above dish bottom
+  const [cameraHeight, setCameraHeight] = useState(180); // mm above dish bottom
   const [lampAngle1, setLampAngle1] = useState(30); // degrees from vertical
   const [lampAngle2, setLampAngle2] = useState(-30); // degrees from vertical
 
@@ -131,8 +133,9 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // ── dish exterior (outline) ──────────────────────────────────
-    ctx.strokeStyle = tokens.inkSoft;
-    ctx.lineWidth = 1.5;
+    // Outer wall of the dish: strong dark line forming a U opening up.
+    ctx.strokeStyle = tokens.ink;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(-DISH_WALL_THICKNESS));
@@ -140,8 +143,17 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS + DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
 
+    // Top rims of the dish wall (strong, connecting outer to inner).
+    ctx.beginPath();
+    ctx.moveTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
+    ctx.lineTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
+    ctx.moveTo(wx(DISH_RADIUS), wy(DISH_WALL_HEIGHT));
+    ctx.lineTo(wx(DISH_RADIUS + DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
+    ctx.stroke();
+
     // ── dish interior outline ────────────────────────────────────
-    ctx.strokeStyle = tokens.rule;
+    // Inner surface where agar/liquid contacts the wall: normal line.
+    ctx.strokeStyle = tokens.inkSoft;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
@@ -172,19 +184,57 @@ export default function PetriDishOpticsSimulator() {
     }
 
     // ── lid (if toggled on) ──────────────────────────────────────
+    // The lid is an inverted U-cup sitting above the dish with a small
+    // air gap. It is slightly wider than the dish so it fits over.
     if (lidPresent) {
+      const lidOuterR = DISH_RADIUS + DISH_WALL_THICKNESS + LID_OVERHANG;
+      const lidInnerR = lidOuterR - LID_THICKNESS;
       const lidBottom = DISH_WALL_HEIGHT + LID_GAP;
-      ctx.fillStyle = 'rgba(160, 170, 195, 0.18)';
-      ctx.strokeStyle = tokens.rule;
+      const lidTop = lidBottom + LID_HEIGHT;
+      const lidInnerTop = lidTop - LID_THICKNESS;
+
+      // Translucent fill for the lid body (just the wall material).
+      ctx.fillStyle = 'rgba(160, 170, 195, 0.22)';
+      ctx.beginPath();
+      // outer rectangle of lid
+      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
+      ctx.lineTo(wx(-lidOuterR), wy(lidTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
+      // back along inner walls
+      ctx.lineTo(wx(lidInnerR), wy(lidBottom));
+      ctx.lineTo(wx(lidInnerR), wy(lidInnerTop));
+      ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
+      ctx.lineTo(wx(-lidInnerR), wy(lidBottom));
+      ctx.closePath();
+      ctx.fill();
+
+      // Outer outline of the lid: strong dark line, inverted U.
+      ctx.strokeStyle = tokens.ink;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
+      ctx.lineTo(wx(-lidOuterR), wy(lidTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
+      ctx.stroke();
+
+      // Bottom rims of the lid wall (strong, connecting outer to inner).
+      ctx.beginPath();
+      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
+      ctx.lineTo(wx(-lidInnerR), wy(lidBottom));
+      ctx.moveTo(wx(lidInnerR), wy(lidBottom));
+      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
+      ctx.stroke();
+
+      // Inner outline of the lid: normal line, inverted U inside.
+      ctx.strokeStyle = tokens.inkSoft;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.rect(
-        wx(-DISH_RADIUS - DISH_WALL_THICKNESS - 0.5),
-        wy(lidBottom + LID_THICKNESS),
-        (DISH_RADIUS + DISH_WALL_THICKNESS + 0.5) * 2 * PX_PER_MM,
-        LID_THICKNESS * PX_PER_MM,
-      );
-      ctx.fill();
+      ctx.moveTo(wx(-lidInnerR), wy(lidBottom));
+      ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
+      ctx.lineTo(wx(lidInnerR), wy(lidInnerTop));
+      ctx.lineTo(wx(lidInnerR), wy(lidBottom));
       ctx.stroke();
     }
 
@@ -204,8 +254,8 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillText('camera', camPx + 10, camPy + 4);
 
     // ── light source markers ─────────────────────────────────────
-    const lightY = 95;
-    const overheadXs = [-70, -35, 0, 35, 70];
+    const lightY = 250;
+    const overheadXs = [-120, -60, 0, 60, 120];
     if (overheadOn) {
       ctx.fillStyle = 'rgba(220, 180, 60, 0.85)';
       for (const lx of overheadXs) {
@@ -215,7 +265,7 @@ export default function PetriDishOpticsSimulator() {
       }
     }
     // Directional lamps: positioned by angle off-axis from above the dish
-    const lampDistance = 60;
+    const lampDistance = 150;
     if (lamp1On) {
       const lx = Math.sin((lampAngle1 * Math.PI) / 180) * lampDistance;
       const ly = Math.cos((lampAngle1 * Math.PI) / 180) * lampDistance + 8;
@@ -234,16 +284,31 @@ export default function PetriDishOpticsSimulator() {
     }
 
     // ── scale bar ────────────────────────────────────────────────
-    ctx.strokeStyle = tokens.muted;
-    ctx.fillStyle = tokens.muted;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(wx(-50), CANVAS_HEIGHT - 10);
-    ctx.lineTo(wx(-40), CANVAS_HEIGHT - 10);
-    ctx.stroke();
-    ctx.font = '10px ui-monospace, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('10 mm', wx(-45), CANVAS_HEIGHT - 14);
+    // Drawn in canvas pixel space at the top-left corner so it never
+    // overlaps the dish, lights, or rays. Represents 50 mm at the
+    // current zoom level.
+    {
+      const barLengthMm = 50;
+      const barLengthPx = barLengthMm * PX_PER_MM;
+      const x0 = 20;
+      const x1 = x0 + barLengthPx;
+      const y0 = 20;
+      ctx.strokeStyle = tokens.inkSoft;
+      ctx.fillStyle = tokens.inkSoft;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y0);
+      // tick marks at each end
+      ctx.moveTo(x0, y0 - 4);
+      ctx.lineTo(x0, y0 + 4);
+      ctx.moveTo(x1, y0 - 4);
+      ctx.lineTo(x1, y0 + 4);
+      ctx.stroke();
+      ctx.font = '11px ui-monospace, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('50 mm', x1 + 8, y0 + 4);
+    }
   }, [
     tokens,
     surfaceSamples,
@@ -340,11 +405,11 @@ export default function PetriDishOpticsSimulator() {
         <Slider
           label="Camera height (mm)"
           value={cameraHeight}
-          min={40}
-          max={100}
+          min={100}
+          max={260}
           step={1}
           display={cameraHeight.toString()}
-          scale={['40', '100']}
+          scale={['100', '260']}
           onChange={setCameraHeight}
         />
         <Slider

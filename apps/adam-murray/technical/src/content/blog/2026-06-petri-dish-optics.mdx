@@ -132,19 +132,126 @@ Both interventions are interactive in the simulator at the top of the page. To s
 
 ### 4.1 Snell's Law at Planar and Curved Interfaces
 
-_TODO — Snell's law in vector form, applied to planar interfaces (lid, dish bottom) and curved interfaces (meniscus). Worked Example showing how a ray traveling from air into the liquid layer bends toward the normal, and the subsequent refraction at the agar interface._
+When a ray crosses an interface between two transparent media, it bends. The amount and direction of the bending are given by Snell's law, derivable like the law of reflection from Fermat's principle of least time.
+
+### Theorem 4.1 (Snell's Law)
+
+_Let $n_1, n_2$ be the refractive indices of two transparent media meeting at a smooth interface, and let $\theta_1$ be the angle of incidence (measured from the surface normal) of a ray crossing the interface. The refraction angle $\theta_2$ on the far side satisfies_
+
+$$n_1 \sin \theta_1 = n_2 \sin \theta_2.$$
+
+In vector form, if $\mathbf{d}_{\text{in}}$ is the unit incident direction and $\hat{\mathbf{n}}$ is the outward-pointing unit surface normal on the incident side, the refracted direction is
+
+$$\mathbf{d}_{\text{out}} = \frac{n_1}{n_2}\, \mathbf{d}_{\text{in}} + \left(\frac{n_1}{n_2} \cos \theta_1 - \cos \theta_2 \right) \hat{\mathbf{n}},$$
+
+with $\cos \theta_1 = -\mathbf{d}_{\text{in}} \cdot \hat{\mathbf{n}}$ and $\cos \theta_2 = \sqrt{1 - (n_1/n_2)^2 \sin^2 \theta_1}$. This vector form is valid whenever refraction is possible, i.e. when $(n_1/n_2)^2 \sin^2 \theta_1 \leq 1$. The case where the square root is imaginary corresponds to total internal reflection, handled in §4.2.
+
+For the petri dish, the interfaces of interest are:
+
+- Air ($n = 1.00$) ↔ liquid pool ($n = 1.33$)
+- Liquid pool ↔ agar ($n = 1.34$)
+- Agar ↔ polystyrene floor ($n = 1.59$)
+- Air ↔ polystyrene lid ($n = 1.59$)
+
+In each case the ray bends _toward_ the surface normal when entering the denser medium (lower index to higher index), and _away_ when entering the less dense one. The simulator at the top of the page implements this formula at every Fresnel interaction; the solid (transmitted) branch of every ray follows the refracted direction, with the dashed (reflected) branch obeying Theorem 3.1.
+
+<Example title="A typical ray through the layered system">
+
+Consider a ray entering the dish from above at $10°$ from vertical — a representative angle for a ceiling-lit configuration. The ray crosses three interfaces on its way to the dish floor, and Snell's law applies at each.
+
+At the air–water interface, $\theta_1 = 10°$ so $\sin \theta_1 = 0.174$, and
+
+$$\sin \theta_2 = \frac{n_{\text{air}}}{n_{\text{water}}} \sin \theta_1 = \frac{1.00}{1.33}(0.174) = 0.130 \quad \Rightarrow \quad \theta_2 \approx 7.5°.$$
+
+The ray has bent $\approx 2.5°$ closer to the surface normal.
+
+At the water–agar interface, the two media have nearly identical refractive indices, so
+
+$$\sin \theta_3 = \frac{n_{\text{water}}}{n_{\text{agar}}} \sin \theta_2 = \frac{1.33}{1.34}(0.130) \approx 0.130 \quad \Rightarrow \quad \theta_3 \approx 7.4°.$$
+
+Almost no bending at all. Optically, the water–agar interface is nearly invisible.
+
+At the agar–polystyrene interface,
+
+$$\sin \theta_4 = \frac{n_{\text{agar}}}{n_{\text{poly}}} \sin \theta_3 = \frac{1.34}{1.59}(0.130) \approx 0.109 \quad \Rightarrow \quad \theta_4 \approx 6.2°.$$
+
+The ray has bent another $\approx 1.2°$ toward the normal.
+
+The total deflection across all three interfaces is $10° \to 6.2°$, a net change of just under $4°$. This is a small effect — the path through the petri dish is almost a straight line, with the dominant geometric distortion coming from the curvature of the meniscus rather than from refraction at the flat layer interfaces. But "almost straight" is not the same as "straight," and the residual bending is enough to displace specular paths by several millimetres at the dish floor for typical imaging geometries.
+
+</Example>
 
 ### 4.2 Total Internal Reflection
 
-_TODO — Derives the critical angle from Snell's law for the limit case n₁ sin θ₁ = n₂ × 1. Shows that for the air-liquid interface, the critical angle from below is around 49°. Notes that this matters for light trapped between the lid and the liquid surface, where multiple bounces can occur before light escapes._
+Snell's law has a kinematic obstruction. When light passes from a denser medium ($n_1$) to a less dense medium ($n_2 < n_1$), there exists a critical angle beyond which the equation $n_1 \sin \theta_1 = n_2 \sin \theta_2$ has no real solution: the right-hand side would require $\sin \theta_2 > 1$. Past this angle the light cannot escape the denser medium and is reflected entirely back into it.
+
+### Definition 4.1 (Critical angle, total internal reflection)
+
+_The critical angle $\theta_c$ for an interface between media of refractive indices $n_1 > n_2$, viewed from the denser side, satisfies_
+
+$$\sin \theta_c = \frac{n_2}{n_1}.$$
+
+_For incidence angles $\theta_1 > \theta_c$, no light is transmitted into the less dense medium; the ray undergoes **total internal reflection** off the interface, obeying the law of reflection (Theorem 3.1) with all of its energy retained on the incident side._
+
+For the air–water interface, the critical angle viewed from the water side is
+
+$$\theta_c = \arcsin\!\left(\frac{1.00}{1.33}\right) \approx 48.8°.$$
+
+This matters for any configuration in which light enters the dish through the lid, refracts down into a liquid layer, and is then incident on the water-air interface from below at a steep angle — for example, when the lid is on and ambient room light enters through the lid edges. Light trapped inside the liquid layer at angles exceeding the critical angle will bounce repeatedly between the air–water interface above and the agar surface below, slowly attenuated by Beer–Lambert losses in the agar (§4.4), before eventually escaping or being absorbed entirely. The simulator's `maxDepth = 7` setting truncates these paths after seven Fresnel splits, which captures the dominant contributions; longer paths exist but carry negligible flux.
 
 ### 4.3 The Fresnel Equations: Energy Partition at an Interface
 
-_TODO — States the Fresnel equations for s-polarized and p-polarized light, including Brewster's angle where the p-component goes to zero. Discusses the averaging convention for unpolarized light. Plots reflection coefficient vs. incidence angle for the air-liquid interface to make the angle dependence visible. This is what the simulator uses to compute how much energy reflects vs. transmits at each interaction._
+Snell's law specifies the _direction_ of the transmitted and reflected rays, but it says nothing about how the incident energy is partitioned between them. That information comes from Maxwell's equations applied at the boundary, and the result is the Fresnel equations.
 
-### 4.4 Beer-Lambert Attenuation Through Absorbing Media
+### Definition 4.2 (Fresnel reflectance coefficients)
 
-_TODO — States the Beer-Lambert law I(d) = I₀ exp(−αd) for intensity decay through an absorbing medium of absorption coefficient α and path length d. Tabulates approximate α values for MRS agar at R, G, B wavelengths. Notes that this is what gives the agar its amber color: blue is preferentially absorbed, leaving the transmitted light yellow-amber._
+_For a ray of unit incident amplitude crossing an interface from medium $n_1$ to medium $n_2$ at incidence angle $\theta_1$ and refraction angle $\theta_2$, the amplitude reflectances for s-polarised (perpendicular to the plane of incidence) and p-polarised (parallel) light are_
+
+$$r_s = \frac{n_1 \cos \theta_1 - n_2 \cos \theta_2}{n_1 \cos \theta_1 + n_2 \cos \theta_2}, \qquad r_p = \frac{n_2 \cos \theta_1 - n_1 \cos \theta_2}{n_2 \cos \theta_1 + n_1 \cos \theta_2}.$$
+
+_The corresponding **energy** reflectances are $R_s = |r_s|^2$ and $R_p = |r_p|^2$. For unpolarised light, the energy reflectance is the average of the two components,_
+
+$$R(\theta_1) = \tfrac{1}{2}(R_s + R_p),$$
+
+_and the transmittance is $T(\theta_1) = 1 - R(\theta_1)$ by conservation of energy._
+
+At normal incidence ($\theta_1 = 0$) both polarisation components reduce to the same value,
+
+$$R(0) = \left(\frac{n_1 - n_2}{n_1 + n_2}\right)^2,$$
+
+which evaluates to approximately $0.020$ ($2.0\%$) for the air–water interface, $0.052$ ($5.2\%$) for air–polystyrene, and a vanishingly small $0.00014$ ($0.014\%$) for water–agar. Most light passes through these interfaces; only a few percent reflects back at normal incidence. But as $\theta_1$ grows, $R(\theta_1)$ rises monotonically, approaching $1$ as $\theta_1 \to 90°$. At grazing incidence the surface acts as a near-perfect mirror.
+
+The p-component has additional structure. There exists an angle at which $r_p$ vanishes identically — Brewster's angle.
+
+### Definition 4.3 (Brewster's angle)
+
+_For an interface between media $n_1$ and $n_2$, **Brewster's angle** $\theta_B$ is the angle of incidence at which $r_p = 0$, so that the reflected light is purely s-polarised. It satisfies_
+
+$$\tan \theta_B = \frac{n_2}{n_1}.$$
+
+For air–water this is $\theta_B = \arctan(1.33) \approx 53.1°$; for air–polystyrene, $\theta_B \approx 57.8°$. At Brewster's angle, a linear polariser aligned with the p-direction will eliminate the reflected light entirely while leaving the diffuse component largely intact. This is the geometric basis of the polarisation-based artifact suppression discussed in §5.4.
+
+<Remark>
+
+The Fresnel curve, $R(\theta)$, has a shape that anyone who has driven on a wet road already knows by intuition. Looking down at the surface from directly above — nearly normal incidence — you see right through the water film to the asphalt; only a few percent of the light is reflected back. But viewing the same wet road from a low angle far ahead of the car, the reflection becomes mirror-bright; oncoming headlights appear as sharp specular highlights, sometimes brighter than the headlights themselves. The same thing happens at the inside edge of the meniscus in a petri dish photo: the edge points have higher local incidence angles, because the meniscus slope is steepest there, and the Fresnel coefficient at those angles is correspondingly larger. The bright crescent you see is amplified twice — first by the existence of a specular path (Lemma 3.1), and second by the larger reflectance at the steeper edge points.
+
+</Remark>
+
+### 4.4 Beer–Lambert Attenuation Through Absorbing Media
+
+Even between interface crossings, a ray travelling through a non-perfectly-transparent medium loses energy to absorption. The intensity decays exponentially with path length.
+
+### Theorem 4.2 (Beer–Lambert law)
+
+_A ray of initial intensity $I_0$ travelling a distance $d$ through a homogeneous absorbing medium with absorption coefficient $\alpha$ (in inverse length) emerges with intensity_
+
+$$I(d) = I_0 \exp(-\alpha d).$$
+
+The absorption coefficient is wavelength-dependent — the medium absorbs different colours at different rates. For MRS agar in the visible range, absorption is strongest in the blue and weakest in the red, which is what gives the gel its characteristic warm amber colour: white light passing through has its blue component preferentially attenuated, leaving the transmitted light yellow-amber. The simulator uses a single representative value $\alpha = 0.35\,\text{mm}^{-1}$ for the agar, which over a typical $2.3\,\text{mm}$ fill depth gives a single-pass transmittance of
+
+$$\frac{I}{I_0} = \exp(-0.35 \times 2.3) = \exp(-0.81) \approx 0.45.$$
+
+Roughly $55\%$ of the light entering a single agar pass is absorbed before reaching the other side. The polystyrene lid and dish floor have absorption coefficients on the order of $10^{-3}\,\text{mm}^{-1}$ and contribute negligibly over their $1\,\text{mm}$ thickness, and pure water has $\alpha \approx 10^{-3}\,\text{mm}^{-1}$ over the same range. The dominant absorption budget therefore belongs to the agar.
 
 ## 5. Imaging Configurations
 

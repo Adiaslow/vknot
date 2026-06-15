@@ -121,26 +121,33 @@ const CAMERA_APERTURE_RADIUS = 8; // 16 mm aperture
 const CAMERA_HOUSING_HALF_WIDTH = CAMERA_APERTURE_RADIUS + 1.5; // 9.5 mm
 const CAMERA_HOUSING_HEIGHT = 10; // 10 mm tall body above the lens
 
-// ─── floor scattering ──────────────────────────────────────────────
-// A purely specular dish (Fresnel only at every interface) does NOT
-// image samples sitting on the floor — there is no path from a
-// non-specular feature to the camera, and the camera sees a black
-// field except for direct specular reflections off smooth surfaces.
-// Real petri dishes image their contents because the floor and the
-// material sitting on it (agar, polystyrene, colonies) SCATTER light
-// diffusely. The Lambertian floor below models this: each ray that
-// reaches the floor produces a fan of upward-going rays in a cos-
-// weighted distribution, carrying total flux = albedo × incoming.
+// ─── dish-floor + bench layout ─────────────────────────────────────
+// The dish is a polystyrene shell with a flat floor ~1 mm thick. Below
+// the floor sits the benchtop — an opaque diffuse surface (laminate,
+// painted metal, paper, etc.) that the dish rests directly on. Two
+// physically distinct interfaces matter:
+//   • Agar ↔ polystyrene at y = 0 — Fresnel split. Small reflectance
+//     (n=1.34 → n=1.59, R ≈ 0.01 at near-normal incidence), which is
+//     nonetheless a real glare path back to the camera.
+//   • Polystyrene ↔ bench at y = -POLY_FLOOR_THICKNESS — Lambertian
+//     scatter. This is where the diffuse signal that makes a petri
+//     dish image-forming actually originates. In a real benchtop
+//     imaging setup, the bench's microscopic roughness scatters light
+//     hemispherically; we model that as a Lambertian boundary with
+//     mediumPlus = POLYSTYRENE (above) and mediumMinus = ABSORBER
+//     (below — bench body, irrelevant once light scatters back up).
+// No air gap: the dish sits directly on the bench, polystyrene in
+// optical contact with the bench material.
 //
-// Albedo 0.55 is a reasonable approximation for warm-translucent agar
-// over a white polystyrene floor; bacterial colonies typically scatter
-// more strongly (≈ 0.7–0.85). Volumetric scatter inside the agar itself
-// (subsurface scattering) is a related but weaker effect for clear MRS
-// and is NOT modelled here — the floor scatter alone is enough to
-// recover the dominant signal path to the camera and to demonstrate
-// the darkfield principle.
-const FLOOR_ALBEDO = 0.55;
-const FLOOR_SCATTER_RAYS = 7;
+// Albedo 0.55 is a reasonable approximation for a beige laminate or
+// neutral-grey benchtop. White paper would be closer to 0.85; black
+// melamine closer to 0.05. The "Bench scatter" toggle switches between
+// the Lambertian (scattering) bench and a pure absorber (a perfectly
+// black benchtop — the regime where the camera sees only specular
+// reflections, no image-forming light).
+const POLY_FLOOR_THICKNESS = 1; // 1 mm polystyrene dish floor
+const BENCH_ALBEDO = 0.55;
+const BENCH_SCATTER_RAYS = 7;
 
 // ─── visualization gamma ──────────────────────────────────────────
 // Beer-Lambert attenuation plus multiple Fresnel transmissions can
@@ -154,6 +161,9 @@ const FLOOR_SCATTER_RAYS = 7;
 const VIS_GAMMA = 0.45;
 
 // ─── canvas geometry ───────────────────────────────────────────────
+// WORLD_Y_MIN extends a few mm below y = -POLY_FLOOR_THICKNESS = -1 so
+// the polystyrene floor band (between y=0 and y=-1) and the bench
+// surface beneath it are both visible in the rendered output.
 const CANVAS_WIDTH = 720;
 const CANVAS_HEIGHT = 600;
 const PX_PER_MM = 2.0;
@@ -296,7 +306,7 @@ export default function PetriDishOpticsSimulator() {
   // Toggles
   const [lidPresent, setLidPresent] = useState(true);
   const [liquidPresent, setLiquidPresent] = useState(true);
-  const [floorScattering, setFloorScattering] = useState(true);
+  const [benchScattering, setBenchScattering] = useState(true);
   const [overheadOn, setOverheadOn] = useState(true);
   const [lamp1On, setLamp1On] = useState(false);
   const [lamp2On, setLamp2On] = useState(false);
@@ -467,35 +477,55 @@ export default function PetriDishOpticsSimulator() {
       ),
     );
 
-    // — Dish floor. With scattering ON, the floor is a Lambertian
-    //   reflector that re-emits albedo·intensity as a cos-weighted fan
-    //   of upward rays — physically modelling the warm-translucent
-    //   agar + white polystyrene base + any sample sitting on it. With
-    //   scattering OFF, the floor is a pure absorber (Fresnel split at
-    //   the agar/absorber interface, then nearly all flux is absorbed
-    //   below); this is the "specular-only" regime where the camera
-    //   sees only direct specular paths.
-    if (floorScattering) {
+    // — Dish floor + bench. The dish floor is a real ~1 mm polystyrene
+    //   slab with two Fresnel interfaces:
+    //     • Top at y = 0: agar ↔ polystyrene
+    //     • Bottom at y = -POLY_FLOOR_THICKNESS: polystyrene ↔ bench
+    //   Underneath the floor (in optical contact, no air gap) is the
+    //   bench surface itself — a Lambertian scatterer with albedo
+    //   BENCH_ALBEDO. This is the actual physical source of the
+    //   diffuse light that makes a petri dish image-forming on a
+    //   benchtop: the bench's microscopic roughness scatters incident
+    //   light back into the dish, where it transits the polystyrene
+    //   floor, agar, agar-surface, etc., and reaches the camera as
+    //   signal.
+    //
+    //   With bench scattering OFF, the bench is replaced by a pure
+    //   absorber (a perfectly-black benchtop). In that regime the
+    //   camera only sees specular reflections off smooth interfaces
+    //   — no image-forming light at all — which is the "specular-only
+    //   limit" the article uses to isolate the glare contribution.
+    surfaces.push(
+      horizontalSegment(
+        'dish floor top',
+        0,
+        -DISH_RADIUS,
+        DISH_RADIUS,
+        AGAR,
+        POLYSTYRENE,
+      ),
+    );
+    if (benchScattering) {
       surfaces.push(
         lambertianScatterer(
-          'dish floor',
-          0,
+          'bench',
+          -POLY_FLOOR_THICKNESS,
           -DISH_RADIUS,
           DISH_RADIUS,
-          AGAR,
+          POLYSTYRENE,
           ABSORBER,
-          FLOOR_ALBEDO,
-          FLOOR_SCATTER_RAYS,
+          BENCH_ALBEDO,
+          BENCH_SCATTER_RAYS,
         ),
       );
     } else {
       surfaces.push(
         horizontalSegment(
-          'dish floor',
-          0,
+          'bench',
+          -POLY_FLOOR_THICKNESS,
           -DISH_RADIUS,
           DISH_RADIUS,
-          AGAR,
+          POLYSTYRENE,
           ABSORBER,
         ),
       );
@@ -657,7 +687,7 @@ export default function PetriDishOpticsSimulator() {
     liquidMeniscus,
     lidPresent,
     liquidPresent,
-    floorScattering,
+    benchScattering,
     cameraHeight,
     lamp1On,
     lamp2On,
@@ -729,13 +759,14 @@ export default function PetriDishOpticsSimulator() {
   // A ray reaching the camera lens carries one of two kinds of
   // information depending on its ancestry:
   //   • SIGNAL — the ray's lineage includes a scattering event at the
-  //     floor, so it carries information about what was on the floor.
-  //     This is the image-forming light.
+  //     bench, so it carries information about the bench (and, in a
+  //     real setup, anything sitting on it — colonies, sample). This
+  //     is the image-forming light.
   //   • GLARE — the ray's lineage is pure Fresnel (specular). It hit
-  //     only smooth interfaces (lid, agar surface, liquid surface) on
-  //     its way to the lens. This is the artifact light.
+  //     only smooth interfaces (lid, agar surface, liquid surface,
+  //     dish-floor top) on its way to the lens. This is artifact light.
   // The viaScatter flag, propagated from parent to child throughout
-  // the trace, separates them. With floor-scattering OFF, all camera
+  // the trace, separates them. With bench scattering OFF, all camera
   // hits are glare by construction; with it ON, the two contributions
   // are mixed, and the ratio depends strongly on lighting geometry —
   // which IS the article's point about off-axis darkfield setups.
@@ -743,8 +774,8 @@ export default function PetriDishOpticsSimulator() {
     const primaryRays = tracedSegments.filter(
       (s) => s.bornBy === 'source',
     ).length;
-    const reachingFloor = tracedSegments.filter(
-      (s) => s.surfaceName === 'dish floor' && s.bornBy !== 'reflected',
+    const reachingBench = tracedSegments.filter(
+      (s) => s.surfaceName === 'bench' && s.bornBy !== 'reflected',
     ).length;
     const imageFormingHits = tracedSegments.filter(
       (s) =>
@@ -760,14 +791,14 @@ export default function PetriDishOpticsSimulator() {
       (sum, s) => sum + s.intensityEnd,
       0,
     );
-    const totalEnergyAtFloor = tracedSegments
-      .filter((s) => s.surfaceName === 'dish floor')
+    const totalEnergyAtBench = tracedSegments
+      .filter((s) => s.surfaceName === 'bench')
       .reduce((sum, s) => sum + s.intensityEnd, 0);
     const totalSourceEnergy = tracedSegments
       .filter((s) => s.bornBy === 'source')
       .reduce((sum, s) => sum + s.intensityStart, 0);
-    const fractionToFloor =
-      totalSourceEnergy > 0 ? totalEnergyAtFloor / totalSourceEnergy : 0;
+    const fractionToBench =
+      totalSourceEnergy > 0 ? totalEnergyAtBench / totalSourceEnergy : 0;
     // signalRatio in [0, 1]: 1.0 = pure image, 0 = pure glare, NaN if
     // nothing reaches the camera at all (rendered as '—').
     const totalCameraEnergy = signalEnergy + glareEnergy;
@@ -775,10 +806,10 @@ export default function PetriDishOpticsSimulator() {
       totalCameraEnergy > 0 ? signalEnergy / totalCameraEnergy : NaN;
     return {
       primaryRays,
-      reachingFloor,
+      reachingBench,
       signalCount: signalHits.length,
       glareCount: glareHits.length,
-      fractionToFloor,
+      fractionToBench,
       signalRatio,
     };
   }, [tracedSegments]);
@@ -865,6 +896,62 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS), wy(0));
     ctx.lineTo(wx(DISH_RADIUS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
+
+    // ── polystyrene floor band ───────────────────────────────────
+    // The dish floor is a real 1 mm polystyrene slab between y = 0
+    // (agar above) and y = -POLY_FLOOR_THICKNESS (bench below). We
+    // fill the band visually with the polystyrene tint so it reads as
+    // a distinct slab rather than an empty gap between the outlined
+    // dish walls.
+    ctx.fillStyle = palette.lidFill;
+    ctx.fillRect(
+      wx(-DISH_RADIUS),
+      wy(0),
+      wx(DISH_RADIUS) - wx(-DISH_RADIUS),
+      wy(-POLY_FLOOR_THICKNESS) - wy(0),
+    );
+
+    // ── bench (the table the dish sits on) ───────────────────────
+    // Drawn as a horizontal line at y = -POLY_FLOOR_THICKNESS with
+    // 45° hatching below it, extending across the full canvas width
+    // so the dish reads as resting on an extended benchtop. The
+    // actual optical interaction with the bench in the tracer is
+    // restricted to the dish footprint (x ∈ [-DISH_RADIUS,
+    // +DISH_RADIUS]), but visually the bench extends beyond.
+    {
+      const benchY = -POLY_FLOOR_THICKNESS;
+      const benchX0 = WORLD_X_MIN + 4;
+      const benchX1 = WORLD_X_MAX - 4;
+      // The bench surface line itself.
+      ctx.strokeStyle = palette.outlineStrong;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(wx(benchX0), wy(benchY));
+      ctx.lineTo(wx(benchX1), wy(benchY));
+      ctx.stroke();
+      // 45° hatching below the bench line. Step in canvas pixels;
+      // each stroke goes from the bench line down-and-right by ~6 mm.
+      ctx.strokeStyle = palette.outline;
+      ctx.lineWidth = 0.8;
+      const hatchStep = 8; // px
+      const hatchDrop = 5; // mm
+      const xPxStart = wx(benchX0);
+      const xPxEnd = wx(benchX1);
+      ctx.beginPath();
+      for (let xPx = xPxStart; xPx < xPxEnd; xPx += hatchStep) {
+        ctx.moveTo(xPx, wy(benchY));
+        ctx.lineTo(
+          Math.min(xPx + hatchDrop * PX_PER_MM, xPxEnd),
+          wy(benchY - hatchDrop),
+        );
+      }
+      ctx.stroke();
+      // Small label.
+      ctx.fillStyle = palette.ink;
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('bench', wx(benchX1) - 2, wy(benchY - hatchDrop) - 2);
+    }
 
     // ── agar fill ───────────────────────────────────────────────
     const { xs, agarYs, liquidYs } = surfaceSamples;
@@ -1051,12 +1138,12 @@ export default function PetriDishOpticsSimulator() {
     }
     ctx.setLineDash([]);
 
-    // Floor-hit markers — drawn only when scattering is OFF (when
-    // scattering is on, each floor hit is the START of new scattered
-    // segments, which themselves convey where the floor was touched).
-    if (!floorScattering) {
+    // Bench-hit markers — drawn only when scattering is OFF (when
+    // scattering is on, each bench hit is the START of new scattered
+    // segments, which themselves convey where the bench was touched).
+    if (!benchScattering) {
       for (const seg of tracedSegments) {
-        if (seg.surfaceName === 'dish floor' && seg.bornBy !== 'reflected') {
+        if (seg.surfaceName === 'bench' && seg.bornBy !== 'reflected') {
           ctx.fillStyle = `${palette.floorHit} ${Math.max(0.35, visAlpha(seg.intensityEnd))})`;
           ctx.beginPath();
           ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
@@ -1111,7 +1198,7 @@ export default function PetriDishOpticsSimulator() {
     cameraHeight,
     lidPresent,
     liquidPresent,
-    floorScattering,
+    benchScattering,
     overheadOn,
     lamp1On,
     lamp2On,
@@ -1143,10 +1230,19 @@ export default function PetriDishOpticsSimulator() {
           Fresnel-split into reflected (dashed) and transmitted (solid)
           branches at every interface, attenuate via Beer-Lambert inside
           absorbing media, and undergo total internal reflection past the
-          critical angle. The dish floor is a Lambertian scatterer (toggle
-          off to see the purely-specular regime). Camera arrivals are
-          colour-coded by ancestry: <strong>green = signal</strong> (the ray
-          touched the scattering floor, so it carries an image) and{' '}
+          critical angle. The dish floor is modelled as a 1 mm polystyrene
+          slab (Fresnel interfaces at top and bottom) resting directly on
+          the bench surface — a Lambertian scatterer with albedo 0.55.
+          The bench is the actual physical source of the image-forming
+          light: incident rays cross both Fresnel interfaces, scatter
+          diffusely off the bench, and return up through the polystyrene,
+          agar, and any surface layers to reach the camera. Toggle the
+          bench scatter off to see the purely-specular regime, where the
+          camera sees only direct Fresnel reflections from smooth
+          interfaces and no image-forming light at all. Camera arrivals
+          are colour-coded by ancestry:{' '}
+          <strong>green = signal</strong> (the ray scattered off the
+          bench, so it carries an image) and{' '}
           <strong>red = glare</strong> (purely specular, an artifact of the
           optics rather than information about the dish contents).
           Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
@@ -1275,10 +1371,10 @@ export default function PetriDishOpticsSimulator() {
           <label className="viz-check">
             <input
               type="checkbox"
-              checked={floorScattering}
-              onChange={(e) => setFloorScattering(e.target.checked)}
+              checked={benchScattering}
+              onChange={(e) => setBenchScattering(e.target.checked)}
             />
-            <span className="viz-check-sym">Floor scatter</span>
+            <span className="viz-check-sym">Bench scatter</span>
           </label>
           <label className="viz-check">
             <input
@@ -1310,8 +1406,8 @@ export default function PetriDishOpticsSimulator() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
         <StatCard label="Primary rays" value={stats.primaryRays.toString()} />
         <StatCard
-          label="Reaching floor"
-          value={stats.reachingFloor.toString()}
+          label="Reaching bench"
+          value={stats.reachingBench.toString()}
         />
         <StatCard
           label="Camera: signal"

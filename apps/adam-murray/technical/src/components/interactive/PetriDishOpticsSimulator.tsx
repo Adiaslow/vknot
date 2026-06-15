@@ -23,7 +23,7 @@ const CANVAS_WIDTH = 720;
 const CANVAS_HEIGHT = 600;
 const PX_PER_MM = 2.0;
 const WORLD_X_MIN = -180;
-const WORLD_Y_MIN = -15;
+const WORLD_Y_MIN = -22;
 
 // World-to-canvas transforms. World x is horizontal, world y is vertical
 // (positive y is upward in physical space). Canvas y is inverted so that
@@ -286,10 +286,10 @@ export default function PetriDishOpticsSimulator() {
     // ── scale bar ────────────────────────────────────────────────
     // Placed in world coordinates immediately below the dish, spanning
     // from x=0 to x=DISH_RADIUS so the bar directly corresponds to half
-    // the dish width. Label is drawn ABOVE the bar (between dish and
-    // bar) so it fits within the canvas regardless of canvas height.
+    // the dish width. Label sits below the bar in the standard
+    // scientific-illustration position.
     {
-      const barY = -10; // world mm, below the dish outer floor at y=-1
+      const barY = -13; // world mm, below the dish outer floor at y=-1
       const x0 = wx(0);
       const x1 = wx(DISH_RADIUS);
       const yPx = wy(barY);
@@ -307,7 +307,7 @@ export default function PetriDishOpticsSimulator() {
       ctx.stroke();
       ctx.font = '11px ui-monospace, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('50 mm (½ dish)', (x0 + x1) / 2, yPx - 6);
+      ctx.fillText('50 mm (½ dish)', (x0 + x1) / 2, yPx + 14);
     }
   }, [
     tokens,

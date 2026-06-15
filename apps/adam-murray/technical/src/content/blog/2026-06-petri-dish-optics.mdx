@@ -20,7 +20,7 @@ _For A. Rapolu, whose experimental initiative motivated this analysis._
 
 ## Abstract
 
-_TODO — to be drafted after the simulator is complete. Will summarize: the practical problem of specular artifacts in routine petri dish photography; the geometric optics framework developed here; the interactive ray-tracing simulation that accompanies the formal treatment; the practical implications for experimental imaging configurations; the cross-modality applicability of the same principles to other layered optical systems including cranial-window microscopy._
+Routine biological photography of petri dishes under typical laboratory lighting frequently produces images with specular artifacts that confound downstream image-analysis pipelines. This article develops the geometric optics of the petri dish — a polystyrene shell containing MRS agar gel, an optional aqueous liquid layer, and an optional lid — as a layered optical system, and uses the resulting framework to predict which imaging configurations produce artifacts and which avoid them. We derive the meniscus profile from the Young–Laplace equation, establish a central lemma (Lemma 3.1) showing that any non-flat liquid interface above the specimen produces specular paths from a diffuse overhead source to a centred overhead camera, and use the Fresnel curve to quantify the brightness of those paths. From this analysis we derive a catalogue of interventions — directional off-axis illumination, spread plates and cover slips, cross-polarised photography, and imaging from below through the dish bottom — and the quantitative regimes under which each works. The article is accompanied by an interactive ray-tracing simulator that implements the full physics. The framework was originally motivated by the cranial-window intrinsic signal imaging configuration of mouse visual cortex, and we close by discussing the cross-modality applicability of the same geometric analysis to slide microscopy, fluorescence microscopy, microfluidic device photography, cross-polarised art photography, and satellite imaging.
 
 ## Interactive Demonstration
 
@@ -32,15 +32,41 @@ _Adjust the geometry, lighting, and camera position below to explore how light i
 
 ### 1.1 Imaging Artifacts in Biological Photography
 
-_TODO — Motivates from the practical problem: routine biological photography of petri dishes (colony counting, antimicrobial assays, etc.) using consumer-grade cameras under typical laboratory lighting frequently produces images with bright reflective regions that do not correspond to biological features. These artifacts confound downstream image analysis pipelines (e.g., colony segmentation in FIJI). Frames the problem as deserving a principled treatment._
+Photographing a petri dish is one of the most routine tasks in a working microbiology lab. A bacterial sample is poured or spread onto an agar plate, incubated overnight, and the resulting colonies are counted, photographed, and analysed. The photographs feed into image-analysis pipelines — Fiji segmentation routines, dedicated tools like OpenCFU, automated commercial colony counters — that classify pixels as colony or background and report a colony-forming-unit count. The pipeline is calibrated on clean images; it requires colonies to be visually distinct from the agar around them, with no spurious bright regions to confuse the segmentation.
+
+This works well when the image is well-formed. It fails — sometimes spectacularly, sometimes subtly — when the image carries specular artifacts.
+
+The most common artifacts are bright reflections off the curved liquid surfaces inside the dish. A bright crescent at the dish edge from the meniscus of a poured suspension; an off-centre glare spot from a ceiling light; a thin bright ring at the inside wall where the agar itself curves upward. These are not features of the specimen. They are accurate reflections of the lighting in the room, projected onto the curved liquid surfaces of the dish and stretched across their curvature. Segmentation pipelines do not know to ignore them; they segment the bright regions as colony pixels and report inflated counts. Manual review can correct the resulting errors, but at the cost of the throughput that automation was supposed to provide.
+
+Practical responses to this problem in laboratory practice are largely folkloric. "Use a different lamp." "Turn off the room lights." "Put a polariser on the camera." "Image from below through the dish bottom." Each of these is sometimes effective and sometimes not, with the difference depending on details of the dish, sample, and lighting that the folklore does not specify. This article aims to replace the folklore with a derivation: the geometric optics of the layered petri-dish system is simple enough to work out from first principles, and the conditions under which each intervention works (and fails) follow from the derivation directly.
 
 ### 1.2 The Cross-Domain Geometry of the Specimen Surface
 
-_TODO — Surfaces the observation that the same geometric optics governs cranial-window imaging in two-photon microscopy, slide-based pathology, microfluidic device photography, and petri dish imaging. The recurring structure — a curved liquid interface above an opaque or semi-transparent specimen, viewed through air or an additional transparent layer — appears across imaging modalities. The framework developed here applies to all of them._
+The petri dish is one instance of a recurring optical structure across imaging modalities. The structure is:
+
+- A partially-diffuse specimen — a colony, a section of tissue, a cell culture, a microfluidic channel — that the imaging system is trying to characterise.
+- A curved or layered fluid interface above the specimen — a meniscus of bacterial suspension above agar, a film of mounting medium beneath a cover slip, a layer of PBS above an exposed cortex, a varnish coat above a painting.
+- A camera positioned somewhere above (or below, or to one side of) the specimen, with some illumination source elsewhere in the geometry.
+
+Each of these settings produces variants of the same artifacts — specular reflections from the curved fluid interface contaminate the image of the diffuse specimen below — and each settles, in practice, on variants of the same interventions: flatten the interface (cover slips and spread plates), restrict the lighting direction (off-axis lamps), or filter the polarisation (cross-polarised photography). What unifies them is the underlying geometric optics: a small number of equations (Snell's law, the law of reflection, the Fresnel equations, the Beer–Lambert law, and the Young–Laplace meniscus profile) that fully determine which configurations produce artifacts and which do not.
+
+This article works out the framework in the petri-dish setting because it is the simplest of the recurring instances — the geometry is rotationally symmetric, the materials are well-characterised, the camera is a consumer smartphone, and an interactive simulator can be embedded directly in the page. The framework itself is broader; §6.1 returns to the cross-modality story and works out the correspondence with cranial-window intrinsic signal imaging, which was in fact the setting in which the analysis here was first useful.
 
 ### 1.3 Contributions
 
-_TODO — Enumerates the article's contributions: (1) a closed-form treatment of the petri dish as a layered optical system, including the meniscus geometry derived from the Young-Laplace equation; (2) explicit analysis of the curved-surface specular problem; (3) an interactive raytracing simulation that traces real rays through the system with proper Snell's law refraction, Fresnel splitting, and Beer-Lambert attenuation; (4) a catalog of imaging configurations with their failure modes and remedies; (5) discussion of cross-modality applicability._
+This article delivers five things:
+
+1. **A closed-form treatment of the petri dish as a layered optical system (§2)**, including the meniscus geometry derived from the Young–Laplace equation, the material properties of every interface and bulk medium, and the coordinate system used throughout.
+
+2. **An explicit analysis of the curved-surface specular problem (§3)**, establishing the central geometric claim — that any non-flat liquid interface above the specimen produces specular paths to a centred overhead camera from anywhere in the upper hemisphere of source positions (Lemma 3.1, the mirror-family existence statement) — and tracing its immediate consequences for petri-dish photography.
+
+3. **A complete treatment of refraction and Fresnel reflectance at the smooth dielectric interfaces of the system (§4)**, including Snell's law in vector form, the critical angle for total internal reflection, the Fresnel reflectance coefficients for s- and p-polarised light, Brewster's angle, and the Beer–Lambert attenuation law.
+
+4. **A catalogue of imaging configurations and their failure modes (§5)**, including the overhead-lighting failure mode (§5.1), directional off-axis illumination as a geometric fix (§5.2), surface-flattening interventions via spread plates and cover slips (§5.3), polarisation-based suppression (§5.4), and imaging from below (§5.5). Each subsection includes the quantitative analysis that determines when the intervention works and the simulator-toggle steps a reader can use to verify it.
+
+5. **An interactive ray-tracing simulator embedded at the top of the page**, which traces real rays through the system with proper Snell's law refraction, Fresnel splitting at every interface, and Beer–Lambert attenuation through every absorbing medium, allowing the reader to vary any geometric or lighting parameter and see the consequence in real time.
+
+Throughout, the framework is presented in a form that makes its cross-modality applicability explicit, and §6 discusses the application of the same analysis to cranial-window intrinsic signal imaging, slide microscopy, fluorescence microscopy, microfluidic device photography, cross-polarised art photography, and satellite imaging.
 
 ## 2. The Layered Optical System
 

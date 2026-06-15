@@ -3,6 +3,8 @@ import UnoCSS from '@unocss/astro';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
   site: 'https://vknot.love',
@@ -10,8 +12,7 @@ export default defineConfig({
   output: 'static',
   integrations: [UnoCSS(), react(), mdx(), sitemap()],
   markdown: {
-    remarkPlugins: ['remark-math'],
-    rehypePlugins: ['rehype-katex']
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex]
   }
 });
-

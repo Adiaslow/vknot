@@ -10,16 +10,16 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.0.0",
-    "@astrojs/react": "^3.5.0",
-    "@astrojs/sitemap": "^3.0.3",
-    "@unocss/astro": "^0.58.0",
-    "astro": "^4.15.9",
+    "@astrojs/mdx": "^6.0.3",
+    "@astrojs/react": "^5.0.7",
+    "@astrojs/sitemap": "^3.7.3",
+    "@unocss/astro": "^66.6.8",
+    "astro": "^6.4.6",
     "lucide-react": "^0.546.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rehype-katex": "^7.0.0",
     "remark-math": "^6.0.0",
-    "unocss": "^0.58.0"
+    "unocss": "^66.6.8"
   }
 }

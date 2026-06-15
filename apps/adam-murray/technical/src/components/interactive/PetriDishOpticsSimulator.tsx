@@ -17,6 +17,7 @@ import {
   horizontalSegment,
   verticalSegment,
   heightField,
+  lambertianScatterer,
   trace,
 } from './_viz';
 import type {
@@ -94,6 +95,38 @@ const LAMP_RAYS = 5;
 // there (the photon is captured by the sensor), and we count those hits
 // as "rays reaching camera."
 const CAMERA_APERTURE_RADIUS = 8; // 16 mm aperture
+
+// ─── floor scattering ──────────────────────────────────────────────
+// A purely specular dish (Fresnel only at every interface) does NOT
+// image samples sitting on the floor — there is no path from a
+// non-specular feature to the camera, and the camera sees a black
+// field except for direct specular reflections off smooth surfaces.
+// Real petri dishes image their contents because the floor and the
+// material sitting on it (agar, polystyrene, colonies) SCATTER light
+// diffusely. The Lambertian floor below models this: each ray that
+// reaches the floor produces a fan of upward-going rays in a cos-
+// weighted distribution, carrying total flux = albedo × incoming.
+//
+// Albedo 0.55 is a reasonable approximation for warm-translucent agar
+// over a white polystyrene floor; bacterial colonies typically scatter
+// more strongly (≈ 0.7–0.85). Volumetric scatter inside the agar itself
+// (subsurface scattering) is a related but weaker effect for clear MRS
+// and is NOT modelled here — the floor scatter alone is enough to
+// recover the dominant signal path to the camera and to demonstrate
+// the darkfield principle.
+const FLOOR_ALBEDO = 0.55;
+const FLOOR_SCATTER_RAYS = 7;
+
+// ─── visualization gamma ──────────────────────────────────────────
+// Beer-Lambert attenuation plus multiple Fresnel transmissions can
+// drive ray intensities far below 1% of source before they reach the
+// camera, even when they DO reach it. A linear alpha = intensity map
+// renders such rays invisibly faint. We apply a gamma transform to
+// the rendered alpha (alpha = intensity^GAMMA, GAMMA < 1) so that
+// low-intensity paths remain legible. This is a VISUAL transform
+// only; the physics carries true linear intensities through the
+// scene and into the stats.
+const VIS_GAMMA = 0.45;
 
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
@@ -238,6 +271,7 @@ export default function PetriDishOpticsSimulator() {
   // Toggles
   const [lidPresent, setLidPresent] = useState(true);
   const [liquidPresent, setLiquidPresent] = useState(true);
+  const [floorScattering, setFloorScattering] = useState(true);
   const [overheadOn, setOverheadOn] = useState(true);
   const [lamp1On, setLamp1On] = useState(false);
   const [lamp2On, setLamp2On] = useState(false);
@@ -408,18 +442,39 @@ export default function PetriDishOpticsSimulator() {
       ),
     );
 
-    // — Dish floor: agar above, ABSORBER below (rays terminate inside
-    //   the floor's high-α medium within a fraction of a millimetre).
-    surfaces.push(
-      horizontalSegment(
-        'dish floor',
-        0,
-        -DISH_RADIUS,
-        DISH_RADIUS,
-        AGAR,
-        ABSORBER,
-      ),
-    );
+    // — Dish floor. With scattering ON, the floor is a Lambertian
+    //   reflector that re-emits albedo·intensity as a cos-weighted fan
+    //   of upward rays — physically modelling the warm-translucent
+    //   agar + white polystyrene base + any sample sitting on it. With
+    //   scattering OFF, the floor is a pure absorber (Fresnel split at
+    //   the agar/absorber interface, then nearly all flux is absorbed
+    //   below); this is the "specular-only" regime where the camera
+    //   sees only direct specular paths.
+    if (floorScattering) {
+      surfaces.push(
+        lambertianScatterer(
+          'dish floor',
+          0,
+          -DISH_RADIUS,
+          DISH_RADIUS,
+          AGAR,
+          ABSORBER,
+          FLOOR_ALBEDO,
+          FLOOR_SCATTER_RAYS,
+        ),
+      );
+    } else {
+      surfaces.push(
+        horizontalSegment(
+          'dish floor',
+          0,
+          -DISH_RADIUS,
+          DISH_RADIUS,
+          AGAR,
+          ABSORBER,
+        ),
+      );
+    }
 
     // — Dish side walls (vertical). To the OUTSIDE of each wall is air.
     //   To the INSIDE, the medium depends on y: below the agar surface
@@ -484,6 +539,7 @@ export default function PetriDishOpticsSimulator() {
     liquidMeniscus,
     lidPresent,
     liquidPresent,
+    floorScattering,
     cameraHeight,
   ]);
 
@@ -533,7 +589,13 @@ export default function PetriDishOpticsSimulator() {
   // ── trace ───────────────────────────────────────────────────────
   const tracedSegments = useMemo<RaySegment[]>(() => {
     const initialRays = sources.flatMap((src) => src());
-    return trace(scene, initialRays, { maxDepth: 6, minIntensity: 0.003 });
+    // minIntensity is set low (5e-4) because scattered rays at the
+    // floor start at intensity ≈ (per-primary-flux × albedo / N), which
+    // for our parameters is ~ 0.001 — i.e. several orders of magnitude
+    // below the source. The visualization gamma transform recovers
+    // legibility; the threshold here just keeps the queue from
+    // pruning physically-meaningful paths.
+    return trace(scene, initialRays, { maxDepth: 7, minIntensity: 5e-4 });
   }, [scene, sources]);
 
   // ── stats ───────────────────────────────────────────────────────
@@ -794,20 +856,18 @@ export default function PetriDishOpticsSimulator() {
     // ── traced ray segments ─────────────────────────────────────
     // Per-segment linear gradients carry Beer-Lambert attenuation
     // visually: alpha varies along the segment from intensityStart to
-    // intensityEnd. Blending mode is chosen per theme so that overlap
-    // accumulates in the perceptually correct direction (additive on
-    // dark, source-over on light). Reflected segments are dashed.
+    // intensityEnd, after a VIS_GAMMA-shaped transform that boosts
+    // low-intensity paths into a legible range. Blending mode is chosen
+    // per theme so that overlap accumulates in the perceptually correct
+    // direction (additive on dark, source-over on light). Reflected
+    // segments are dashed; scattered segments are solid + finer.
     ctx.globalCompositeOperation = palette.blendMode;
+    const visAlpha = (i: number) =>
+      Math.pow(Math.max(0, Math.min(1, i)), VIS_GAMMA);
     for (const seg of tracedSegments) {
       const colorPrefix = rayColor(seg.medium, dark);
-      const aStart = Math.max(
-        palette.minRayAlpha,
-        Math.min(1, seg.intensityStart),
-      );
-      const aEnd = Math.max(
-        palette.minRayAlpha,
-        Math.min(1, seg.intensityEnd),
-      );
+      const aStart = visAlpha(seg.intensityStart);
+      const aEnd = visAlpha(seg.intensityEnd);
       const grad = ctx.createLinearGradient(
         wx(seg.start.x),
         wy(seg.start.y),
@@ -817,7 +877,12 @@ export default function PetriDishOpticsSimulator() {
       grad.addColorStop(0, `${colorPrefix} ${aStart})`);
       grad.addColorStop(1, `${colorPrefix} ${aEnd})`);
       ctx.strokeStyle = grad;
-      ctx.lineWidth = seg.bornBy === 'reflected' ? 1.0 : 1.4;
+      ctx.lineWidth =
+        seg.bornBy === 'reflected'
+          ? 1.0
+          : seg.bornBy === 'scattered'
+            ? 0.9
+            : 1.4;
       ctx.setLineDash(seg.bornBy === 'reflected' ? [4, 3] : []);
       ctx.beginPath();
       ctx.moveTo(wx(seg.start.x), wy(seg.start.y));
@@ -826,22 +891,24 @@ export default function PetriDishOpticsSimulator() {
     }
     ctx.setLineDash([]);
 
-    // Floor-hit markers (still in additive/source-over mode — they
-    // belong to the ray layer and should accumulate with overlapping
-    // rays).
-    for (const seg of tracedSegments) {
-      if (seg.surfaceName === 'dish floor' && seg.bornBy !== 'reflected') {
-        ctx.fillStyle = `${palette.floorHit} ${Math.max(0.35, seg.intensityEnd)})`;
-        ctx.beginPath();
-        ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
-        ctx.fill();
+    // Floor-hit markers — drawn only when scattering is OFF (when
+    // scattering is on, each floor hit is the START of new scattered
+    // segments, which themselves convey where the floor was touched).
+    if (!floorScattering) {
+      for (const seg of tracedSegments) {
+        if (seg.surfaceName === 'dish floor' && seg.bornBy !== 'reflected') {
+          ctx.fillStyle = `${palette.floorHit} ${Math.max(0.35, visAlpha(seg.intensityEnd))})`;
+          ctx.beginPath();
+          ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
     // Camera-arrival markers (image-forming rays — upward hits).
     for (const seg of tracedSegments) {
       if (seg.surfaceName === 'camera lens' && seg.end.y > seg.start.y) {
-        ctx.fillStyle = `${palette.cameraHit} ${Math.max(0.45, seg.intensityEnd)})`;
+        ctx.fillStyle = `${palette.cameraHit} ${Math.max(0.5, visAlpha(seg.intensityEnd))})`;
         ctx.beginPath();
         ctx.arc(wx(seg.end.x), wy(seg.end.y), 3, 0, Math.PI * 2);
         ctx.fill();
@@ -879,6 +946,7 @@ export default function PetriDishOpticsSimulator() {
     cameraHeight,
     lidPresent,
     liquidPresent,
+    floorScattering,
     overheadOn,
     lamp1On,
     lamp2On,
@@ -899,13 +967,16 @@ export default function PetriDishOpticsSimulator() {
           and rays from a given direction are parallel. Directional lamps emit
           finite-divergence cones (a few-degree spread, typical of focused
           lab spots). The camera is a finite-aperture lens (16 mm diameter)
-          that absorbs any ray crossing it from either direction; the
-          image-forming rays are those approaching from below. Rays refract
-          (Snell), Fresnel-split into reflected (dashed) and transmitted
-          (solid) branches at every interface, attenuate via Beer-Lambert
-          inside absorbing media, and undergo total internal reflection at
-          grazing angles past the critical angle. Refractive indices: air
-          1.00, polystyrene 1.59, water 1.33, agar 1.34.
+          that absorbs any ray crossing it from either direction; image-forming
+          rays approach from below. Rays refract (Snell), Fresnel-split into
+          reflected (dashed) and transmitted (solid) branches at every
+          interface, attenuate via Beer-Lambert inside absorbing media, and
+          undergo total internal reflection at grazing angles past the
+          critical angle. The dish floor is a Lambertian scatterer (toggle
+          off to see the purely-specular regime, in which off-axis lighting
+          leaves the camera with no signal — the darkfield setup needs
+          something to scatter light back to the lens). Refractive indices:
+          air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
       footer={
@@ -988,22 +1059,22 @@ export default function PetriDishOpticsSimulator() {
         <Slider
           label="Lamp 1 angle (°)"
           value={lampAngle1}
-          min={-75}
-          max={75}
+          min={-90}
+          max={90}
           step={1}
           display={`${lampAngle1}°`}
-          hint="Off-vertical angle (right of camera = positive)"
-          scale={['-75°', '+75°']}
+          hint="Off-vertical angle (right of camera = positive); ±90° is fully grazing"
+          scale={['-90°', '+90°']}
           onChange={setLampAngle1}
         />
         <Slider
           label="Lamp 2 angle (°)"
           value={lampAngle2}
-          min={-75}
-          max={75}
+          min={-90}
+          max={90}
           step={1}
           display={`${lampAngle2}°`}
-          scale={['-75°', '+75°']}
+          scale={['-90°', '+90°']}
           onChange={setLampAngle2}
         />
       </div>
@@ -1025,6 +1096,14 @@ export default function PetriDishOpticsSimulator() {
               onChange={(e) => setLiquidPresent(e.target.checked)}
             />
             <span className="viz-check-sym">Liquid layer</span>
+          </label>
+          <label className="viz-check">
+            <input
+              type="checkbox"
+              checked={floorScattering}
+              onChange={(e) => setFloorScattering(e.target.checked)}
+            />
+            <span className="viz-check-sym">Floor scatter</span>
           </label>
           <label className="viz-check">
             <input

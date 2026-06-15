@@ -15,6 +15,10 @@
 //     Lambertian (cos-weighted), and uniform diffuse sky (cos-weighted
 //     hemispherical, parallel rays per direction — for modelling
 //     distant extended emitters like a ceiling).
+//   • Surface factories: pure-Fresnel (default) + Lambertian-scattering
+//     (custom `interact` hook) for diffuse white surfaces like a dish
+//     floor or matte sample. Surfaces with a custom `interact` override
+//     the Fresnel split at hit time.
 //
 // Conventions:
 //   • Right-handed 2D coordinates. +x right, +y up.
@@ -57,7 +61,7 @@ export interface Ray {
   intensity: number; // 0..1, fraction of source flux carried by this ray
   medium: Medium; // medium the ray is currently in
   depth: number; // bounce generation; 0 = primary from source
-  bornBy: 'source' | 'reflected' | 'transmitted';
+  bornBy: 'source' | 'reflected' | 'transmitted' | 'scattered';
 }
 
 export interface RaySegment {
@@ -67,7 +71,7 @@ export interface RaySegment {
   intensityEnd: number;
   medium: Medium;
   depth: number;
-  bornBy: 'source' | 'reflected' | 'transmitted';
+  bornBy: 'source' | 'reflected' | 'transmitted' | 'scattered';
   terminatedBy: 'hit' | 'escape';
   surfaceName?: string; // name of the surface the segment terminated at, if any
 }
@@ -159,6 +163,22 @@ export interface Surface {
     tMin: number,
     tMax: number,
   ): SurfaceHit | null;
+  /**
+   * Optional custom interaction. If provided, the trace function calls
+   * this instead of the default Fresnel-split when a ray hits this
+   * surface. `rayAtHit` has its intensity already adjusted for
+   * Beer-Lambert attenuation along the segment leading to the hit;
+   * the function returns whatever child rays the interaction produces
+   * (zero for pure absorption, two for Fresnel split, N for Lambertian
+   * scatter, etc.). Child rays are responsible for setting their own
+   * offset origin (typically via `addScaled(point, normal, eps)`) to
+   * avoid self-intersection.
+   */
+  interact?: (
+    rayAtHit: Ray,
+    hit: SurfaceHit,
+    opts: { selfIntersectEps: number },
+  ) => Ray[];
 }
 
 /**
@@ -316,6 +336,70 @@ export function heightField(
         prevF = fT;
       }
       return null;
+    },
+  };
+}
+
+// ─── light source factories ─────────────────────────────────────────
+
+/**
+ * Horizontal Lambertian scattering surface at y=y₀, x ∈ [xMin, xMax].
+ *
+ * Geometrically a `horizontalSegment` between two media, but with a
+ * custom `interact` that replaces Fresnel-split with diffuse scatter.
+ * An incoming ray is partly absorbed (1 − albedo of its flux disappears)
+ * and partly re-emitted as `scatterRayCount` rays distributed
+ * cos-weighted (Lambertian) in the hemisphere on the SIDE THE RAY CAME
+ * FROM. The medium of the scattered rays is the same as the medium the
+ * incoming ray was in: scattered photons go back into the medium they
+ * arrived through. Each scattered ray carries (albedo × intensity) /
+ * scatterRayCount, so total reflected flux equals albedo × incoming
+ * flux (energy-conserving up to the absorbed fraction).
+ *
+ * This is the physical model for a diffuse white floor, a piece of
+ * matte polystyrene, a thick paper, a bacterial colony, etc. — any
+ * surface whose roughness is large compared to the wavelength so that
+ * specular reflection is averaged into a cos-weighted lobe.
+ */
+export function lambertianScatterer(
+  name: string,
+  y: number,
+  xMin: number,
+  xMax: number,
+  mediumPlus: Medium,
+  mediumMinus: Medium,
+  albedo: number,
+  scatterRayCount: number,
+): Surface {
+  const base = horizontalSegment(name, y, xMin, xMax, mediumPlus, mediumMinus);
+  return {
+    ...base,
+    interact: (rayAtHit, hit, { selfIntersectEps }) => {
+      const dotN = dot(rayAtHit.dir, hit.normal);
+      // Ray approached from +normal side iff dotN < 0
+      const fromPlus = dotN < 0;
+      const outwardNormal: Vec2 = fromPlus
+        ? hit.normal
+        : { x: -hit.normal.x, y: -hit.normal.y };
+      const baseAngle = Math.atan2(outwardNormal.y, outwardNormal.x);
+      const mediumOut = fromPlus ? mediumPlus : mediumMinus;
+      const perRay = (rayAtHit.intensity * albedo) / scatterRayCount;
+      const children: Ray[] = [];
+      for (let i = 0; i < scatterRayCount; i++) {
+        // Cos-weighted stratified sample in the outward hemisphere.
+        const u = (i + 0.5) / scatterRayCount;
+        const theta = Math.asin(2 * u - 1);
+        const angle = baseAngle + theta;
+        children.push({
+          origin: addScaled(hit.point, outwardNormal, selfIntersectEps),
+          dir: { x: Math.cos(angle), y: Math.sin(angle) },
+          intensity: perRay,
+          medium: mediumOut,
+          depth: rayAtHit.depth + 1,
+          bornBy: 'scattered',
+        });
+      }
+      return children;
     },
   };
 }
@@ -601,6 +685,28 @@ export function trace(
       terminatedBy: 'hit',
       surfaceName: nearestSurface?.name,
     });
+
+    // If the surface defines a custom interaction (e.g. Lambertian
+    // scatter), delegate to it. Otherwise do the default Fresnel split.
+    if (nearestSurface && nearestSurface.interact) {
+      const rayAtHit: Ray = {
+        origin: nearestHit.point,
+        dir: ray.dir,
+        intensity: intensityAtHit,
+        medium: ray.medium,
+        depth: ray.depth,
+        bornBy: ray.bornBy,
+      };
+      const children = nearestSurface.interact(rayAtHit, nearestHit, {
+        selfIntersectEps: SELF_INTERSECT_EPS,
+      });
+      for (const child of children) {
+        if (child.intensity >= minIntensity && child.depth <= maxDepth) {
+          queue.push(child);
+        }
+      }
+      continue;
+    }
 
     // Determine the working normal (pointing INTO the ray's current
     // medium) and the indices n1 (current) → n2 (other side).

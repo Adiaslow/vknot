@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import BlogLayout from "../../layouts/BlogLayout.astro";
-import ArticleHeader from "../../components/ArticleHeader.astro";
+import ArticleMeta from "../../components/ArticleMeta.astro";
 import Theorem from "../../components/math/Theorem.astro";
 import Definition from "../../components/math/Definition.astro";
 import Proof from "../../components/math/Proof.astro";
@@ -23,8 +23,12 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content, components: mdxComponents } = await render(post);
 
+// ArticleMeta is exposed to MDX so each post can place
+// `<ArticleMeta {...frontmatter} />` right under its `# Title` H1.
+// The math environments are exposed the same way.
 const components = {
   ...mdxComponents,
+  ArticleMeta,
   Theorem,
   Definition,
   Proof,
@@ -44,14 +48,5 @@ const components = {
   publishDate={post.data.date.toISOString()}
   tags={post.data.tags}
 >
-  <ArticleHeader
-    slot="hero"
-    variant="page"
-    summary={post.data.description ?? ""}
-    publishDate={post.data.date.toISOString()}
-    showTags={true}
-    tags={post.data.tags}
-    readingTimeMinutes={post.data.readingTimeMinutes}
-  />
   <Content {components} />
 </BlogLayout>

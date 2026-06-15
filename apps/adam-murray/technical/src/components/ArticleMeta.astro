@@ -1,0 +1,94 @@
+---
+/**
+ * ArticleMeta — the byline / summary / tag-chip block that accompanies
+ * each post's title.
+ *
+ * Not rendered by the layout. Each .mdx places this component itself
+ * with `<ArticleMeta {...frontmatter} />` right after its body H1, so
+ * the block reads visually as a dek beneath the title. Astro injects
+ * the file's frontmatter into MDX as a top-level `frontmatter`
+ * variable, so the spread call is all that's needed at the call site.
+ *
+ * Props mirror the blog collection's frontmatter shape: description,
+ * date, tags, readingTimeMinutes. Extra fields the component doesn't
+ * consume (title, draft, image, etc.) are accepted and ignored —
+ * spreading the whole frontmatter object is the cleanest call site.
+ */
+import { ReadingTime } from "./ReadingTime.tsx";
+
+export interface Props {
+  readonly description: string;
+  readonly date: Date | string;
+  readonly tags?: ReadonlyArray<string>;
+  readonly readingTimeMinutes?: number;
+  /** Reserved for future card-style usage; ignored on post pages. */
+  readonly variant?: "page" | "card";
+}
+
+const {
+  description,
+  date,
+  tags = [],
+  readingTimeMinutes,
+  variant = "page",
+} = Astro.props;
+
+const dateObj = date instanceof Date ? date : new Date(date);
+const iso = dateObj.toISOString();
+const dateLabel = dateObj.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<aside class:list={["article-meta", variant]}>
+  <div class="byline">
+    <span>Adam Murray</span>
+    <span class="sep">/</span>
+    <time datetime={iso}>{dateLabel}</time>
+    {readingTimeMinutes ? (
+      <>
+        <span class="sep">/</span>
+        <ReadingTime minutes={readingTimeMinutes} />
+      </>
+    ) : null}
+  </div>
+  {description && <p class="summary">{description}</p>}
+  {tags.length > 0 && (
+    <div class="tags">
+      {tags.map((tag) => <span class="tag" data-tag={tag}>{tag}</span>)}
+    </div>
+  )}
+</aside>
+
+<style>
+  .article-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.25rem 0 1.75rem;
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .byline .sep { color: var(--rule-strong); }
+
+  .summary {
+    color: var(--ink-soft);
+    max-width: 54ch;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .article-meta.page .summary { font-size: 1.18rem; }
+  .article-meta.card .summary { font-size: 0.95rem; }
+  /* .tags / .tag chip styling is shared — see styles/base.css */
+</style>

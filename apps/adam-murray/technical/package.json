@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "sync:titles": "node scripts/sync-titles.mjs",
+    "predev": "pnpm sync:titles",
+    "prebuild": "pnpm sync:titles",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

@@ -14,9 +14,9 @@ const DISH_WALL_HEIGHT = 15; // interior wall height
 const DISH_WALL_THICKNESS = 1; // polystyrene wall (visual)
 const AGAR_FILL_DEPTH = 2.3; // 18 mL / (π · 50²) mm³
 const LID_THICKNESS = 1; // lid wall thickness
-const LID_CLEARANCE = 0.3; // horizontal gap between dish outer wall and lid inner wall
-const LID_OVERLAP = 3; // how far the lid walls extend below the dish wall top
-const LID_HEIGHT = 8; // total vertical extent of the lid (wall + top)
+const LID_CLEARANCE = 0.5; // horizontal gap between dish outer wall and lid inner wall
+const LID_OVERLAP = 5; // how far the lid walls extend below the dish wall top
+const LID_HEIGHT = 7; // total vertical extent of the lid (wall + top)
 
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
@@ -161,8 +161,9 @@ export default function PetriDishOpticsSimulator() {
     ctx.stroke();
 
     // ── agar fill ─────────────────────────────────────────────────
+    // Medium amber, slightly opalescent — matches the Fisher MRS spec.
     const { xs, agarYs, liquidYs } = surfaceSamples;
-    ctx.fillStyle = 'rgba(180, 140, 60, 0.32)';
+    ctx.fillStyle = 'rgba(195, 135, 50, 0.55)';
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS), wy(0));
     for (let i = 0; i < xs.length; i++) ctx.lineTo(wx(xs[i]), wy(agarYs[i]));
@@ -194,7 +195,7 @@ export default function PetriDishOpticsSimulator() {
       const lidInnerTop = lidOuterTop - LID_THICKNESS;
 
       // Translucent fill for the lid wall material only.
-      ctx.fillStyle = 'rgba(160, 170, 195, 0.22)';
+      ctx.fillStyle = 'rgba(160, 170, 195, 0.32)';
       ctx.beginPath();
       ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidOuterR), wy(lidOuterTop));

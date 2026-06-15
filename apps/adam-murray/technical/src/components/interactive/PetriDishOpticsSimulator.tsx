@@ -60,24 +60,33 @@ const LID_HEIGHT = 7;
 // Overhead lighting is modelled as a uniform-radiance upper hemisphere
 // (an effectively-distant, horizontally-extended diffuse emitter — the
 // physical situation of a ceiling fluorescent panel, an LED light box,
-// or an overcast sky illuminating a benchtop). Rays arrive at the dish
-// from every direction in the upper hemisphere; the angular density is
-// cos-weighted, so each ray represents an equal share of the irradiance
-// on a horizontal receiver. Rays from any one direction are parallel,
-// because the source is at infinity relative to the 100 mm dish.
+// or an overcast sky illuminating a benchtop). Rays arrive from every
+// direction in the upper hemisphere with cos-weighted angular density,
+// so each ray represents an equal share of the irradiance on a
+// horizontal receiver. Rays from any one direction are parallel,
+// because the source is at infinity relative to the bench.
 //
-// SAMPLING: the diffuseSky source draws stratified-jittered Monte
-// Carlo samples per ray — random θ within each of SKY_NUM_DIRECTIONS
-// equal-probability strata, and uniformly random aim position across
-// the dish width. This is the correct way to sample a continuous
-// radiance field: every specular path of any geometry has a nonzero
-// probability of being captured, in proportion to its actual existence
-// probability. A deterministic grid (the previous approach) can
-// systematically miss narrow specular paths into a small camera
-// aperture — random sampling does not. Total ray count is the
-// product SKY_NUM_DIRECTIONS × SKY_RAYS_PER_DIRECTION; the larger this
-// is, the lower the per-ray variance and the more reliably glare
-// paths are caught when they exist.
+// AIM FOOTPRINT: the sky is sampled to land uniformly across the
+// ENTIRE BENCH (x ∈ [-BENCH_HALF_WIDTH, +BENCH_HALF_WIDTH]), not just
+// the dish footprint. A uniform sky doesn't preferentially illuminate
+// the dish — it illuminates everything below it equally. Sky rays
+// landing on the side bench segments scatter diffusely; some of those
+// scattered children reach the dish from the side (entering through
+// the dish walls) or the camera directly, contributing to the ambient
+// light field. Sampling only the dish footprint (the previous
+// behaviour) zeroed out this contribution, which was a legacy of the
+// earlier architecture where there was no bench outside the dish.
+//
+// SAMPLING: stratified-jittered Monte Carlo — random θ within each of
+// SKY_NUM_DIRECTIONS equal-probability strata, and uniformly random
+// aim position across the bench width. Every specular path of any
+// geometry has a nonzero probability of being captured, in proportion
+// to its actual existence probability. SKY_NUM_DIRECTIONS ×
+// SKY_RAYS_PER_DIRECTION is the total ray count; we keep per-area
+// density (rays per mm of bench) roughly constant relative to the
+// previous dish-only sampling, so the dish itself receives a similar
+// number of rays as before and statistics inside the dish converge at
+// a similar rate.
 //
 // SKY_ORIGIN_DIST is a visualization parameter — it sets where the
 // rays' starting points sit, with no physical meaning beyond ensuring
@@ -85,7 +94,7 @@ const LID_HEIGHT = 7;
 // set it large enough (800 mm) that even the steepest sampled
 // direction's origin sits above the maximum camera position (260 mm).
 const SKY_NUM_DIRECTIONS = 12;
-const SKY_RAYS_PER_DIRECTION = 21; // 12 × 21 = 252 sky rays total
+const SKY_RAYS_PER_DIRECTION = 63; // 12 × 63 = 756 sky rays total
 const SKY_ORIGIN_DIST = 800;
 const SKY_AIM_Y = 1; // aim line just above the dish floor
 
@@ -764,12 +773,14 @@ export default function PetriDishOpticsSimulator() {
 
     if (overheadOn) {
       // A single diffuse-sky source represents the entire upper
-      // hemisphere of incoming light. The sampling parameters control
-      // visual density (number of rays drawn), not the physics.
+      // hemisphere of incoming light. Aim spans the full bench width
+      // (not just the dish), since a uniform sky illuminates the
+      // entire benchtop. The sampling parameters control visual
+      // density (rays drawn per mm of bench), not the physics.
       list.push(
         diffuseSky({
-          aimXMin: -DISH_RADIUS,
-          aimXMax: DISH_RADIUS,
+          aimXMin: -BENCH_HALF_WIDTH,
+          aimXMax: BENCH_HALF_WIDTH,
           aimY: SKY_AIM_Y,
           originDistance: SKY_ORIGIN_DIST,
           numDirections: SKY_NUM_DIRECTIONS,

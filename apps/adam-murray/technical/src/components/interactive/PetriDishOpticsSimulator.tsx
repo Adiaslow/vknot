@@ -12,7 +12,7 @@ import {
   WATER,
   AGAR,
   ABSORBER,
-  coneSource,
+  areaLamp,
   diffuseSky,
   horizontalSegment,
   verticalSegment,
@@ -65,28 +65,45 @@ const LID_HEIGHT = 7;
 // on a horizontal receiver. Rays from any one direction are parallel,
 // because the source is at infinity relative to the 100 mm dish.
 //
-// SKY_NUM_DIRECTIONS sets how finely the hemisphere is sampled in
-// angle; SKY_RAYS_PER_DIRECTION sets how many parallel rays each
-// direction emits across the dish's horizontal extent. SKY_ORIGIN_DIST
-// is a visualization parameter — it sets where the rays' starting
-// points sit, with no physical meaning beyond ensuring sky rays
-// originate above any object that could intercept them. We set it
-// large enough (800 mm) that even the steepest sampled direction's
-// origin sits above the maximum camera position (260 mm).
+// SAMPLING: the diffuseSky source draws stratified-jittered Monte
+// Carlo samples per ray — random θ within each of SKY_NUM_DIRECTIONS
+// equal-probability strata, and uniformly random aim position across
+// the dish width. This is the correct way to sample a continuous
+// radiance field: every specular path of any geometry has a nonzero
+// probability of being captured, in proportion to its actual existence
+// probability. A deterministic grid (the previous approach) can
+// systematically miss narrow specular paths into a small camera
+// aperture — random sampling does not. Total ray count is the
+// product SKY_NUM_DIRECTIONS × SKY_RAYS_PER_DIRECTION; the larger this
+// is, the lower the per-ray variance and the more reliably glare
+// paths are caught when they exist.
+//
+// SKY_ORIGIN_DIST is a visualization parameter — it sets where the
+// rays' starting points sit, with no physical meaning beyond ensuring
+// sky rays originate above any object that could intercept them. We
+// set it large enough (800 mm) that even the steepest sampled
+// direction's origin sits above the maximum camera position (260 mm).
 const SKY_NUM_DIRECTIONS = 12;
-const SKY_RAYS_PER_DIRECTION = 3;
+const SKY_RAYS_PER_DIRECTION = 21; // 12 × 21 = 252 sky rays total
 const SKY_ORIGIN_DIST = 800;
 const SKY_AIM_Y = 1; // aim line just above the dish floor
 
-// Directional lamps model finite-divergence lab spotlights (gooseneck
-// lamps, fibre-optic illuminators, microscope spots). A perfectly
-// collimated single ray would be a laser, not a lamp; real lamps emit
-// in a small cone. LAMP_CONE_HALF_DEG is a typical few-degree divergence
-// for a focused spot.
+// Directional lamps are modelled as a finite emitter segment of length
+// 2·LAMP_EMITTER_RADIUS, perpendicular to the lamp's primary direction,
+// emitting in a cone of half-angle LAMP_CONE_HALF_DEG. Each ray draws
+// (uniformly random origin on the emitter) and (uniformly random
+// direction in the cone) — the physical situation of a real focused-
+// spot illuminator (LED spotlight, fibre illuminator, gooseneck lamp)
+// rather than a point source with a few fixed angular samples. The
+// finite emitter size matters for the same reason MC matters for the
+// sky: specular reflections from the dish into a small aperture are
+// narrow paths in configuration space, and the randomized sampling
+// gives them their proper capture probability.
 const LAMP_DISTANCE = 150;
 const LAMP_AIM_Y = 8;
 const LAMP_CONE_HALF_DEG = 8;
-const LAMP_RAYS = 5;
+const LAMP_RAYS = 25;
+const LAMP_EMITTER_RADIUS = 5; // 10 mm wide emitter face
 
 // The camera is a finite-aperture lens, not a point. CAMERA_APERTURE_RADIUS
 // is the lens half-width; only rays that pass through this aperture from
@@ -572,13 +589,14 @@ export default function PetriDishOpticsSimulator() {
       };
       const aim: Vec2 = { x: 0, y: LAMP_AIM_Y };
       const dir: Vec2 = { x: aim.x - lampPos.x, y: aim.y - lampPos.y };
-      return coneSource(
-        lampPos,
-        dir,
-        LAMP_CONE_HALF_DEG,
-        LAMP_RAYS,
-        AIR,
-      );
+      return areaLamp({
+        centerPosition: lampPos,
+        emitterRadius: LAMP_EMITTER_RADIUS,
+        primaryDir: dir,
+        halfAngleDeg: LAMP_CONE_HALF_DEG,
+        rayCount: LAMP_RAYS,
+        ambient: AIR,
+      });
     };
     if (lamp1On) list.push(buildLamp(lampAngle1));
     if (lamp2On) list.push(buildLamp(lampAngle2));
@@ -589,13 +607,14 @@ export default function PetriDishOpticsSimulator() {
   // ── trace ───────────────────────────────────────────────────────
   const tracedSegments = useMemo<RaySegment[]>(() => {
     const initialRays = sources.flatMap((src) => src());
-    // minIntensity is set low (5e-4) because scattered rays at the
-    // floor start at intensity ≈ (per-primary-flux × albedo / N), which
-    // for our parameters is ~ 0.001 — i.e. several orders of magnitude
-    // below the source. The visualization gamma transform recovers
-    // legibility; the threshold here just keeps the queue from
-    // pruning physically-meaningful paths.
-    return trace(scene, initialRays, { maxDepth: 7, minIntensity: 5e-4 });
+    // Per-ray flux is much smaller under MC sampling (~ 1/250 of source
+    // for the sky), so individual paths cross multiple Fresnel losses
+    // and a Beer-Lambert agar transit before reaching the camera with
+    // 1e-4–1e-3 of their starting flux. We lower minIntensity to 2e-4
+    // so these physically-meaningful paths survive the queue prune;
+    // the additive (dark) / source-over (light) blending in the
+    // renderer makes the dim accumulated flux legible.
+    return trace(scene, initialRays, { maxDepth: 7, minIntensity: 2e-4 });
   }, [scene, sources]);
 
   // ── stats ───────────────────────────────────────────────────────
@@ -986,23 +1005,27 @@ export default function PetriDishOpticsSimulator() {
           liquid layer, and optional lid. Overhead lighting is modelled as a
           uniform-radiance upper hemisphere (a distant, extended diffuse
           emitter — the physical situation of a ceiling fixture or overcast
-          sky illuminating a benchtop); each direction is sampled cos-weighted
-          and rays from a given direction are parallel. Directional lamps emit
-          finite-divergence cones (a few-degree spread, typical of focused
-          lab spots). The camera is a finite-aperture lens (16 mm diameter)
-          that absorbs any ray crossing it from either direction; image-forming
-          rays approach from below. Rays refract (Snell), Fresnel-split into
-          reflected (dashed) and transmitted (solid) branches at every
-          interface, attenuate via Beer-Lambert inside absorbing media, and
-          undergo total internal reflection at grazing angles past the
+          sky illuminating a benchtop), sampled by stratified-jittered Monte
+          Carlo: each ray draws a random direction from the cos-weighted
+          hemisphere and a random aim position across the dish, so every
+          specular geometry has its proper capture probability — including
+          the narrow paths that reflect into the camera aperture. Directional
+          lamps are finite emitters (10 mm face, ±8° cone) with random
+          per-ray sampling of both origin and direction, modelling a real
+          focused-spot illuminator rather than a point source. Re-render
+          (move any slider) draws a fresh sample; the visual shimmers
+          between samples, which is the honest depiction of a continuous
+          light field. The camera is a finite-aperture lens (16 mm diameter)
+          that absorbs any ray crossing it. Rays refract (Snell),
+          Fresnel-split into reflected (dashed) and transmitted (solid)
+          branches at every interface, attenuate via Beer-Lambert inside
+          absorbing media, and undergo total internal reflection past the
           critical angle. The dish floor is a Lambertian scatterer (toggle
-          off to see the purely-specular regime, in which off-axis lighting
-          leaves the camera with no signal — the darkfield setup needs
-          something to scatter light back to the lens). Camera arrivals are
+          off to see the purely-specular regime). Camera arrivals are
           colour-coded by ancestry: <strong>green = signal</strong> (the ray
           touched the scattering floor, so it carries an image) and{' '}
-          <strong>red = glare</strong> (purely specular path, an artifact of
-          the optics rather than information about the dish contents).
+          <strong>red = glare</strong> (purely specular, an artifact of the
+          optics rather than information about the dish contents).
           Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }

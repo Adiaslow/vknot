@@ -522,17 +522,21 @@ export function lambertianSource(
  * from every direction in the upper hemisphere, and the source is far
  * enough that rays from any given direction are parallel to each other.
  *
- * Sampling:
- *   • `numDirections` directions are sampled cos-weighted on the upper
- *     hemisphere. In 2D this gives θ = asin(2u - 1) for stratified u,
- *     where θ is measured from the +y (vertical) axis. Cos-weighted
- *     sampling makes each ray represent an equal share of the
- *     IRRADIANCE on a horizontal receiver (the cosine in dE = L cosθ dΩ
- *     is folded into the sample weights).
- *   • For each direction, `raysPerDirection` parallel rays are emitted.
- *     Their paths cross y = `aimY` at evenly spaced x-positions across
- *     [`aimXMin`, `aimXMax`]. Ray origins are placed at `originDistance`
- *     back along the incoming direction from each aim point.
+ * Sampling (stratified-jittered Monte Carlo):
+ *   • The total ray count is `numDirections × raysPerDirection`. Each
+ *     ray independently draws (θ, xAim) random samples:
+ *       – θ from a cos-weighted CDF on the upper hemisphere, stratified
+ *         across `numDirections` equal-probability strata with a uniform
+ *         jitter inside each stratum. In 2D the CDF inverse is
+ *         θ = asin(2u − 1) for u ∈ [0, 1].
+ *       – xAim uniformly random across [aimXMin, aimXMax].
+ *   • Cos-weighted sampling makes each ray represent an equal share of
+ *     the IRRADIANCE on a horizontal receiver (the cosine in
+ *     dE = L cosθ dΩ is folded into the sample weights). Independent
+ *     position sampling means a specular path of any geometry has a
+ *     nonzero probability of being captured — unbiased, in contrast to
+ *     a deterministic grid which can systematically miss narrow paths
+ *     like reflections into a small camera aperture.
  *
  * The `originDistance` is a VISUAL parameter (controls where the rays'
  * starting dots appear on the canvas); the physics treats the source as
@@ -562,34 +566,92 @@ export function diffuseSky(opts: {
   return () => {
     const rays: Ray[] = [];
     const totalRays = numDirections * raysPerDirection;
-    for (let i = 0; i < numDirections; i++) {
-      // Cos-weighted stratified sample: θ ∈ (-π/2, +π/2) measured from
-      // the +y axis (vertical, "straight down").
-      const u = (i + 0.5) / numDirections;
+    for (let i = 0; i < totalRays; i++) {
+      // Stratified-jittered cos-weighted sample of θ. The i-th ray's
+      // u ∈ [iStratum, (i+1)·stratum) for iStratum = (i mod numDirections)
+      // / numDirections, jittered uniformly inside the stratum.
+      const stratumIdx = i % numDirections;
+      const u = (stratumIdx + Math.random()) / numDirections;
       const theta = Math.asin(2 * u - 1);
       const sinT = Math.sin(theta);
       const cosT = Math.cos(theta); // > 0 over (-π/2, π/2)
-      // Incoming direction: pointing down and tilted by θ from -y.
-      // For θ = 0 → (0, -1); for θ > 0 → tilted to the left of vertical
-      // (negative x). The ray TRAVELS in this direction.
       const dir: Vec2 = { x: -sinT, y: -cosT };
-      for (let j = 0; j < raysPerDirection; j++) {
-        const v = (j + 0.5) / raysPerDirection;
-        const xAim = aimXMin + v * (aimXMax - aimXMin);
-        // Origin is `originDistance` back along -dir from (xAim, aimY).
-        const origin: Vec2 = {
-          x: xAim - originDistance * dir.x,
-          y: aimY - originDistance * dir.y,
-        };
-        rays.push({
-          origin,
-          dir,
-          intensity: totalIntensity / totalRays,
-          medium: ambient,
-          depth: 0,
-          bornBy: 'source',
-        });
-      }
+      // Uniform random aim position across the dish width — gives any
+      // specular path a nonzero capture probability.
+      const xAim = aimXMin + Math.random() * (aimXMax - aimXMin);
+      const origin: Vec2 = {
+        x: xAim - originDistance * dir.x,
+        y: aimY - originDistance * dir.y,
+      };
+      rays.push({
+        origin,
+        dir,
+        intensity: totalIntensity / totalRays,
+        medium: ambient,
+        depth: 0,
+        bornBy: 'source',
+      });
+    }
+    return rays;
+  };
+}
+
+/**
+ * Area lamp: finite-emitter cone source.
+ *
+ * Models a real focused-spot lamp (LED spotlight, fibre illuminator,
+ * gooseneck lamp) as a 1D emitter segment of length 2·`emitterRadius`,
+ * oriented perpendicular to the primary emission direction, emitting in
+ * a cone of half-angle `halfAngleDeg`. Per ray: origin is a uniformly
+ * random point on the emitter; direction is a uniformly random angle in
+ * the cone. This makes specular reflection geometries probabilistically
+ * accessible — unlike a point source with a few fixed angular samples,
+ * which can systematically miss a small camera aperture even when the
+ * geometry would clearly produce glare.
+ */
+export function areaLamp(opts: {
+  centerPosition: Vec2;
+  emitterRadius: number;
+  primaryDir: Vec2;
+  halfAngleDeg: number;
+  rayCount: number;
+  ambient: Medium;
+  totalIntensity?: number;
+}): LightSource {
+  const {
+    centerPosition,
+    emitterRadius,
+    primaryDir,
+    halfAngleDeg,
+    rayCount,
+    ambient,
+    totalIntensity = 1,
+  } = opts;
+  const dirN = normalize(primaryDir);
+  // Perpendicular to primaryDir (rotated 90° CCW) — the emitter face.
+  const perp: Vec2 = { x: -dirN.y, y: dirN.x };
+  const baseAngle = Math.atan2(dirN.y, dirN.x);
+  const halfAngleRad = (halfAngleDeg * Math.PI) / 180;
+  return () => {
+    const rays: Ray[] = [];
+    for (let i = 0; i < rayCount; i++) {
+      // Random position along the emitter (uniform).
+      const u = Math.random() * 2 - 1; // ∈ [-1, 1]
+      const origin: Vec2 = {
+        x: centerPosition.x + u * emitterRadius * perp.x,
+        y: centerPosition.y + u * emitterRadius * perp.y,
+      };
+      // Random direction inside the cone (uniform in angle).
+      const v = Math.random() * 2 - 1; // ∈ [-1, 1]
+      const rayAngle = baseAngle + v * halfAngleRad;
+      rays.push({
+        origin,
+        dir: { x: Math.cos(rayAngle), y: Math.sin(rayAngle) },
+        intensity: totalIntensity / rayCount,
+        medium: ambient,
+        depth: 0,
+        bornBy: 'source',
+      });
     }
     return rays;
   };

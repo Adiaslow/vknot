@@ -12,6 +12,7 @@ draft: true
 ---
 
 import PetriDishOpticsSimulator from '../../components/interactive/PetriDishOpticsSimulator.tsx';
+import { Remark, Example } from '../../components/math';
 
 # Light at the Specimen Surface: Geometric Optics of Petri Dish Imaging
 
@@ -57,19 +58,75 @@ _TODO — Tabulates the refractive indices and absorption coefficients of each m
 
 ### 3.1 Specular and Diffuse Reflection: A Material Property Distinction
 
-_TODO — Defines specular reflection (directional, governed by the law of reflection) and diffuse reflection (Lambertian, scattered uniformly across the hemisphere). Frames real materials as a continuum, with most surfaces exhibiting some mix of both. Argues that the specular component is what generates imaging artifacts because it carries spatial information from sources that have nothing to do with the specimen._
+Light reflecting off a surface follows one of two distinct angular patterns, and most real materials produce a blend of the two.
+
+### Definition 3.1 (Specular reflection)
+
+A reflection in which incident light is sent in a single, geometrically determined outgoing direction — the one symmetric to the incoming direction across the surface normal at the point of incidence. The angular distribution of the reflected light is a delta function in this direction.
+
+### Definition 3.2 (Diffuse reflection, Lambertian limit)
+
+A reflection in which incident light is scattered across the entire outward hemisphere with an angular distribution proportional to the cosine of the angle from the surface normal. The angular pattern of the outgoing light carries no memory of the incident direction; it depends only on the surface's optical properties at the point of reflection.
+
+Real surfaces sit on a continuum between these idealised limits. A polished sheet of metal is nearly pure specular, a fresh sheet of chalk is nearly pure Lambertian, and most everyday materials produce some mix. A glossy printed page, for instance, gives a strong specular reflection at certain viewing angles and a weaker diffuse component that reveals the ink underneath. The petri dish system contains both kinds at once: the agar surface scatters diffusely (the gel is slightly opalescent, with scattering centres embedded throughout its volume), while the air–liquid and air–polystyrene interfaces are smooth dielectrics that produce sharp specular reflections.
+
+The distinction matters here because the two components encode different information. A diffuse reflection from the agar surface carries information about the agar itself — its colour, its opacity, and any colonies, sample, or markings on its surface — because the light it sends to the camera was reorganised by the surface, with the source direction discarded. A specular reflection from any of the smooth interfaces carries information about the _light source_: its position, its colour, its angular profile. Specular reflections from surfaces above the dish therefore project lighting features onto the image as bright regions that have nothing to do with the specimen. Those regions are what we call _artifacts_ in this article: they are accurate reports about something the photographer is not trying to photograph.
 
 ### 3.2 The Law of Reflection
 
-_TODO — States the law (angle of incidence equals angle of reflection, both measured from the surface normal). Brief derivation from Fermat's principle for completeness. Sets up notation: incoming direction d_in, surface normal n̂, reflected direction d_out = d_in − 2(d_in · n̂)n̂._
+Specular reflection obeys a single geometric rule, derivable from Fermat's principle of least time.
+
+### Theorem 3.1 (Law of reflection)
+
+_The angle of incidence equals the angle of reflection, both measured from the surface normal, and the incident ray, the reflected ray, and the surface normal lie in a single plane._
+
+In vector notation, if the incident direction is $\mathbf{d}_{\text{in}}$ (a unit vector pointing along the ray's direction of travel) and the outward-pointing unit normal at the reflection point is $\hat{\mathbf{n}}$, the reflected direction is
+
+$$\mathbf{d}_{\text{out}} = \mathbf{d}_{\text{in}} - 2\,(\mathbf{d}_{\text{in}} \cdot \hat{\mathbf{n}})\,\hat{\mathbf{n}}.$$
+
+The geometric content is straightforward: subtract twice the component of the incoming direction that points into the surface. This flips the normal-aligned component of $\mathbf{d}_{\text{in}}$ while leaving its tangential component unchanged. The simulator at the top of the page implements this formula at every Fresnel interaction; each dashed reflected branch shows a ray that obeyed the law of reflection at its parent surface.
+
+Fermat's derivation, which we omit, observes that the total optical path length $|\mathrm{SP}| + |\mathrm{PD}|$ from a source point $\mathrm{S}$ via a reflection point $\mathrm{P}$ on the surface to a destination point $\mathrm{D}$ is stationary with respect to small variations of $\mathrm{P}$ along the surface exactly when the local geometry symmetrises around the surface normal — which is the equal-angles condition above. Hecht §4.2 gives a clean one-page treatment.
 
 ### 3.3 The Curved-Surface Problem: Continuous Families of Mirror Orientations
 
-_TODO — The key conceptual move of the article. A curved surface is, locally, a family of flat mirrors at varying orientations. For any pair (light source, camera), there exists a continuous set of surface points whose local normals bisect the source-to-point and point-to-camera directions. This is the geometric reason that any non-zero meniscus magnitude guarantees specular paths between any overhead-ish light source and a directly-overhead camera. Quantifies this for the cosh meniscus model._
+The law of reflection is local. It tells us what a single point on a surface does to a single incident ray. A _flat_ surface presents the same local geometry everywhere — one outward normal, one reflected direction for each incident direction. A _curved_ surface presents a continuously varying local geometry — the normal rotates as you move along the surface, and what each point does to an incident ray depends on where the point is.
+
+This shift, from a single normal to a continuous family of normals, is what produces the central problem this article addresses.
+
+### Lemma 3.1 (Mirror-family existence)
+
+_Let $\gamma : [a, b] \to \mathbb{R}^2$ be a smooth curve, and let $\theta(t)$ denote the outward normal angle at $\gamma(t)$. Assume $\theta$ varies continuously and monotonically over $[a, b]$. Let $\mathrm{S}, \mathrm{D}$ be points on the side of $\gamma$ that the outward normal points toward, and let $\beta(t)$ denote the bisector angle of $\angle \mathrm{S}\gamma(t)\mathrm{D}$ as a function of $t$. If $\beta(a) \in [\theta(a), \theta(b)]$ and $\beta(b) \in [\theta(a), \theta(b)]$, then there exists $t^* \in [a, b]$ at which the local outward normal coincides with $\beta(t^*)$ — producing a specular ray-path from $\mathrm{S}$ to $\mathrm{D}$ via $\gamma(t^*)$._
+
+### Proof
+
+Define $f : [a, b] \to \mathbb{R}$ by $f(t) := \theta(t) - \beta(t)$. The angles $\theta$ and $\beta$ are continuous in $t$, so $f$ is continuous. By hypothesis $\beta(a) \geq \theta(a)$ and $\beta(b) \leq \theta(b)$, whence $f(a) \leq 0$ and $f(b) \geq 0$. By the intermediate value theorem there exists $t^* \in [a, b]$ at which $f(t^*) = 0$, i.e. $\theta(t^*) = \beta(t^*)$. $\quad \square$
+
+For the petri dish: the meniscus profile near the dish wall, derived in §2.2 from the Young–Laplace equation, has the approximate form
+
+$$y(x) \approx m \cdot \exp\!\left(-\frac{R - |x|}{\lambda_c}\right),$$
+
+where $m$ is the meniscus magnitude (in mm), $R$ is the dish radius, and $\lambda_c \approx 2.7$ mm is the capillary length of water. The local slope of the meniscus is
+
+$$\frac{dy}{dx} = \pm \frac{m}{\lambda_c} \exp\!\left(-\frac{R - |x|}{\lambda_c}\right),$$
+
+which ranges from approximately zero at the dish centre to a maximum of $m / \lambda_c$ at the dish wall. For a typical meniscus magnitude $m = 0.5$ mm, this peak slope is approximately $0.18$, corresponding to a local-normal tilt of approximately $\arctan(0.18) \approx 10°$ from vertical.
+
+Lemma 3.1 then applies to any source–camera geometry whose required bisector angle falls within the range $[0°, 10°]$ swept by the meniscus normal. This range covers essentially every routine imaging configuration in which the camera sits directly above the dish and the lighting comes from anywhere within $\sim 20°$ of vertical — that is, the lighting condition of essentially every laboratory ceiling. The conclusion is geometric: for any non-zero meniscus, a directly-overhead camera under typical room lighting receives specular paths from a continuous arc of meniscus points. This is the geometric root of the overhead-lighting failure mode, which we analyse quantitatively in §5.1.
 
 <Remark>
-_TODO — Picture-level version: when a surface is curved, every angle is available somewhere on it. If light comes from many directions, some point on the curve will always be oriented to bounce it into the camera. The fix is to make either the light or the surface uniform in direction — directional lighting from one place, or a flat surface with one consistent normal._
+
+Picture the meniscus as a strip of tiny flat mirrors arranged in an arc around the inside of the dish, each tilted at a slightly different angle from the next. When the room is lit by a diffuse overhead source, every mirror reflects the bit of the ceiling directly opposite its own surface normal up into the camera — and across the strip, that means _some_ mirror somewhere reflects each part of the ceiling. The bright artifact you see at the edge of the dish in such a photo is, quite literally, an image of the ceiling, projected onto the meniscus and stretched across its curvature.
+
 </Remark>
+
+Two practical interventions follow directly from this picture, and both work by removing one of the two continuous ranges that Lemma 3.1 relies on.
+
+The first intervention removes the continuous range of surface normals. If the surface is flat, every point has the same normal, and the bisector condition either holds for every point simultaneously (producing a single intense glare spot when source and camera are positioned just so) or fails everywhere (producing no specular artifact). The configuration becomes binary rather than continuous. _Spread-plate techniques_ (where bacterial suspension is absorbed into the agar rather than left as a curved liquid layer on top) and _optical cover slips_ (where a flat plate of glass or polystyrene is laid across the dish, presenting a single horizontal normal everywhere) both implement this fix. We return to both in §5.3.
+
+The second intervention removes the continuous range of incoming directions. If the lighting source is concentrated in a single direction rather than diffused across the upper hemisphere, the bisector condition is satisfied at a single point on the curved surface, not an arc — and choosing the source angle carefully can push the required bisector outside $[\theta(a), \theta(b)]$ entirely, in which case the hypothesis of Lemma 3.1 fails and no specular path exists. _Directional off-axis illumination_ implements this fix. We return to it in §5.2.
+
+Both interventions are interactive in the simulator at the top of the page. To see the failure mode, toggle "Overhead lighting" on with the lid off and the liquid layer on, and place the camera directly above the dish (camera height around 180 mm); red glare-hit dots accumulate on the camera and "Signal: by count" drops well below 50%. To see the first intervention, toggle off the liquid layer, collapsing the strongest meniscus contribution. To see the second, toggle "Overhead lighting" off and turn on Lamp 1 at an angle around $\pm 30°$ to $\pm 45°$; the glare collapses and "Signal: by count" climbs toward 100%.
 
 ## 4. Refraction and the Fresnel Split
 

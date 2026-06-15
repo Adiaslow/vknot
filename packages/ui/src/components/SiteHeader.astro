@@ -1,27 +1,37 @@
 ---
 /**
- * SiteHeader — local, themed navigation for the technical site.
- * Replaces the shared @vknot/ui <Navigation> here so the brand mark
- * and Paper/Ink toggle live in this app, leaving the shared package
- * (used by other sites) untouched.
+ * SiteHeader — the themed top-of-page navigation used by every
+ * adam-murray subsite. Token-driven; flips with the Paper / Ink
+ * theme automatically.
+ *
+ * Each subsite passes its own brand name, base URL, and primary
+ * links. The component renders the NodeRing brand mark and the
+ * Paper/Ink theme toggle on every page.
+ *
+ *   <SiteHeader
+ *     siteName="Adam Murray - Research"
+ *     baseUrl="/adam-murray/research"
+ *     links={[
+ *       { href: "/adam-murray/research", label: "Home" },
+ *       { href: "/adam-murray/research/publications", label: "Publications" },
+ *     ]}
+ *   />
  */
 import NodeRing from "./NodeRing.astro";
 import ThemeToggle from "./ThemeToggle.astro";
 
-export interface Props {
-  siteName?: string;
-  baseUrl?: string;
-  links?: ReadonlyArray<{ href: string; label: string }>;
+export interface SiteHeaderLink {
+  href: string;
+  label: string;
 }
 
-const {
-  siteName = "Adam Murray - Research Explorations",
-  baseUrl = "/adam-murray/technical",
-  links = [
-    { href: "/adam-murray/technical", label: "Posts" },
-    { href: "/adam-murray/technical/about", label: "About" },
-  ],
-} = Astro.props;
+export interface Props {
+  readonly siteName: string;
+  readonly baseUrl: string;
+  readonly links: ReadonlyArray<SiteHeaderLink>;
+}
+
+const { siteName, baseUrl, links } = Astro.props;
 
 // current path for active-link state (tolerant of trailing slash)
 const here = Astro.url.pathname.replace(/\/$/, "");

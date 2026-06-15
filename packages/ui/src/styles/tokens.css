@@ -47,7 +47,7 @@
   --font-mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* — Geometry — */
-  --measure: 68ch;           /* reading width target */
+  --prose-measure: 68ch;     /* reading width target (override per-layout to widen) */
   --maxw: 56rem;             /* content column       */
   color-scheme: light;
 }

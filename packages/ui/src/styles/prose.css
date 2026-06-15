@@ -8,7 +8,7 @@
   color: var(--ink);
   font-size: 1.125rem;
   line-height: 1.7;
-  max-width: var(--measure);
+  max-width: var(--prose-measure);
 }
 
 .prose > * + * { margin-top: 1.25em; }

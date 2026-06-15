@@ -8,6 +8,13 @@
  * adds the technical-site-specific header (its own nav links) and
  * wraps page content in an `<article class="prose">` reading column.
  *
+ * The technical posts include math environments, code blocks, and
+ * an interactive simulator that benefit from a wider reading column
+ * than the design system's default `--prose-measure` of 68ch. We
+ * override the token on the wrapping <article> so .prose fills the
+ * full page column (`var(--maxw)`, ~56rem) on this site only;
+ * other subsites keep the 68ch default unless they override too.
+ *
  * The technical site is the canonical example of the shared design
  * system. Other adam-murray subsites use the same SiteShell with
  * their own per-site header content.
@@ -41,7 +48,7 @@ const {
       { href: "/adam-murray/technical/about", label: "About" },
     ]}
   />
-  <article class="prose">
+  <article class="prose" style="--prose-measure: var(--maxw)">
     <slot />
   </article>
 </SiteShell>

@@ -13,10 +13,10 @@ const DISH_RADIUS = 50; // 100 mm dish diameter, from Fisher MRS plates
 const DISH_WALL_HEIGHT = 15; // interior wall height
 const DISH_WALL_THICKNESS = 1; // polystyrene wall (visual)
 const AGAR_FILL_DEPTH = 2.3; // 18 mL / (π · 50²) mm³
-const LID_GAP = 1; // small air gap below lid
 const LID_THICKNESS = 1; // lid wall thickness
-const LID_OVERHANG = 0.5; // how far lid extends beyond dish wall (per side)
-const LID_HEIGHT = 10; // total vertical extent of the lid
+const LID_CLEARANCE = 0.3; // horizontal gap between dish outer wall and lid inner wall
+const LID_OVERLAP = 3; // how far the lid walls extend below the dish wall top
+const LID_HEIGHT = 8; // total vertical extent of the lid (wall + top)
 
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
@@ -184,28 +184,28 @@ export default function PetriDishOpticsSimulator() {
     }
 
     // ── lid (if toggled on) ──────────────────────────────────────
-    // The lid is an inverted U-cup sitting above the dish with a small
-    // air gap. It is slightly wider than the dish so it fits over.
+    // The lid is an inverted U-cup that fits over the dish: its inner
+    // walls sit just outside the dish's outer walls (LID_CLEARANCE),
+    // and its walls extend down past the dish wall top by LID_OVERLAP
+    // so the lid is visibly seated on the dish.
     if (lidPresent) {
-      const lidOuterR = DISH_RADIUS + DISH_WALL_THICKNESS + LID_OVERHANG;
-      const lidInnerR = lidOuterR - LID_THICKNESS;
-      const lidBottom = DISH_WALL_HEIGHT + LID_GAP;
-      const lidTop = lidBottom + LID_HEIGHT;
-      const lidInnerTop = lidTop - LID_THICKNESS;
+      const lidInnerR = DISH_RADIUS + DISH_WALL_THICKNESS + LID_CLEARANCE;
+      const lidOuterR = lidInnerR + LID_THICKNESS;
+      const lidWallBottom = DISH_WALL_HEIGHT - LID_OVERLAP;
+      const lidOuterTop = lidWallBottom + LID_HEIGHT;
+      const lidInnerTop = lidOuterTop - LID_THICKNESS;
 
-      // Translucent fill for the lid body (just the wall material).
+      // Translucent fill for the lid wall material only.
       ctx.fillStyle = 'rgba(160, 170, 195, 0.22)';
       ctx.beginPath();
-      // outer rectangle of lid
-      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
-      ctx.lineTo(wx(-lidOuterR), wy(lidTop));
-      ctx.lineTo(wx(lidOuterR), wy(lidTop));
-      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
-      // back along inner walls
-      ctx.lineTo(wx(lidInnerR), wy(lidBottom));
+      ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
+      ctx.lineTo(wx(-lidOuterR), wy(lidOuterTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidOuterTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
+      ctx.lineTo(wx(lidInnerR), wy(lidWallBottom));
       ctx.lineTo(wx(lidInnerR), wy(lidInnerTop));
       ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
-      ctx.lineTo(wx(-lidInnerR), wy(lidBottom));
+      ctx.lineTo(wx(-lidInnerR), wy(lidWallBottom));
       ctx.closePath();
       ctx.fill();
 
@@ -213,28 +213,28 @@ export default function PetriDishOpticsSimulator() {
       ctx.strokeStyle = tokens.ink;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
-      ctx.lineTo(wx(-lidOuterR), wy(lidTop));
-      ctx.lineTo(wx(lidOuterR), wy(lidTop));
-      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
+      ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
+      ctx.lineTo(wx(-lidOuterR), wy(lidOuterTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidOuterTop));
+      ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
       // Bottom rims of the lid wall (strong, connecting outer to inner).
       ctx.beginPath();
-      ctx.moveTo(wx(-lidOuterR), wy(lidBottom));
-      ctx.lineTo(wx(-lidInnerR), wy(lidBottom));
-      ctx.moveTo(wx(lidInnerR), wy(lidBottom));
-      ctx.lineTo(wx(lidOuterR), wy(lidBottom));
+      ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
+      ctx.lineTo(wx(-lidInnerR), wy(lidWallBottom));
+      ctx.moveTo(wx(lidInnerR), wy(lidWallBottom));
+      ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
       // Inner outline of the lid: normal line, inverted U inside.
       ctx.strokeStyle = tokens.inkSoft;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(wx(-lidInnerR), wy(lidBottom));
+      ctx.moveTo(wx(-lidInnerR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
       ctx.lineTo(wx(lidInnerR), wy(lidInnerTop));
-      ctx.lineTo(wx(lidInnerR), wy(lidBottom));
+      ctx.lineTo(wx(lidInnerR), wy(lidWallBottom));
       ctx.stroke();
     }
 
@@ -284,30 +284,29 @@ export default function PetriDishOpticsSimulator() {
     }
 
     // ── scale bar ────────────────────────────────────────────────
-    // Drawn in canvas pixel space at the top-left corner so it never
-    // overlaps the dish, lights, or rays. Represents 50 mm at the
-    // current zoom level.
+    // Placed in world coordinates immediately below the dish, spanning
+    // from x=0 to x=DISH_RADIUS so the bar directly corresponds to half
+    // the dish width. The 50 mm label makes the dish radius explicit.
     {
-      const barLengthMm = 50;
-      const barLengthPx = barLengthMm * PX_PER_MM;
-      const x0 = 20;
-      const x1 = x0 + barLengthPx;
-      const y0 = 20;
+      const barY = -5; // world mm, below the dish outer floor at y=-1
+      const x0 = wx(0);
+      const x1 = wx(DISH_RADIUS);
+      const yPx = wy(barY);
       ctx.strokeStyle = tokens.inkSoft;
       ctx.fillStyle = tokens.inkSoft;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.lineTo(x1, y0);
+      ctx.moveTo(x0, yPx);
+      ctx.lineTo(x1, yPx);
       // tick marks at each end
-      ctx.moveTo(x0, y0 - 4);
-      ctx.lineTo(x0, y0 + 4);
-      ctx.moveTo(x1, y0 - 4);
-      ctx.lineTo(x1, y0 + 4);
+      ctx.moveTo(x0, yPx - 4);
+      ctx.lineTo(x0, yPx + 4);
+      ctx.moveTo(x1, yPx - 4);
+      ctx.lineTo(x1, yPx + 4);
       ctx.stroke();
       ctx.font = '11px ui-monospace, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText('50 mm', x1 + 8, y0 + 4);
+      ctx.textAlign = 'center';
+      ctx.fillText('50 mm (½ dish)', (x0 + x1) / 2, yPx + 14);
     }
   }, [
     tokens,

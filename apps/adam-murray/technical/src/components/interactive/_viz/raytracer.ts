@@ -477,8 +477,19 @@ export function lambertianScatterer(
       const perRay = (rayAtHit.intensity * albedo) / scatterRayCount;
       const children: Ray[] = [];
       for (let i = 0; i < scatterRayCount; i++) {
-        // Cos-weighted stratified sample in the outward hemisphere.
-        const u = (i + 0.5) / scatterRayCount;
+        // Cos-weighted stratified-jittered sample in the outward
+        // hemisphere. The i-th ray's u lies in the i-th equal-
+        // probability stratum [i/N, (i+1)/N], with a UNIFORM JITTER
+        // inside the stratum (rather than a fixed midpoint sample).
+        // This is the same scheme diffuseSky uses, and it matters here
+        // for the same reason: with a fixed midpoint, every scatter
+        // event produces exactly the same N relative angles, so the
+        // canvas shows a repeating N-spoke fan at every hit point —
+        // visually discrete rather than diffuse. With jitter, each
+        // hit picks N independent angles within the strata; across
+        // hits (and across re-render samples) the angular distribution
+        // averages to a smooth cos-weighted lobe.
+        const u = (i + Math.random()) / scatterRayCount;
         const theta = Math.asin(2 * u - 1);
         const angle = baseAngle + theta;
         children.push({

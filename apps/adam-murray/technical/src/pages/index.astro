@@ -11,7 +11,7 @@ const posts = allPosts
     summary: post.data.description,
     date: post.data.date,
     tags: post.data.tags,
-    href: `/adam-murray/technical/posts/${post.slug}`,
+    href: `/adam-murray/technical/posts/${post.id}`,
     readingTimeMinutes: post.data.readingTimeMinutes,
   }));
 
@@ -24,11 +24,10 @@ const fmtDate = (d: Date) =>
   description="Computational cyclic peptide researcher exploring geometric deep learning, graph theory, complex systems, and mathematical frameworks."
 >
   <section class="intro">
-    <span class="kicker">Research Notes</span>
-    <h1>Rigour and metaphor, kept in the same paragraph.</h1>
+    <h1>Recent Posts</h1>
     <p>
-      Explorations in computational drug discovery, geometric deep learning, and
-      mathematical theory — from peer-review-ready frameworks to playful
+      Research explorations in computational drug discovery, geometric deep
+      learning, and mathematical theory—from rigorous frameworks to playful
       curiosities.
     </p>
   </section>

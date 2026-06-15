@@ -9,7 +9,6 @@ import {
   Slider,
   Button,
   StatCard,
-  Legend,
 } from './_viz';
 
 const UNIFORM = '#ef4444'; // semantic: comparison baseline
@@ -179,30 +178,27 @@ export default function TemporalOptimizationFlow() {
     <VizFigure
       title="Temporal Optimization Flow"
       description={
-        'Phase-space trajectory showing the optimal sampling rate over time under exponential decay. ' +
+        'Phase-space trajectory showing optimal sampling rate over time with exponential decay. ' +
         'The "front-loading principle": sample heavily early, then taper off.'
       }
       footer={
         <div className="mt-4 text-sm" style={{ color: 'var(--ink-soft)' }}>
-          <p style={{ margin: '0 0 0.5rem' }}>
-            <strong>Front-loading principle:</strong> sample heavily when information is fresh, reduce
-            the rate as it decays.
-          </p>
-          <Legend
-            items={[
-              { color: tokens.accent, label: 'Optimal rate n*(t) ∝ exp(-λt/2) + acquired samples' },
-              { color: UNIFORM, label: 'Constant uniform sampling rate' },
-              { color: MARKER, label: 'Current time position (during animation)' },
-              { color: tokens.muted, label: 'Flow direction (decay)' },
-            ]}
-          />
+          <p style={{ margin: '0 0 0.5rem' }}><strong>Interpretation:</strong></p>
+          <ul className="list-disc list-inside space-y-1">
+            <li><span style={{ color: tokens.accent, fontWeight: 600 }}>Blue curve</span>: Optimal sampling rate n*(t) ∝ exp(-λt/2)</li>
+            <li><span style={{ color: UNIFORM, fontWeight: 600 }}>Red dashed line</span>: Constant uniform sampling rate</li>
+            <li><span style={{ color: tokens.accent, fontWeight: 600 }}>Shaded area</span>: Total samples acquired (area under curve)</li>
+            <li><span style={{ color: MARKER, fontWeight: 600 }}>Green marker</span>: Current time position (during animation)</li>
+            <li>Gray arrows show flow direction (exponential decay)</li>
+            <li><strong>Front-loading principle:</strong> Sample heavily when information is fresh, reduce rate as it decays</li>
+          </ul>
         </div>
       }
     >
       {/* Controls */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Slider
-          label="Decay rate λ"
+          label="Decay Rate λ"
           value={lambda}
           min={0.001}
           max={0.1}
@@ -215,7 +211,7 @@ export default function TemporalOptimizationFlow() {
           }}
         />
         <Slider
-          label="Time horizon"
+          label="Time Horizon"
           value={maxTime}
           min={100}
           max={500}
@@ -245,9 +241,9 @@ export default function TemporalOptimizationFlow() {
 
       {/* Statistics */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard label="Total samples (optimal)" value={totalSamples.toFixed(1)} tone="accent" />
-        <StatCard label="Uniform rate" value={`${uniformRate.toFixed(2)}/time`} />
-        <StatCard label="Decay half-life" value={(Math.log(2) / lambda).toFixed(1)} />
+        <StatCard label="Total Samples (Optimal)" value={totalSamples.toFixed(1)} tone="accent" />
+        <StatCard label="Uniform Rate" value={`${uniformRate.toFixed(2)}/time`} />
+        <StatCard label="Decay Half-life" value={(Math.log(2) / lambda).toFixed(1)} />
       </div>
 
       <VizSurface>

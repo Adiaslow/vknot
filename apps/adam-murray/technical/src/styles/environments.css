@@ -70,9 +70,9 @@
 }
 .env[data-kind="proof"] .env__name { color: var(--ink-soft); }
 .env[data-kind="proof"] .env__body::after {
-  content: "▪";
+  content: "∎";
   margin-left: 0.5rem;
   color: var(--accent-ink);
-  font-size: 0.8rem;
-  vertical-align: 1px;
+  font-size: 0.9rem;
+  vertical-align: 0;
 }

@@ -246,6 +246,58 @@ export function verticalSegment(
 }
 
 /**
+ * Arbitrary 2D line segment from endpoint `a` to endpoint `b`.
+ *
+ * Canonical normal is the unit vector perpendicular to (b − a), rotated
+ * 90° counter-clockwise. mediumPlus is the side the canonical normal
+ * points toward; mediumMinus is the other side.
+ *
+ * Used for surfaces that don't align with the x- or y-axis — most
+ * notably finite lamp emitter faces (oriented perpendicular to the
+ * lamp's primary direction, which is tilted for off-axis lamps). The
+ * line-segment intersection is solved as a 2×2 linear system in (t, s):
+ *
+ *     origin + t·dir = a + s·(b − a),   s ∈ [0, 1], t ∈ (tMin, tMax]
+ */
+export function lineSegment(
+  name: string,
+  a: Vec2,
+  b: Vec2,
+  mediumPlus: Medium,
+  mediumMinus: Medium,
+): Surface {
+  const bxax = b.x - a.x;
+  const byay = b.y - a.y;
+  const len = Math.sqrt(bxax * bxax + byay * byay);
+  // Perpendicular to (b - a), rotated 90° CCW: (-Δy, Δx)/|Δ|.
+  const normal: Vec2 = { x: -byay / len, y: bxax / len };
+  return {
+    name,
+    intersect(origin, dir, tMin, tMax) {
+      // System: t·dir.x − s·bxax = a.x − origin.x
+      //         t·dir.y − s·byay = a.y − origin.y
+      // Determinant of the 2×2 coefficient matrix:
+      const det = bxax * dir.y - byay * dir.x;
+      if (Math.abs(det) < 1e-12) return null; // parallel
+      const R1 = a.x - origin.x;
+      const R2 = a.y - origin.y;
+      // Cramer's rule.
+      const t = (bxax * R2 - R1 * byay) / det;
+      const s = (dir.x * R2 - R1 * dir.y) / det;
+      if (t <= tMin || t > tMax) return null;
+      if (s < 0 || s > 1) return null;
+      return {
+        point: { x: origin.x + t * dir.x, y: origin.y + t * dir.y },
+        t,
+        normal,
+        mediumPlus,
+        mediumMinus,
+      };
+    },
+  };
+}
+
+/**
  * 1D height field: y = f(x) over x ∈ [xMin, xMax].
  * Canonical normal points "up" (in the direction of decreasing -f),
  * computed numerically from f's derivative. mediumPlus is the medium

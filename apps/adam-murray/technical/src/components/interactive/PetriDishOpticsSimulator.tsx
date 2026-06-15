@@ -16,6 +16,7 @@ import {
   diffuseSky,
   horizontalSegment,
   verticalSegment,
+  lineSegment,
   heightField,
   lambertianScatterer,
   trace,
@@ -107,11 +108,18 @@ const LAMP_EMITTER_RADIUS = 5; // 10 mm wide emitter face
 
 // The camera is a finite-aperture lens, not a point. CAMERA_APERTURE_RADIUS
 // is the lens half-width; only rays that pass through this aperture from
-// below form the image. We add the lens to the scene as a horizontal
-// absorbing surface so that incident rays which strike it terminate
-// there (the photon is captured by the sensor), and we count those hits
-// as "rays reaching camera."
+// below form the image. CAMERA_HOUSING_HALF_WIDTH and CAMERA_HOUSING_HEIGHT
+// define the camera body — a solid absorbing enclosure around the lens
+// that occludes light approaching from any other direction. A camera
+// without a body would let lamps shine straight through where the body
+// should be, which is physically nonsense and visually confusing; the
+// housing is added to the scene as a set of ABSORBER segments (top +
+// side walls + baffles flanking the aperture) so that any ray reaching
+// the camera region is either captured by the lens or stopped by the
+// housing.
 const CAMERA_APERTURE_RADIUS = 8; // 16 mm aperture
+const CAMERA_HOUSING_HALF_WIDTH = CAMERA_APERTURE_RADIUS + 1.5; // 9.5 mm
+const CAMERA_HOUSING_HEIGHT = 10; // 10 mm tall body above the lens
 
 // ─── floor scattering ──────────────────────────────────────────────
 // A purely specular dish (Fresnel only at every interface) does NOT
@@ -523,12 +531,17 @@ export default function PetriDishOpticsSimulator() {
       ),
     );
 
-    // — Camera lens: a thin horizontal disc at y=cameraHeight, only
-    //   over the aperture width. Both sides are ABSORBER, so any ray
-    //   striking the lens (from either direction) terminates within a
-    //   fraction of a millimetre inside the lens body. Rays passing
-    //   AROUND the aperture (most rays, since the aperture is small
-    //   relative to the canvas width) are unaffected.
+    // — Camera assembly: an active absorbing aperture flanked by an
+    //   opaque housing. The aperture (named "camera lens", the surface
+    //   we count hits against) is the thin horizontal disc at
+    //   y=cameraHeight, x ∈ [−CAMERA_APERTURE_RADIUS, +CAMERA_APERTURE_RADIUS].
+    //   Both sides ABSORBER, so any ray striking it terminates as a
+    //   captured photon. The housing — baffles flanking the aperture,
+    //   plus a top and two side walls — is also absorbing (both sides),
+    //   so rays that would otherwise pass through the camera body are
+    //   stopped instead. Without the housing, an overhead lamp can
+    //   "shine through" the camera into the dish, which is physically
+    //   incorrect.
     surfaces.push(
       horizontalSegment(
         'camera lens',
@@ -539,6 +552,94 @@ export default function PetriDishOpticsSimulator() {
         ABSORBER,
       ),
     );
+    // Aperture baffles: same y as the lens, but in the gap between the
+    // aperture and the housing walls. Named differently so they don't
+    // count as camera hits.
+    surfaces.push(
+      horizontalSegment(
+        'camera baffle (left)',
+        cameraHeight,
+        -CAMERA_HOUSING_HALF_WIDTH,
+        -CAMERA_APERTURE_RADIUS,
+        ABSORBER,
+        ABSORBER,
+      ),
+    );
+    surfaces.push(
+      horizontalSegment(
+        'camera baffle (right)',
+        cameraHeight,
+        CAMERA_APERTURE_RADIUS,
+        CAMERA_HOUSING_HALF_WIDTH,
+        ABSORBER,
+        ABSORBER,
+      ),
+    );
+    // Housing top and side walls.
+    surfaces.push(
+      horizontalSegment(
+        'camera body (top)',
+        cameraHeight + CAMERA_HOUSING_HEIGHT,
+        -CAMERA_HOUSING_HALF_WIDTH,
+        CAMERA_HOUSING_HALF_WIDTH,
+        ABSORBER,
+        ABSORBER,
+      ),
+    );
+    surfaces.push(
+      verticalSegment(
+        'camera body (left)',
+        -CAMERA_HOUSING_HALF_WIDTH,
+        cameraHeight,
+        cameraHeight + CAMERA_HOUSING_HEIGHT,
+        ABSORBER,
+        ABSORBER,
+      ),
+    );
+    surfaces.push(
+      verticalSegment(
+        'camera body (right)',
+        CAMERA_HOUSING_HALF_WIDTH,
+        cameraHeight,
+        cameraHeight + CAMERA_HOUSING_HEIGHT,
+        ABSORBER,
+        ABSORBER,
+      ),
+    );
+
+    // — Lamp emitter faces. Each enabled lamp is a finite emitter
+    //   segment of length 2·LAMP_EMITTER_RADIUS perpendicular to its
+    //   primary direction. Adding the face to the scene as an
+    //   ABSORBER means rays that bounce back toward the lamp are
+    //   stopped at the lamp body rather than sailing through it.
+    //   The lamp's OWN outgoing rays start on the face but with
+    //   tMin = SELF_INTERSECT_EPS in the tracer they don't
+    //   self-intersect.
+    const buildLampFace = (angleDeg: number): Surface => {
+      const tRad = (angleDeg * Math.PI) / 180;
+      const lampPos: Vec2 = {
+        x: Math.sin(tRad) * LAMP_DISTANCE,
+        y: Math.cos(tRad) * LAMP_DISTANCE + LAMP_AIM_Y,
+      };
+      const aim: Vec2 = { x: 0, y: LAMP_AIM_Y };
+      const dx = aim.x - lampPos.x;
+      const dy = aim.y - lampPos.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const dirN: Vec2 = { x: dx / len, y: dy / len };
+      // Perpendicular to the lamp's primary direction (rotated 90° CCW).
+      const perp: Vec2 = { x: -dirN.y, y: dirN.x };
+      const a: Vec2 = {
+        x: lampPos.x - LAMP_EMITTER_RADIUS * perp.x,
+        y: lampPos.y - LAMP_EMITTER_RADIUS * perp.y,
+      };
+      const b: Vec2 = {
+        x: lampPos.x + LAMP_EMITTER_RADIUS * perp.x,
+        y: lampPos.y + LAMP_EMITTER_RADIUS * perp.y,
+      };
+      return lineSegment('lamp face', a, b, ABSORBER, ABSORBER);
+    };
+    if (lamp1On) surfaces.push(buildLampFace(lampAngle1));
+    if (lamp2On) surfaces.push(buildLampFace(lampAngle2));
 
     return {
       surfaces,
@@ -558,6 +659,10 @@ export default function PetriDishOpticsSimulator() {
     liquidPresent,
     floorScattering,
     cameraHeight,
+    lamp1On,
+    lamp2On,
+    lampAngle1,
+    lampAngle2,
   ]);
 
   // ── build the light sources list ────────────────────────────────
@@ -607,14 +712,17 @@ export default function PetriDishOpticsSimulator() {
   // ── trace ───────────────────────────────────────────────────────
   const tracedSegments = useMemo<RaySegment[]>(() => {
     const initialRays = sources.flatMap((src) => src());
-    // Per-ray flux is much smaller under MC sampling (~ 1/250 of source
-    // for the sky), so individual paths cross multiple Fresnel losses
-    // and a Beer-Lambert agar transit before reaching the camera with
-    // 1e-4–1e-3 of their starting flux. We lower minIntensity to 2e-4
-    // so these physically-meaningful paths survive the queue prune;
-    // the additive (dark) / source-over (light) blending in the
-    // renderer makes the dim accumulated flux legible.
-    return trace(scene, initialRays, { maxDepth: 7, minIntensity: 2e-4 });
+    // Per-ray flux is small under MC sampling (~1/252 of source flux
+    // for the sky). The dimmest physically-relevant paths are sky
+    // rays Fresnel-reflecting at near-normal incidence off the agar
+    // surface — R ≈ 2% there — which gives a reflected branch of
+    // ~8e-5, the overhead-glare path that ultimately hits the camera.
+    // Setting minIntensity below this lets those paths survive the
+    // queue prune; the additive (dark) / source-over (light) blending
+    // in the renderer makes the dim accumulated flux legible. The
+    // tracer remains bounded by maxDepth, so lowering minIntensity
+    // doesn't cause unbounded recursion.
+    return trace(scene, initialRays, { maxDepth: 7, minIntensity: 1e-5 });
   }, [scene, sources]);
 
   // ── stats ───────────────────────────────────────────────────────
@@ -870,25 +978,40 @@ export default function PetriDishOpticsSimulator() {
     // The diffuse-sky source has no single position; its rays
     // originate from scattered points across the upper canvas and
     // their distribution itself depicts the source. Discrete lamps
-    // do have a position; mark them.
-    if (lamp1On) {
-      const lx = Math.sin((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE;
-      const ly =
-        Math.cos((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
+    // do have a position AND a finite emitter face: we draw the
+    // face as a perpendicular tick (its actual orientation in the
+    // scene) plus a small glow dot at the centre.
+    const drawLamp = (angleDeg: number) => {
+      const tRad = (angleDeg * Math.PI) / 180;
+      const lx = Math.sin(tRad) * LAMP_DISTANCE;
+      const ly = Math.cos(tRad) * LAMP_DISTANCE + LAMP_AIM_Y;
+      // Lamp's primary direction (toward dish centre).
+      const dx = 0 - lx;
+      const dy = LAMP_AIM_Y - ly;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const dxN = dx / len;
+      const dyN = dy / len;
+      // Perpendicular, rotated 90° CCW.
+      const px = -dyN;
+      const py = dxN;
+      // Emitter face endpoints (matching the scene surface).
+      const ax = lx - LAMP_EMITTER_RADIUS * px;
+      const ay = ly - LAMP_EMITTER_RADIUS * py;
+      const bx = lx + LAMP_EMITTER_RADIUS * px;
+      const by = ly + LAMP_EMITTER_RADIUS * py;
+      ctx.strokeStyle = palette.lampGlow;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(wx(ax), wy(ay));
+      ctx.lineTo(wx(bx), wy(by));
+      ctx.stroke();
       ctx.fillStyle = palette.lampGlow;
       ctx.beginPath();
-      ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
+      ctx.arc(wx(lx), wy(ly), 3, 0, Math.PI * 2);
       ctx.fill();
-    }
-    if (lamp2On) {
-      const lx = Math.sin((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE;
-      const ly =
-        Math.cos((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
-      ctx.fillStyle = palette.lampGlow;
-      ctx.beginPath();
-      ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    };
+    if (lamp1On) drawLamp(lampAngle1);
+    if (lamp2On) drawLamp(lampAngle2);
 
     // ── traced ray segments ─────────────────────────────────────
     // Per-segment linear gradients carry Beer-Lambert attenuation

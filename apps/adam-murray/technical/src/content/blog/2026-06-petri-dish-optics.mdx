@@ -257,23 +257,97 @@ Roughly $55\%$ of the light entering a single agar pass is absorbed before reach
 
 ### 5.1 The Overhead-Lighting Failure Mode
 
-_TODO — Applies the curved-surface argument of §3.3 to a typical room-lighting configuration. Quantitative analysis: shows that for any non-zero meniscus magnitude, there exists a continuous set of surface points contributing specular paths to a directly-overhead camera. Recommends turning the simulator to "overhead lighting only, liquid layer on" to see the result._
+The configuration most experimentalists default to — dish on the benchtop, camera directly overhead, ambient ceiling lighting — is also the configuration in which the geometry of §3 and the energetics of §4 conspire most efficiently to produce artifacts. We work out the failure mode quantitatively here.
+
+Consider the scenario in concrete terms. A 100 mm petri dish sits on a benchtop. A clear aqueous bacterial suspension has been poured over the agar, producing a liquid layer with a meniscus of magnitude $m \approx 0.5\,\text{mm}$ near the dish wall (per the Young–Laplace equation, §2.2). The camera — a smartphone, a webcam, a USB microscope — is mounted directly above the dish at a height of order $100$–$300\,\text{mm}$. Ceiling lighting illuminates the scene as a near-uniform-radiance upper hemisphere.
+
+By Lemma 3.1, every point $P$ on the meniscus produces a specular path to the camera from some source position $S$ in the upper hemisphere. Explicitly: at a meniscus point with local-normal angle $\theta_n(P) \in [0°, 10°]$ (measured from vertical, per §3.3), the source $S$ that produces a specular ray-path $S \to P \to C$ to a camera $C$ directly overhead must lie at an angle of approximately $2\theta_n(P) - \theta_{PC}$ from vertical (where $\theta_{PC}$ is the angle from $P$ to the camera, of order $\pm 15°$ at the meniscus for $h_C \approx 180\,\text{mm}$). For $\theta_n \in [0°, 10°]$ and the meniscus on both sides of the dish, this required source position ranges over $\alpha \in [-15°, +15°]$ from vertical — comfortably inside any ambient ceiling-lighting field. The meniscus is fully populated with specular contributors.
+
+The brightness contributed by each point is governed by the Fresnel reflectance $R(\theta_i)$ (§4.3), where $\theta_i$ is the local incidence angle at $P$. For the small meniscus normal angles in this scenario, $\theta_i$ is also small — only a few degrees from normal — so $R \approx R(0) \approx 0.020$ at the air–water interface. Two percent of the source radiance is reflected per unit area of the meniscus. Across the full meniscus arc, integrating the contributions weighted by the local Fresnel coefficient and the differential area gives a total reflected flux at the camera that is small in absolute terms but substantial compared to the diffuse signal carried back by light scattered off the agar and the bench beneath it. The result is a high-contrast artifact superimposed on a low-contrast signal — exactly the regime where automated colony-segmentation pipelines fail.
+
+The visual signature is a bright crescent inside the dish rim — quite literally an image of the ceiling, projected onto the meniscus and stretched across its curvature (Remark §3.3). The crescent is brightest at the wall, where the meniscus is steepest, and fades inward toward the centre, where it flattens.
+
+<Example title="The failure mode in concrete terms">
+
+Pour 18 mL of bacterial suspension onto a fresh agar plate in a standard 100 mm dish. Place the dish on a typical lab bench, mount a smartphone $\approx 180\,\text{mm}$ above the dish on a tripod or copy stand, and switch on the ceiling lights. This is the default configuration — no special setup. Take a photo.
+
+The image will show:
+
+1. **A bright crescent or full ring inside the dish rim**, where the curved meniscus has reflected a portion of the ceiling into the camera. The width of the bright region scales with the meniscus magnitude; for a typical $m = 0.5\,\text{mm}$ meniscus, the bright crescent occupies the outer $\sim 5\,\text{mm}$ of the dish in the image.
+2. **Structured intensity within the crescent**, because the meniscus stretches the ceiling image radially. Bright lights, ceiling tiles, anything with spatial structure projects onto the meniscus as a distorted reflection.
+3. **Saturated or near-saturated pixels at the crescent's brightest points**, because the reflectance there is amplified both by Lemma 3.1 (specular path existence) and by the higher local incidence angle at the steeper edge of the meniscus (Remark §4.3, the wet-road effect).
+
+In the simulator at the top of the page, this configuration corresponds to: lid off, liquid layer on, bench scatter on, overhead lighting on, both lamps off, camera height $\approx 180\,\text{mm}$. The reported statistics will show a substantial glare fraction — "Signal: by count" drops well below $50\%$, and the red glare-hit dots accumulate at the camera lens. Toggling the liquid layer off (collapsing the strongest meniscus contribution) is the cleanest way to isolate the meniscus contribution: signal recovers, glare drops dramatically. The same artifact in the same place, on demand.
+
+</Example>
 
 ### 5.2 Directional Off-Axis Illumination
 
-_TODO — The geometric solution. For a single point source at angle θ above the horizon, on the same side as the camera (camera directly above), the surface normal required to specularly bisect the path is at angle (θ+φ)/2 from vertical. By choosing θ appropriately, this required normal is outside the range that any point on the near-horizontal agar/liquid surface presents. Practical recommendations: lamp at 30°–45° above the table, with the room lights off._
+A diffuse upper-hemisphere source (room ceiling lighting) gives the geometry of §3.3 maximum opportunity to produce artifacts: for every point on the meniscus, _some_ source in the upper hemisphere can produce a specular path to the camera. The most direct way to defeat this is to remove the upper hemisphere and replace it with a single concentrated direction.
 
-### 5.3 Flattening the Surface: Cover Slips and Spread Plates
+For a source positioned at angle $\alpha$ from vertical and a camera at angle $\theta_{PC}$ from vertical as seen from a meniscus point $P$, the specular condition (Theorem 3.1) is
 
-_TODO — The Peichao reframe. Rather than redirecting the light, flatten the surface so its normals are all parallel. Two implementations: an optical cover slip (used in cranial-window imaging, slide microscopy) and a methodological one (the spread plate technique, where bacterial suspension is absorbed into the agar rather than left as a curved liquid layer on top). Both collapse the family of normal orientations to a single direction._
+$$2\theta_n(P) - \alpha = \theta_{PC},$$
 
-### 5.4 Polarization-Based Specular Suppression
+i.e. the local normal at $P$ must bisect the directions from $P$ to source and from $P$ to camera. For a camera directly above the centre of a 100 mm dish at height $\sim 180\,\text{mm}$, $|\theta_{PC}|$ at the meniscus is approximately $15°$ (depending on which side of the dish the meniscus point sits on). With the meniscus normal range $\theta_n \in \pm[0°, 10°]$ (§3.3), the specular condition is satisfiable at some meniscus point only when
 
-_TODO — Brewster's angle and partial polarization of specular reflections from dielectric surfaces. A linear polarizer oriented orthogonally to the reflected light suppresses specular highlights while leaving diffuse scattering largely intact. Practical implementation with phone-camera polarizing filters._
+$$\alpha \in [-15°, +15°] \text{ from vertical}.$$
+
+Lamp angles within $\pm 15°$ of vertical (equivalently, within $\sim 75°$ of horizontal) produce specular meniscus paths to a centred overhead camera. Lamp angles outside this range — anything substantially below $75°$ from horizontal — do not. The hypothesis of Lemma 3.1 fails, and no specular meniscus path exists.
+
+The simulator implements this configuration. Setting "Overhead lighting" off and turning on Lamp 1 at $\pm 30°$ to $\pm 45°$ from vertical (well outside the $\pm 15°$ failure window) reduces the specular meniscus contribution to essentially zero — visible immediately in the canvas as the collapse of red glare-hit dots and the climb of "Signal: by count" toward $100\%$.
+
+<Remark>
+
+The practical recipe: turn off the room lights; place a single lamp at roughly the height of the dish on the bench, aimed inward at the dish at an angle of $30°$ to $45°$ above the horizontal; shoot from directly above with the camera centred over the dish. The geometric argument above guarantees that no specular path connects any meniscus point to the camera, regardless of the meniscus magnitude. The image you get is a clean darkfield rendering: the diffuse signal from the agar, the bench under it, and any sample sitting on the agar reaches the camera unobscured by mirror reflections of the lamp itself.
+
+This is the same principle that distinguishes brightfield from darkfield illumination in microscopy. In a darkfield microscope, the condenser is positioned so that no direct light reaches the objective; only light scattered by the sample is collected. The result is a high-contrast image of the sample against a dark background. The off-axis lamp here implements the same idea at the macroscopic scale of a petri dish.
+
+</Remark>
+
+### 5.3 Flattening the Surface: Spread Plates and Cover Slips
+
+A complementary intervention follows from removing the _other_ continuous range that Lemma 3.1 relies on — the range of local normal orientations swept by the curved meniscus. If the imaging surface is flat (or close to it), every point has the same outward normal, and the geometry of the lemma collapses to a single-point condition: either the source position $S$ happens to satisfy the specular condition at the surface (producing a single bright glare spot at the geometric reflection of $S$), or no specular path exists at all. The configuration becomes binary rather than continuous.
+
+Two methods implement this fix, drawn from different traditions.
+
+The first is the **spread plate technique** from microbiology. Rather than leaving a poured liquid suspension as a separate layer on top of the agar — where it forms a curved meniscus and is the dominant artifact source — the suspension is spread thinly over the agar surface (with a glass rod, a sterile spreader, or sterile glass beads) and allowed to absorb into the gel before incubation. The bacterial cells are distributed across the agar surface itself, which is nearly flat (set in place when the agar solidified, with negligible residual meniscus for a properly poured plate). The dominant curved interface is removed entirely.
+
+The second is the **optical cover slip**, a thin transparent plate (glass, polystyrene, or PMMA) laid horizontally over the dish, in optical contact with whatever liquid is below or with the air above. The cover slip's upper and lower surfaces are flat to optical tolerances, presenting a single horizontal normal everywhere. The same intervention is used routinely in slide microscopy (mounting a specimen between a microscope slide and a thin cover glass), in cranial-window neurophysiology (a cover slip over the exposed cortex is what makes through-skull two-photon imaging possible at all), and in microfluidic-device photography (where the device is bonded to a flat substrate before imaging).
+
+<Example title="Cover slips, spread plates, and cranial windows">
+
+The same geometric trick — replacing a continuous family of surface normals with a single horizontal one — appears in three otherwise disconnected experimental settings:
+
+**Microbiology (the spread plate).** A bacterial suspension poured onto an agar plate forms a curved liquid pool with a $\sim 0.5\,\text{mm}$ meniscus at the wall. Spreading the suspension with a glass rod or sterile spreader, then allowing absorption into the agar (typically a $15$–$30$ minute incubation), reduces the liquid layer to a thin damp film and eventually to nothing. The resulting agar surface is nearly flat across the dish, and the failure mode of §5.1 is suppressed.
+
+**Light microscopy.** A specimen mounted between a microscope slide (bottom) and a cover slip (top), in a mounting medium that fills the gap with matched refractive index, presents two parallel flat interfaces to the objective. Without the cover slip, the objective looks through a curved fluid drop with the same problem the petri-dish meniscus has, at higher magnification. The cover slip is so universal in microscopy that the design of nearly every microscope objective assumes its presence — the corrected working distance is computed for a specific cover slip thickness (commonly No. 1.5, $0.17\,\text{mm}$).
+
+**Cranial-window neurophysiology.** In two-photon imaging of mouse cortex, a circle of skull is replaced by a glass cover slip cemented to the surrounding bone. The cortex underneath sits in artificial cerebrospinal fluid, and the cover slip provides the flat optical interface that the objective requires. Without the cover slip, the curved meniscus of the CSF would refract, distort, and reflect imaging light unpredictably; with it, the imaging path through the brain becomes geometrically tractable. The same principle, the same intervention, at a different scale and in a different scientific domain.
+
+In all three cases the fix is geometric and identical: replace a curved liquid interface with a flat solid one. The simulator demonstrates this most directly via the "Liquid layer" toggle. With the liquid layer on, the agar's flat surface is overlain by a curved liquid meniscus and the failure mode of §5.1 appears. Toggling the liquid layer off collapses the geometry to just the agar surface (slightly meniscused at the wall but much flatter than a fresh liquid pool), and the artifact largely disappears.
+
+</Example>
+
+### 5.4 Polarisation-Based Specular Suppression
+
+When light reflects off a smooth dielectric interface, the reflected component is partially polarised. The p-component vanishes at Brewster's angle (§4.3, Definition 4.3) and is weaker than the s-component at every angle. Reflected light from any of the smooth dielectric interfaces in the dish system — the meniscus, the lid surfaces, the polystyrene floor — is therefore biased toward s-polarisation.
+
+A linear polariser oriented to block the s-component (transmission axis parallel to the plane of incidence) attenuates the specular reflection substantially while passing the largely unpolarised diffuse signal with the customary $\sim 50\%$ loss. The net result is improved signal-to-glare contrast.
+
+In practice, snap-on polarising filters for smartphone cameras cost a few dollars and rotate manually on the lens housing; the user aligns the polariser by sight while observing the image, rotating until the bright specular region dims maximally. For a single fixed-angle specular reflection (e.g., one off-axis lamp at $\pm 30°$), one polariser orientation removes the reflection essentially entirely. For diffuse overhead illumination — where the specular reflections from different meniscus points lie in different planes of incidence — no single polariser orientation can suppress the full crescent, but the worst contributions are still significantly reduced.
+
+The polarisation suppression compounds with the geometric interventions of §5.2 and §5.3 rather than replacing them. The cleanest practical configuration is: spread the suspension into the agar (or place a cover slip), illuminate with a single off-axis lamp at $30°$–$45°$, and orient a polariser to suppress whatever specular component remains. The diffuse signal from the agar, the bench, and the sample then dominates the image; specular contributions reduce to acceptable noise.
 
 ### 5.5 Imaging from Below
 
-_TODO — Inversion of the imaging geometry. The dish bottom is the flattest available surface; backlit imaging through it bypasses most of the curved-interface problems entirely. This is the technique used by clinical colony counters and many automated imaging systems._
+A final intervention inverts the imaging geometry entirely. The dish _bottom_ — a flat sheet of polystyrene, manufactured with optical tolerances much tighter than the curvature of any liquid meniscus on top — is by far the flattest surface in the system. Imaging through the bottom bypasses the meniscus and any liquid pool above it.
+
+Two specific configurations exploit this. The first is **backlit transmission imaging**: a diffuse light source illuminates the dish from below, light passes upward through the polystyrene floor, agar, and any colonies, and is collected by a camera above the dish. Colonies (which scatter and partially absorb the transmitted light) appear as darker regions against a bright agar background. This is the imaging geometry used by automated colony counters (the SCAN series from Interscience, the ProtoCOL from Synbiosis, and most clinical microbiology counting systems). The light path is geometrically simple — near-vertical transmission through a stack of flat layers — and the failure mode of §5.1 does not apply.
+
+The second is **inverted microscopy**: the dish is placed on the stage of an inverted microscope, with the objective looking up through the dish floor. The objective focuses on the agar surface (or any cells growing on it) from below. The curved liquid meniscus above the agar is now on the _far_ side of the specimen from the objective, contributing nothing to the imaging path. Inverted microscopes are used routinely in cell culture, where the curved meniscus of the culture medium above the cells would otherwise frustrate observation.
+
+Both configurations sacrifice the easy top-down view that smartphone photography provides, but in exchange they eliminate the curved-interface problem at its root. For research and clinical settings where this is acceptable, imaging from below is the most reliable solution.
 
 ## 6. Discussion
 

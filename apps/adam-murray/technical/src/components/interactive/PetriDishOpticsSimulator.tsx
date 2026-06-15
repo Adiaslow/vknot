@@ -599,12 +599,19 @@ export default function PetriDishOpticsSimulator() {
   }, [scene, sources]);
 
   // ── stats ───────────────────────────────────────────────────────
-  // Image-forming rays are those that terminate at the camera lens
-  // having approached it from below (going upward). Direct sky-to-lens
-  // hits (rays approaching the lens from above) represent rays that
-  // would directly expose the sensor without imaging through the dish;
-  // we track them separately for visualization but the primary "what
-  // does the camera see?" metric is the upward-going hits.
+  // A ray reaching the camera lens carries one of two kinds of
+  // information depending on its ancestry:
+  //   • SIGNAL — the ray's lineage includes a scattering event at the
+  //     floor, so it carries information about what was on the floor.
+  //     This is the image-forming light.
+  //   • GLARE — the ray's lineage is pure Fresnel (specular). It hit
+  //     only smooth interfaces (lid, agar surface, liquid surface) on
+  //     its way to the lens. This is the artifact light.
+  // The viaScatter flag, propagated from parent to child throughout
+  // the trace, separates them. With floor-scattering OFF, all camera
+  // hits are glare by construction; with it ON, the two contributions
+  // are mixed, and the ratio depends strongly on lighting geometry —
+  // which IS the article's point about off-axis darkfield setups.
   const stats = useMemo(() => {
     const primaryRays = tracedSegments.filter(
       (s) => s.bornBy === 'source',
@@ -616,27 +623,36 @@ export default function PetriDishOpticsSimulator() {
       (s) =>
         s.surfaceName === 'camera lens' && s.end.y > s.start.y, // going up
     );
-    const reachingCamera = imageFormingHits.length;
-    const totalEnergyAtFloor = tracedSegments
-      .filter((s) => s.surfaceName === 'dish floor')
-      .reduce((sum, s) => sum + s.intensityEnd, 0);
-    const totalEnergyAtCamera = imageFormingHits.reduce(
+    const signalHits = imageFormingHits.filter((s) => s.viaScatter === true);
+    const glareHits = imageFormingHits.filter((s) => s.viaScatter !== true);
+    const signalEnergy = signalHits.reduce(
       (sum, s) => sum + s.intensityEnd,
       0,
     );
+    const glareEnergy = glareHits.reduce(
+      (sum, s) => sum + s.intensityEnd,
+      0,
+    );
+    const totalEnergyAtFloor = tracedSegments
+      .filter((s) => s.surfaceName === 'dish floor')
+      .reduce((sum, s) => sum + s.intensityEnd, 0);
     const totalSourceEnergy = tracedSegments
       .filter((s) => s.bornBy === 'source')
       .reduce((sum, s) => sum + s.intensityStart, 0);
     const fractionToFloor =
       totalSourceEnergy > 0 ? totalEnergyAtFloor / totalSourceEnergy : 0;
-    const fractionToCamera =
-      totalSourceEnergy > 0 ? totalEnergyAtCamera / totalSourceEnergy : 0;
+    // signalRatio in [0, 1]: 1.0 = pure image, 0 = pure glare, NaN if
+    // nothing reaches the camera at all (rendered as '—').
+    const totalCameraEnergy = signalEnergy + glareEnergy;
+    const signalRatio =
+      totalCameraEnergy > 0 ? signalEnergy / totalCameraEnergy : NaN;
     return {
       primaryRays,
       reachingFloor,
-      reachingCamera,
+      signalCount: signalHits.length,
+      glareCount: glareHits.length,
       fractionToFloor,
-      fractionToCamera,
+      signalRatio,
     };
   }, [tracedSegments]);
 
@@ -674,7 +690,8 @@ export default function PetriDishOpticsSimulator() {
           ink: 'rgba(200, 210, 230, 0.85)',
           lampGlow: 'rgba(255, 220, 110, 0.95)',
           floorHit: 'rgba(255, 165, 70,',
-          cameraHit: 'rgba(160, 210, 255,',
+          cameraSignal: 'rgba(140, 220, 180,', // calm green = image-forming
+          cameraGlare: 'rgba(255, 120, 110,', // warning red = specular artifact
           blendMode: 'lighter' as GlobalCompositeOperation,
           minRayAlpha: 0.0, // dark BG: fading to 0 is correct
         }
@@ -688,7 +705,8 @@ export default function PetriDishOpticsSimulator() {
           ink: tokens.inkSoft,
           lampGlow: 'rgba(220, 160, 30, 0.95)',
           floorHit: 'rgba(170, 90, 20,',
-          cameraHit: 'rgba(40, 90, 160,',
+          cameraSignal: 'rgba(20, 110, 70,', // calm green = image-forming
+          cameraGlare: 'rgba(180, 30, 20,', // warning red = specular artifact
           blendMode: 'source-over' as GlobalCompositeOperation,
           minRayAlpha: 0.0, // light BG: fading to paper is correct
         };
@@ -905,12 +923,17 @@ export default function PetriDishOpticsSimulator() {
       }
     }
 
-    // Camera-arrival markers (image-forming rays — upward hits).
+    // Camera-arrival markers — colour-coded by ancestry. Image-forming
+    // (scattered) rays are calm green; specular (glare) rays are
+    // warning red. Visually, a clean dark-field setup should show
+    // mostly green dots; an overhead-lit setup typically shows both.
     for (const seg of tracedSegments) {
       if (seg.surfaceName === 'camera lens' && seg.end.y > seg.start.y) {
-        ctx.fillStyle = `${palette.cameraHit} ${Math.max(0.5, visAlpha(seg.intensityEnd))})`;
+        const prefix =
+          seg.viaScatter === true ? palette.cameraSignal : palette.cameraGlare;
+        ctx.fillStyle = `${prefix} ${Math.max(0.55, visAlpha(seg.intensityEnd))})`;
         ctx.beginPath();
-        ctx.arc(wx(seg.end.x), wy(seg.end.y), 3, 0, Math.PI * 2);
+        ctx.arc(wx(seg.end.x), wy(seg.end.y), 3.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -975,8 +998,12 @@ export default function PetriDishOpticsSimulator() {
           critical angle. The dish floor is a Lambertian scatterer (toggle
           off to see the purely-specular regime, in which off-axis lighting
           leaves the camera with no signal — the darkfield setup needs
-          something to scatter light back to the lens). Refractive indices:
-          air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
+          something to scatter light back to the lens). Camera arrivals are
+          colour-coded by ancestry: <strong>green = signal</strong> (the ray
+          touched the scattering floor, so it carries an image) and{' '}
+          <strong>red = glare</strong> (purely specular path, an artifact of
+          the optics rather than information about the dish contents).
+          Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
       footer={
@@ -987,6 +1014,8 @@ export default function PetriDishOpticsSimulator() {
             { color: 'rgba(130, 145, 175, 0.75)', label: 'Lid (polystyrene)' },
             { color: 'rgba(230, 180, 60, 0.95)', label: 'Lamp' },
             { color: tokens.accent, label: 'Camera lens (\u2300 16 mm)' },
+            { color: 'rgba(40, 140, 90, 0.95)', label: 'Camera hit: signal' },
+            { color: 'rgba(200, 60, 50, 0.95)', label: 'Camera hit: glare' },
           ]}
         />
       }
@@ -1139,23 +1168,19 @@ export default function PetriDishOpticsSimulator() {
           value={stats.reachingFloor.toString()}
         />
         <StatCard
-          label="Reaching camera"
-          value={stats.reachingCamera.toString()}
+          label="Camera: signal"
+          value={stats.signalCount.toString()}
           tone="accent"
         />
         <StatCard
-          label="Fraction to floor"
-          value={
-            stats.primaryRays > 0
-              ? `${(100 * stats.fractionToFloor).toFixed(1)}%`
-              : '—'
-          }
+          label="Camera: glare"
+          value={stats.glareCount.toString()}
         />
         <StatCard
-          label="Fraction to camera"
+          label="Signal ratio"
           value={
-            stats.primaryRays > 0
-              ? `${(100 * stats.fractionToCamera).toFixed(2)}%`
+            Number.isFinite(stats.signalRatio)
+              ? `${(100 * stats.signalRatio).toFixed(0)}%`
               : '—'
           }
         />

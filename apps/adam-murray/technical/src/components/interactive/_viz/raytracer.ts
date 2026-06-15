@@ -62,6 +62,16 @@ export interface Ray {
   medium: Medium; // medium the ray is currently in
   depth: number; // bounce generation; 0 = primary from source
   bornBy: 'source' | 'reflected' | 'transmitted' | 'scattered';
+  /**
+   * True iff any ancestor of this ray was created by a scattering
+   * interaction (a Lambertian scatterer or equivalent). Propagates
+   * downward through Fresnel splits and remains true once set. A ray
+   * with viaScatter=true belongs to a signal path (carries information
+   * about the scattering surface); viaScatter=false is purely specular,
+   * which at an imaging device reads as glare/artifact. Defaults to
+   * false; light source factories should leave it unset.
+   */
+  viaScatter?: boolean;
 }
 
 export interface RaySegment {
@@ -74,6 +84,8 @@ export interface RaySegment {
   bornBy: 'source' | 'reflected' | 'transmitted' | 'scattered';
   terminatedBy: 'hit' | 'escape';
   surfaceName?: string; // name of the surface the segment terminated at, if any
+  /** Mirrors Ray.viaScatter at the moment this segment was traced. */
+  viaScatter?: boolean;
 }
 
 // ─── vector helpers ─────────────────────────────────────────────────
@@ -397,6 +409,7 @@ export function lambertianScatterer(
           medium: mediumOut,
           depth: rayAtHit.depth + 1,
           bornBy: 'scattered',
+          viaScatter: true, // every descendant of this hit is on a signal path
         });
       }
       return children;
@@ -665,6 +678,7 @@ export function trace(
         depth: ray.depth,
         bornBy: ray.bornBy,
         terminatedBy: 'escape',
+        viaScatter: ray.viaScatter,
       });
       continue;
     }
@@ -684,6 +698,7 @@ export function trace(
       bornBy: ray.bornBy,
       terminatedBy: 'hit',
       surfaceName: nearestSurface?.name,
+      viaScatter: ray.viaScatter,
     });
 
     // If the surface defines a custom interaction (e.g. Lambertian
@@ -696,6 +711,7 @@ export function trace(
         medium: ray.medium,
         depth: ray.depth,
         bornBy: ray.bornBy,
+        viaScatter: ray.viaScatter,
       };
       const children = nearestSurface.interact(rayAtHit, nearestHit, {
         selfIntersectEps: SELF_INTERSECT_EPS,
@@ -743,6 +759,7 @@ export function trace(
         medium: ray.medium,
         depth: ray.depth + 1,
         bornBy: 'reflected',
+        viaScatter: ray.viaScatter,
       });
     }
 
@@ -757,6 +774,7 @@ export function trace(
         medium: otherMedium,
         depth: ray.depth + 1,
         bornBy: 'transmitted',
+        viaScatter: ray.viaScatter,
       });
     }
   }

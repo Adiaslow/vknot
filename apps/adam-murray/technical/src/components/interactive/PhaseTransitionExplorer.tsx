@@ -8,7 +8,6 @@ import {
   VizSurface,
   Slider,
   StatCard,
-  Legend,
 } from './_viz';
 
 // Standard normal CDF approximation (error < 7.5e-8)
@@ -199,16 +198,19 @@ export default function PhaseTransitionExplorer() {
   return (
     <VizFigure
       title="Phase Transition Explorer"
-      description="The sharp phase transition in P(coverage ≥ 1−ε) at the critical threshold α_c. Adjust the parameters to see the S-curve behaviour predicted by Theorem 4.1."
+      description="Explore the sharp phase transition in probability P(Coverage ≥ 1-ε) at critical threshold α_c. Adjust parameters to see the dramatic S-curve behavior predicted by Theorem 4.1."
       footer={
-        <Legend
-          items={[
-            { color: tokens.accent, label: 'P(coverage ≥ 1−ε), exact Poisson CDF' },
-            { color: CRIT, label: 'Critical threshold α_c = log(1/ε)/R' },
-            ...(showInflection ? [{ color: INFL, label: 'True inflection α_infl' }] : []),
-            { color: 'rgba(202,138,4,0.6)', label: 'Phase-transition zone' },
-          ]}
-        />
+        <div className="mt-4 text-sm" style={{ color: 'var(--ink-soft)' }}>
+          <p style={{ margin: '0 0 0.5rem' }}><strong>Interpretation:</strong></p>
+          <ul className="list-disc list-inside space-y-1">
+            <li><span style={{ color: tokens.accent, fontWeight: 600 }}>Blue curve</span>: Probability P(Coverage ≥ 1-ε) using exact Poisson CDF from Theorem 4.1</li>
+            <li><span style={{ color: CRIT, fontWeight: 600 }}>Red line</span>: Theoretical critical threshold α_c = log(1/ε)/R (where E[uncovered] = ε|U|)</li>
+            <li><span style={{ color: INFL, fontWeight: 600 }}>Orange line</span>: True inflection point α_infl = log(1/(ε + 1/|U|))/R (from calculus, shown if different)</li>
+            <li><span style={{ color: '#ca8a04', fontWeight: 600 }}>Yellow region</span>: Phase transition zone exhibiting sharp S-curve behavior</li>
+            <li>For large |U|, α_c ≈ α_infl (offset → 0%). For small |U|, the offset is measurable.</li>
+            <li>Hover over the curve to see exact probability values at each sampling fraction</li>
+          </ul>
+        </div>
       }
     >
       {/* Parameter guide */}
@@ -216,47 +218,47 @@ export default function PhaseTransitionExplorer() {
         className="mb-6 rounded-lg p-3 text-xs"
         style={{ background: 'var(--accent-soft)', border: '1px solid var(--rule)', color: 'var(--ink-soft)' }}
       >
-        <p className="font-semibold mb-2">Parameter guide</p>
+        <p className="font-semibold mb-2">Parameter Guide:</p>
         <ul className="space-y-1 ml-2">
-          <li><strong>|U|</strong> (unique entities): distinct chemical entities in the library</li>
-          <li><strong>R</strong> (redundancy): synthesis paths per unique entity (|S|/|U|)</li>
-          <li><strong>ε</strong> (tolerance): max fraction of uncovered entities (target coverage 1−ε)</li>
-          <li><strong>α_c</strong> (critical point): sampling fraction at the transition = log(1/ε)/R</li>
+          <li><strong>|U|</strong> (Unique entities): Number of distinct chemical entities in the library</li>
+          <li><strong>R</strong> (Redundancy): Average number of synthesis paths per unique entity (|S|/|U|)</li>
+          <li><strong>ε</strong> (Tolerance): Maximum acceptable fraction of uncovered entities (target coverage = 1-ε)</li>
+          <li><strong>α_c</strong> (Critical point): Sampling fraction where phase transition occurs = log(1/ε)/R</li>
         </ul>
       </div>
 
       {/* Controls */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Slider
-          label="Unique entities |U|"
+          label="Unique Entities (|U|)"
           value={U}
           min={1000}
           max={1000000}
           step={1000}
           display={U.toLocaleString()}
-          hint="Larger |U| sharpens the transition"
+          hint="Larger |U| makes phase transition sharper"
           scale={['10³', '10⁶']}
           onChange={setU}
         />
         <Slider
-          label="Redundancy R = |S|/|U|"
+          label="Redundancy (R = |S|/|U|)"
           value={R}
           min={10}
           max={100000}
           step={10}
           display={R.toLocaleString()}
-          hint="Higher R moves α_c left"
+          hint="Higher R moves α_c left (fewer samples needed)"
           scale={['10', '10⁵']}
           onChange={setR}
         />
         <Slider
-          label="Coverage tolerance ε"
+          label="Coverage Tolerance (ε)"
           value={epsilon}
           min={0.001}
           max={0.5}
           step={0.001}
           display={epsilon.toFixed(3)}
-          hint="Smaller ε moves α_c right"
+          hint="Smaller ε moves α_c right (stricter coverage)"
           scale={['0.001', '0.5']}
           onChange={setEpsilon}
         />
@@ -264,18 +266,18 @@ export default function PhaseTransitionExplorer() {
 
       {/* Primary stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-        <StatCard label="Synthesis space (|S| = |U|×R)" value={S.toExponential(2)} />
-        <StatCard label="Samples needed (α_c × |S|)" value={samplesCritical.toLocaleString()} tone="accent" />
+        <StatCard label="Synthesis Space (|S| = |U|×R)" value={S.toExponential(2)} />
+        <StatCard label="Samples Needed (α_c × |S|)" value={samplesCritical.toLocaleString()} tone="accent" />
         <StatCard label="Speedup (|S|/samples)" value={`${fmtSpeedup}×`} />
       </div>
 
       {/* Diagnostics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Critical point α_c" value={alphaCritical.toExponential(3)} valueColor={CRIT} />
-        <StatCard label="True inflection α_infl" value={alphaInflection.toExponential(3)} valueColor={INFL} />
-        <StatCard label="Probability at α_c" value={`${(probabilityAtCritical * 100).toFixed(1)}%`} />
+        <StatCard label="Critical Point (α_c = log(1/ε)/R)" value={alphaCritical.toExponential(3)} valueColor={CRIT} />
+        <StatCard label="True Inflection (α_infl)" value={alphaInflection.toExponential(3)} valueColor={INFL} />
+        <StatCard label="Probability at α_c (P)" value={`${(probabilityAtCritical * 100).toFixed(1)}%`} />
         <StatCard
-          label="Inflection offset"
+          label="Inflection Offset (%)"
           value={`${Math.abs(inflectionOffset) < 0.01 ? '< 0.01' : inflectionOffset.toFixed(2)}%`}
         />
       </div>

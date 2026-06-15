@@ -425,31 +425,28 @@ export default function AdductIntervalsVisualizer() {
   );
 
   return (
-    <VizFigure
-      title="Adduct Interval Visualization"
-      description="Greedy placement of peptide masses so every adduct interval stays separated. Each row is one peptide; coloured bars are its adduct m/z windows; ticks beneath mark the bare masses."
-    >
+    <VizFigure title="Adduct Interval Visualization">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Left column: mode / method / adducts */}
         <div className="flex flex-col gap-4">
           <Select
-            label="Ionization mode"
+            label="Ionization Mode"
             value={mode}
             onChange={(v) => setMode(v as 'positive' | 'negative')}
             options={[
-              { value: 'positive', label: 'Positive ion mode' },
-              { value: 'negative', label: 'Negative ion mode' },
+              { value: 'positive', label: 'Positive Ion Mode' },
+              { value: 'negative', label: 'Negative Ion Mode' },
             ]}
           />
           <Select
-            label="Ionization method"
+            label="Ionization Method"
             value={method}
             onChange={setMethod}
             options={Object.keys(ADDUCT_LIBRARY[mode]).map((m) => ({ value: m, label: m }))}
           />
 
           <div className="viz-control">
-            <span className="viz-label">Active adducts</span>
+            <span className="viz-label">Active Adducts</span>
             <div className="viz-panel viz-check-list">
               {availableAdducts.map(renderAdductCheck)}
               {customAdducts.map(renderAdductCheck)}
@@ -457,14 +454,14 @@ export default function AdductIntervalsVisualizer() {
 
             {!showCustomForm ? (
               <button type="button" className="viz-link-btn" onClick={() => setShowCustomForm(true)}>
-                + Add custom adduct
+                + Add Custom Adduct
               </button>
             ) : (
               <div className="viz-panel flex flex-col gap-2" style={{ background: 'var(--surface-2)' }}>
                 <input
                   className="viz-input"
                   type="text"
-                  placeholder="Name (e.g. Ca²⁺)"
+                  placeholder="Name (e.g., Ca²⁺)"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                 />
@@ -490,7 +487,7 @@ export default function AdductIntervalsVisualizer() {
         {/* Right column: range / resolution / read-out */}
         <div className="flex flex-col gap-4">
           <Slider
-            label="Lower bound (L)"
+            label="Lower Bound (L)"
             value={L}
             min={50}
             max={500}
@@ -499,7 +496,7 @@ export default function AdductIntervalsVisualizer() {
             onChange={setL}
           />
           <Slider
-            label="Upper bound (U)"
+            label="Upper Bound (U)"
             value={U}
             min={500}
             max={2000}
@@ -519,23 +516,23 @@ export default function AdductIntervalsVisualizer() {
 
           <div className="viz-panel">
             <div className="viz-label" style={{ marginBottom: '0.4rem' }}>
-              Computed parameters
+              Computed Parameters
             </div>
             <div className="viz-readout">
-              <span className="viz-readout-key">Number of peptides (n)</span>
+              <span className="viz-readout-key">Number of peptides (n):</span>
               <span className="viz-readout-val">{n}</span>
             </div>
             <div className="viz-readout">
-              <span className="viz-readout-key">Spacing (δ)</span>
+              <span className="viz-readout-key">Spacing (δ):</span>
               <span className="viz-readout-val">{delta.toFixed(3)} Da</span>
             </div>
             <div className="viz-readout">
-              <span className="viz-readout-key">Critical separation (κ)</span>
+              <span className="viz-readout-key">Critical separation (κ):</span>
               <span className="viz-readout-val">{kappa}</span>
             </div>
             <hr className="viz-divider" />
             <div className="viz-readout">
-              <span className="viz-readout-key">Valid configuration</span>
+              <span className="viz-readout-key">Valid configuration:</span>
               <span className="viz-readout-val" style={{ color: isValid ? '#16a34a' : '#ef4444' }}>
                 {isValid ? '✓ No overlaps' : '✗ Overlaps detected'}
               </span>
@@ -545,14 +542,7 @@ export default function AdductIntervalsVisualizer() {
       </div>
 
       <VizSurface>
-        {options ? (
-          <PlotFigure options={options} />
-        ) : (
-          <div className="viz-empty">
-            No valid configuration for these parameters — widen the range, lower the resolution T, or
-            select better-separated adducts.
-          </div>
-        )}
+        {options && <PlotFigure options={options} />}
       </VizSurface>
     </VizFigure>
   );

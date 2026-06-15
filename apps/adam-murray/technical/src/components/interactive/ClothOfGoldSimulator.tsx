@@ -6,7 +6,6 @@ import {
   Slider,
   Button,
   StatCard,
-  Legend,
 } from './_viz';
 
 const PLAYER_B = '#ef4444'; // semantic: Player B
@@ -425,14 +424,27 @@ export default function ClothOfGoldSimulator() {
   return (
     <VizFigure
       footer={
-        <Legend
-          items={[
-            { color: tokens.accent, label: 'Player A — cells & territory' },
-            { color: PLAYER_B, label: 'Player B — cells & territory' },
-            { color: 'rgba(202,138,4,0.7)', label: 'Contested territory' },
-            { color: DEATH, label: 'Competitive death' },
-          ]}
-        />
+        <div className="mt-4 text-sm" style={{ color: 'var(--ink-soft)' }}>
+          <p style={{ margin: '0 0 0.5rem' }}><strong>Territory colors (background):</strong></p>
+          <div className="flex gap-4 flex-wrap">
+            <span className="viz-legend-item">
+              <span className="viz-legend-swatch" style={{ background: `color-mix(in oklch, ${tokens.accent} 18%, transparent)` }} />
+              Player A territory
+            </span>
+            <span className="viz-legend-item">
+              <span className="viz-legend-swatch" style={{ background: 'rgba(239, 68, 68, 0.15)' }} />
+              Player B territory
+            </span>
+            <span className="viz-legend-item">
+              <span className="viz-legend-swatch" style={{ background: CONTESTED }} />
+              Contested
+            </span>
+            <span className="viz-legend-item">
+              <span className="viz-legend-swatch" style={{ background: DEATH }} />
+              Competitive death
+            </span>
+          </div>
+        </div>
       }
     >
       {/* Controls */}
@@ -455,7 +467,7 @@ export default function ClothOfGoldSimulator() {
 
       <div className="mb-6">
         <Slider
-          label="Speed"
+          label="Speed:"
           value={speed}
           min={1}
           max={60}
@@ -473,7 +485,7 @@ export default function ClothOfGoldSimulator() {
           value={
             <>
               {populations.playerA}
-              <div className="viz-stat-sub">Territory {territory.playerA}</div>
+              <div className="viz-stat-sub">Territory: {territory.playerA}</div>
             </>
           }
         />
@@ -483,7 +495,7 @@ export default function ClothOfGoldSimulator() {
           value={
             <>
               {populations.playerB}
-              <div className="viz-stat-sub">Territory {territory.playerB}</div>
+              <div className="viz-stat-sub">Territory: {territory.playerB}</div>
             </>
           }
         />
@@ -499,7 +511,7 @@ export default function ClothOfGoldSimulator() {
         />
         {!isRunning && (
           <p className="text-center text-sm mt-3" style={{ color: 'var(--muted)' }}>
-            Click cells to cycle: empty → Player A → Player B
+            Click cells to cycle: Empty → Player A (blue) → Player B (red)
           </p>
         )}
       </VizSurface>

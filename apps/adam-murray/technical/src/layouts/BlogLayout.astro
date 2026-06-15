@@ -1,16 +1,18 @@
 ---
 /**
- * BlogLayout — the page shell. Owns: design-token CSS, the web fonts,
- * the flash-free theme bootstrap, the local themed header, the
- * reading column, and the footer.
+ * BlogLayout — the layout for the technical subsite.
  *
- * The shared @vknot/ui <Navigation> is intentionally NOT used here —
- * see SiteHeader.astro.
+ * Wraps every page (post or index) in the shared `<SiteShell>` from
+ * @vknot/ui, which provides the design-token CSS, web fonts, the
+ * flash-free theme bootstrap, and the colophon footer. This file
+ * adds the technical-site-specific header (its own nav links) and
+ * wraps page content in an `<article class="prose">` reading column.
+ *
+ * The technical site is the canonical example of the shared design
+ * system. Other adam-murray subsites use the same SiteShell with
+ * their own per-site header content.
  */
-import { SEO } from "@vknot/ui";
-import SiteHeader from "../components/SiteHeader.astro";
-import NodeRing from "../components/NodeRing.astro";
-import "../styles/global.css";
+import { SiteShell, SiteHeader } from "@vknot/ui";
 
 export interface Props {
   readonly title: string;
@@ -27,95 +29,19 @@ const {
   publishDate,
   tags = [],
 } = Astro.props;
-
-const year = new Date().getFullYear();
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <SEO
-      title={title}
-      description={description ??
-        "Research explorations in geometric deep learning, graph theory, and computational chemistry."}
-      article={article}
-      publishedTime={publishDate}
-      tags={tags}
-    />
-
-    <!-- Flash-free theme: apply saved/system choice before first paint -->
-    <script is:inline>
-      (function () {
-        try {
-          var saved = localStorage.getItem("am-theme");
-          var dark = saved
-            ? saved === "dark"
-            : window.matchMedia("(prefers-color-scheme: dark)").matches;
-          document.documentElement.classList.toggle("dark", dark);
-        } catch (e) {}
-      })();
-    </script>
-
-    <!-- Fonts: Spectral (prose) + IBM Plex Mono (apparatus) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
-    />
-    <!-- KaTeX (math) -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-    />
-  </head>
-
-  <body>
-    <SiteHeader />
-
-    <main class="page">
-      <slot name="hero" />
-      <article class="prose">
-        <slot />
-      </article>
-    </main>
-
-    <footer class="colophon">
-      <div class="colophon-inner">
-        <NodeRing nodes={7} chords={2} size={34} />
-        <div class="colophon-text">
-          <p>© {year} Adam Murray</p>
-        </div>
-      </div>
-    </footer>
-
-    <style>
-      .page {
-        max-width: var(--maxw);
-        margin: 0 auto;
-        width: 100%;
-        padding: 3rem 1.5rem 6rem;
-        display: flex;
-        flex-direction: column;
-        gap: 3rem;
-      }
-      .prose { max-width: none; }
-
-      .colophon { border-top: 1px solid var(--rule); }
-      .colophon-inner {
-        max-width: var(--maxw);
-        margin: 0 auto;
-        padding: 2.5rem 1.5rem 4rem;
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-      }
-      .colophon-text p { margin: 0; font-size: 0.85rem; color: var(--muted); }
-      .colophon-text .mono {
-        font-family: var(--font-mono);
-        font-size: 0.72rem;
-        margin-top: 0.3rem;
-      }
-    </style>
-  </body>
-</html>
+<SiteShell {title} {description} {article} {publishDate} {tags}>
+  <SiteHeader
+    slot="header"
+    siteName="Adam Murray - Research Explorations"
+    baseUrl="/adam-murray/technical"
+    links={[
+      { href: "/adam-murray/technical", label: "Posts" },
+      { href: "/adam-murray/technical/about", label: "About" },
+    ]}
+  />
+  <article class="prose">
+    <slot />
+  </article>
+</SiteShell>

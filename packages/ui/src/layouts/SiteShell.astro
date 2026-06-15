@@ -1,0 +1,81 @@
+---
+/**
+ * SiteShell — the page chrome shared by every adam-murray subsite.
+ *
+ * Provides the <html><head><body> scaffold, plus the design-system CSS,
+ * the flash-free theme bootstrap, web fonts, and a default colophon
+ * footer. Each subsite supplies its own per-site header content via the
+ * `header` slot and its own page content via the default slot.
+ *
+ *   <SiteShell title="..." description="...">
+ *     <MySiteHeader slot="header" />
+ *     <p>page body</p>
+ *   </SiteShell>
+ *
+ * To replace the default colophon, pass a `footer` slot:
+ *   <CustomFooter slot="footer" />
+ *
+ * The page wraps the default slot in <main class="page">, a token-driven
+ * reading column. Subsites that need a wider layout (full-bleed gallery,
+ * dashboard, etc.) can target their own descendants with scoped CSS.
+ */
+import SEO from "../components/SEO.astro";
+import HeadEssentials from "../components/HeadEssentials.astro";
+import Colophon from "../components/Colophon.astro";
+
+import "@vknot/ui/styles/global.css";
+
+export interface Props {
+  readonly title: string;
+  readonly description?: string;
+  readonly article?: boolean;
+  readonly publishDate?: string;
+  readonly tags?: ReadonlyArray<string>;
+}
+
+const {
+  title,
+  description,
+  article = false,
+  publishDate,
+  tags = [],
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SEO
+      title={title}
+      description={description ?? ""}
+      article={article}
+      publishedTime={publishDate}
+      tags={tags}
+    />
+    <HeadEssentials />
+  </head>
+
+  <body>
+    <slot name="header" />
+
+    <main class="page">
+      <slot />
+    </main>
+
+    <slot name="footer">
+      <Colophon />
+    </slot>
+  </body>
+</html>
+
+<style>
+  .page {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    width: 100%;
+    padding: 3rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+</style>

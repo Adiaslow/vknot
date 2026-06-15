@@ -1,0 +1,39 @@
+---
+/**
+ * Colophon — the standard footer used across every adam-murray subsite.
+ * Token-driven NodeRing on the left, a small copyright line on the right.
+ * Override it with <slot name="footer"> on SiteShell if a subsite ever
+ * needs a different footer.
+ */
+import NodeRing from "./NodeRing.astro";
+
+export interface Props {
+  /** Override the copyright name; defaults to "Adam Murray". */
+  copyright?: string;
+}
+
+const { copyright = "Adam Murray" } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <NodeRing nodes={7} chords={2} size={34} />
+    <div class="colophon-text">
+      <p>© {year} {copyright}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .colophon { border-top: 1px solid var(--rule); }
+  .colophon-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .colophon-text p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+</style>

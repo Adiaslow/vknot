@@ -1,0 +1,46 @@
+---
+/**
+ * HeadEssentials — the bits every adam-murray subsite needs inside <head>
+ * for consistent typography and the flash-free Paper/Ink theme bootstrap.
+ *
+ * Concretely:
+ *   - the inline script that applies the user's saved theme (or matches
+ *     their system preference) BEFORE first paint, so the page never
+ *     flashes the wrong colour scheme;
+ *   - the preconnect + Google Fonts stylesheet for Spectral (prose)
+ *     and IBM Plex Mono (apparatus);
+ *   - the KaTeX CSS, which is used by the math environments and is
+ *     cheap to include site-wide so subsites that occasionally render
+ *     a stray formula don't need to opt in.
+ *
+ * Used by SiteShell. Subsites that build their own <head> can also
+ * import this directly.
+ */
+---
+
+<!-- Flash-free theme: apply saved/system choice before first paint -->
+<script is:inline>
+  (function () {
+    try {
+      var saved = localStorage.getItem("am-theme");
+      var dark = saved
+        ? saved === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", dark);
+    } catch (e) {}
+  })();
+</script>
+
+<!-- Fonts: Spectral (prose) + IBM Plex Mono (apparatus) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+/>
+
+<!-- KaTeX (math) -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+/>

@@ -13,7 +13,7 @@ import {
   AGAR,
   ABSORBER,
   collimatedSource,
-  coneSource,
+  diffuseSky,
   horizontalSegment,
   verticalSegment,
   heightField,
@@ -55,16 +55,24 @@ const LID_OVERLAP = 5;
 const LID_HEIGHT = 7;
 
 // ─── light source layout ───────────────────────────────────────────
-// "Overhead lighting" is modelled as a row of LEDs each emitting in a
-// downward-facing cone (a discrete approximation of a diffuse ceiling
-// source). LIGHT_Y is chosen so the cone rays from each LED still
-// interact with the 100 mm dish — at 100 mm height with a ±25° cone,
-// the lateral spread of the outermost rays is tan(25°)·100 ≈ 47 mm,
-// just inside the dish radius.
-const LIGHT_Y = 100;
-const OVERHEAD_XS = [-40, -20, 0, 20, 40] as const;
-const OVERHEAD_CONE_HALF_DEG = 25;
-const OVERHEAD_RAYS_PER_LED = 5;
+// Overhead lighting is modelled as a uniform-radiance upper hemisphere
+// (an effectively-distant, horizontally-extended diffuse emitter — the
+// physical situation of a ceiling fluorescent panel, an LED light box,
+// or an overcast sky illuminating a benchtop). Rays arrive at the dish
+// from every direction in the upper hemisphere; the angular density is
+// cos-weighted, so each ray represents an equal share of the irradiance
+// on a horizontal receiver. Rays from any one direction are parallel,
+// because the source is at infinity relative to the 100 mm dish.
+//
+// SKY_NUM_DIRECTIONS sets how finely the hemisphere is sampled in
+// angle; SKY_RAYS_PER_DIRECTION sets how many parallel rays each
+// direction emits across the dish's horizontal extent. SKY_ORIGIN_DIST
+// is a visualization parameter — it sets where the rays' starting dots
+// appear on the canvas — and has no physical meaning.
+const SKY_NUM_DIRECTIONS = 12;
+const SKY_RAYS_PER_DIRECTION = 3;
+const SKY_ORIGIN_DIST = 130;
+const SKY_AIM_Y = 1; // aim line just above the dish floor
 
 // Directional lamps are physically collimated (fibre-optic or focused
 // spot). One ray per lamp, aimed at the dish-rim point (0, LAMP_AIM_Y).
@@ -390,20 +398,20 @@ export default function PetriDishOpticsSimulator() {
     const list: LightSource[] = [];
 
     if (overheadOn) {
-      // Each overhead LED is a downward-facing cone source. The cone
-      // approximates a diffuse element of a wider area source; the row
-      // of LEDs approximates an extended diffuse ceiling fixture.
-      for (const lx of OVERHEAD_XS) {
-        list.push(
-          coneSource(
-            { x: lx, y: LIGHT_Y },
-            { x: 0, y: -1 },
-            OVERHEAD_CONE_HALF_DEG,
-            OVERHEAD_RAYS_PER_LED,
-            AIR,
-          ),
-        );
-      }
+      // A single diffuse-sky source represents the entire upper
+      // hemisphere of incoming light. The sampling parameters control
+      // visual density (number of rays drawn), not the physics.
+      list.push(
+        diffuseSky({
+          aimXMin: -DISH_RADIUS,
+          aimXMax: DISH_RADIUS,
+          aimY: SKY_AIM_Y,
+          originDistance: SKY_ORIGIN_DIST,
+          numDirections: SKY_NUM_DIRECTIONS,
+          raysPerDirection: SKY_RAYS_PER_DIRECTION,
+          ambient: AIR,
+        }),
+      );
     }
 
     const buildLamp = (angleDeg: number): LightSource => {
@@ -578,14 +586,11 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillText('camera', camPx + 10, camPy + 4);
 
     // ── light source markers ────────────────────────────────────
-    if (overheadOn) {
-      ctx.fillStyle = 'rgba(220, 180, 60, 0.85)';
-      for (const lx of OVERHEAD_XS) {
-        ctx.beginPath();
-        ctx.arc(wx(lx), wy(LIGHT_Y), 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+    // The diffuse-sky source has no single position; the rays
+    // themselves originate at scattered points around the upper
+    // canvas (one per (direction, lateral-offset) pair). The trace
+    // segments visualize that distribution; no separate markers
+    // needed for the overhead lighting.
     if (lamp1On) {
       const lx = Math.sin((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE;
       const ly =
@@ -683,13 +688,16 @@ export default function PetriDishOpticsSimulator() {
         <>
           Cross-section of a petri dish with adjustable agar meniscus, optional
           liquid layer, and optional lid. Overhead lighting is modelled as a
-          row of cone-emitting LEDs (an approximation of a diffuse ceiling
-          source); directional lamps are collimated single rays. Rays refract
-          (Snell), Fresnel-split into reflected (dashed) and transmitted
-          (solid) branches at every interface, attenuate via Beer-Lambert
-          inside absorbing media, and undergo total internal reflection at
-          grazing angles past the critical angle. Floor hits are absorbed.
-          Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
+          uniform-radiance upper hemisphere (a distant, extended diffuse
+          emitter — the physical situation of a ceiling fixture or overcast
+          sky illuminating a benchtop); each direction is sampled cos-weighted
+          and rays from a given direction are parallel. Directional lamps are
+          collimated single rays. Rays refract (Snell), Fresnel-split into
+          reflected (dashed) and transmitted (solid) branches at every
+          interface, attenuate via Beer-Lambert inside absorbing media, and
+          undergo total internal reflection at grazing angles past the
+          critical angle. Floor hits are absorbed. Refractive indices: air
+          1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
       footer={

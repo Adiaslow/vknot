@@ -11,8 +11,10 @@
 //   • Total internal reflection.
 //   • Beer-Lambert attenuation through absorbing media.
 //   • Recursive multi-bounce with depth + intensity pruning.
-//   • Light source factories: collimated, cone (uniform angular), and
-//     Lambertian (cos-weighted).
+//   • Light source factories: collimated, cone (uniform angular),
+//     Lambertian (cos-weighted), and uniform diffuse sky (cos-weighted
+//     hemispherical, parallel rays per direction — for modelling
+//     distant extended emitters like a ceiling).
 //
 // Conventions:
 //   • Right-handed 2D coordinates. +x right, +y up.
@@ -408,6 +410,89 @@ export function lambertianSource(
         depth: 0,
         bornBy: 'source',
       });
+    }
+    return rays;
+  };
+}
+
+/**
+ * Uniform diffuse hemispherical illumination ("sky").
+ *
+ * Models a distant horizontally extended emitter — like a ceiling
+ * fluorescent panel or a brightly lit overcast sky — as a uniform-
+ * radiance upper hemisphere. From a small receiver on the bench, this
+ * is what diffuse overhead lighting actually looks like: rays arrive
+ * from every direction in the upper hemisphere, and the source is far
+ * enough that rays from any given direction are parallel to each other.
+ *
+ * Sampling:
+ *   • `numDirections` directions are sampled cos-weighted on the upper
+ *     hemisphere. In 2D this gives θ = asin(2u - 1) for stratified u,
+ *     where θ is measured from the +y (vertical) axis. Cos-weighted
+ *     sampling makes each ray represent an equal share of the
+ *     IRRADIANCE on a horizontal receiver (the cosine in dE = L cosθ dΩ
+ *     is folded into the sample weights).
+ *   • For each direction, `raysPerDirection` parallel rays are emitted.
+ *     Their paths cross y = `aimY` at evenly spaced x-positions across
+ *     [`aimXMin`, `aimXMax`]. Ray origins are placed at `originDistance`
+ *     back along the incoming direction from each aim point.
+ *
+ * The `originDistance` is a VISUAL parameter (controls where the rays'
+ * starting dots appear on the canvas); the physics treats the source as
+ * effectively at infinity (parallel rays per direction). Total flux is
+ * split equally across all rays.
+ */
+export function diffuseSky(opts: {
+  aimXMin: number;
+  aimXMax: number;
+  aimY: number;
+  originDistance: number;
+  numDirections: number;
+  raysPerDirection: number;
+  ambient: Medium;
+  totalIntensity?: number;
+}): LightSource {
+  const {
+    aimXMin,
+    aimXMax,
+    aimY,
+    originDistance,
+    numDirections,
+    raysPerDirection,
+    ambient,
+    totalIntensity = 1,
+  } = opts;
+  return () => {
+    const rays: Ray[] = [];
+    const totalRays = numDirections * raysPerDirection;
+    for (let i = 0; i < numDirections; i++) {
+      // Cos-weighted stratified sample: θ ∈ (-π/2, +π/2) measured from
+      // the +y axis (vertical, "straight down").
+      const u = (i + 0.5) / numDirections;
+      const theta = Math.asin(2 * u - 1);
+      const sinT = Math.sin(theta);
+      const cosT = Math.cos(theta); // > 0 over (-π/2, π/2)
+      // Incoming direction: pointing down and tilted by θ from -y.
+      // For θ = 0 → (0, -1); for θ > 0 → tilted to the left of vertical
+      // (negative x). The ray TRAVELS in this direction.
+      const dir: Vec2 = { x: -sinT, y: -cosT };
+      for (let j = 0; j < raysPerDirection; j++) {
+        const v = (j + 0.5) / raysPerDirection;
+        const xAim = aimXMin + v * (aimXMax - aimXMin);
+        // Origin is `originDistance` back along -dir from (xAim, aimY).
+        const origin: Vec2 = {
+          x: xAim - originDistance * dir.x,
+          y: aimY - originDistance * dir.y,
+        };
+        rays.push({
+          origin,
+          dir,
+          intensity: totalIntensity / totalRays,
+          medium: ambient,
+          depth: 0,
+          bornBy: 'source',
+        });
+      }
     }
     return rays;
   };

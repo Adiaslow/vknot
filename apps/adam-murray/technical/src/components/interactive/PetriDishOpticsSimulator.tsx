@@ -18,6 +18,23 @@ const LID_CLEARANCE = 0.5; // horizontal gap between dish outer wall and lid inn
 const LID_OVERLAP = 5; // how far the lid walls extend below the dish wall top
 const LID_HEIGHT = 7; // total vertical extent of the lid (wall + top)
 
+// ─── optical constants ─────────────────────────────────────────────
+// Refractive indices, dimensionless. MRS agar approximates water with
+// ~20 g/L dissolved solids — ≈1.34 is a reasonable nominal value.
+const N_AIR = 1.0;
+const N_AGAR = 1.34;
+
+// Beer-Lambert linear absorption for the agar (mm⁻¹). Real MRS agar is
+// ≈0.05 mm⁻¹ in the visible band; we bump it to make the attenuation
+// through 2-3 mm of agar visible to the eye.
+const ABSORPTION_AGAR = 0.15;
+
+// ─── light source positions ────────────────────────────────────────
+const LIGHT_Y = 250; // world-mm; overhead row well above the dish
+const OVERHEAD_XS = [-150, -75, 0, 75, 150] as const;
+const LAMP_DISTANCE = 150; // mm; directional lamps on a circle of this radius
+const LAMP_AIM_Y = 8; // world-y the directional lamps point at, near dish rim
+
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
 const CANVAS_HEIGHT = 600;
@@ -66,6 +83,140 @@ function liquidSurface(
   );
 }
 
+// ─── ray tracing primitives ────────────────────────────────────────
+// 2D vectors in world coordinates (mm). Right-handed: +x right, +y up.
+type Vec2 = { x: number; y: number };
+
+interface RaySegment {
+  start: Vec2;
+  end: Vec2;
+  intensity: number; // 0..1, average over the segment
+  medium: 'air' | 'agar';
+}
+
+// Snell refraction at a surface with outward unit normal `n`, going from
+// medium `n1` into medium `n2`. Returns the refracted unit direction, or
+// null on total internal reflection. `d` should be a unit vector pointing
+// INTO the surface (i.e. cos(θᵢ) = -d·n ≥ 0 for a normal hit).
+function refract(d: Vec2, n: Vec2, n1: number, n2: number): Vec2 | null {
+  const cosI = -(d.x * n.x + d.y * n.y);
+  const eta = n1 / n2;
+  const sin2T = eta * eta * (1 - cosI * cosI);
+  if (sin2T > 1) return null;
+  const cosT = Math.sqrt(1 - sin2T);
+  return {
+    x: eta * d.x + (eta * cosI - cosT) * n.x,
+    y: eta * d.y + (eta * cosI - cosT) * n.y,
+  };
+}
+
+// Find the first downward intersection of a ray with a 1D height field
+// y = surfaceY(x) over [xMin, xMax]. Walks the ray in N steps, locates
+// the first sign change of (surfaceY(x) - rayY(x)), then bisects to
+// refine. Returns the intersection point and the outward (upward) unit
+// normal, or null if the ray misses the surface within tMax.
+function intersectSurface(
+  origin: Vec2,
+  dir: Vec2,
+  surfaceY: (x: number) => number,
+  xMin: number,
+  xMax: number,
+  tMax: number,
+): { point: Vec2; t: number; normal: Vec2 } | null {
+  const N = 100;
+  const sample = (t: number) => {
+    const x = origin.x + t * dir.x;
+    if (x < xMin || x > xMax) return null;
+    return surfaceY(x) - (origin.y + t * dir.y);
+  };
+
+  let prevT = 1e-4;
+  const prevF = sample(prevT);
+  if (prevF === null || prevF >= 0) return null;
+  for (let i = 1; i <= N; i++) {
+    const t = (tMax * i) / N;
+    const f = sample(t);
+    if (f === null) return null;
+    if (f >= 0) {
+      let lo = prevT;
+      let hi = t;
+      for (let j = 0; j < 24; j++) {
+        const mid = 0.5 * (lo + hi);
+        const fm = sample(mid);
+        if (fm === null) return null;
+        if (fm < 0) lo = mid;
+        else hi = mid;
+      }
+      const tHit = 0.5 * (lo + hi);
+      const x = origin.x + tHit * dir.x;
+      const y = origin.y + tHit * dir.y;
+      const h = 0.01;
+      const dydx = (surfaceY(x + h) - surfaceY(x - h)) / (2 * h);
+      const inv = 1 / Math.sqrt(dydx * dydx + 1);
+      const normal = { x: -dydx * inv, y: inv };
+      return { point: { x, y }, t: tHit, normal };
+    }
+    prevT = t;
+  }
+  return null;
+}
+
+// Trace a single ray from origin in direction `dir` through the scene.
+// v0: air → agar surface (Snell refraction) → floor with Beer-Lambert
+// attenuation through the agar. Lid and liquid layer are ignored at
+// this stage and will get interface handling in v1.
+function traceRay(
+  origin: Vec2,
+  dir: Vec2,
+  agarA: number,
+  agarLambda: number,
+): RaySegment[] {
+  const T_MAX = 350;
+  const segs: RaySegment[] = [];
+
+  const hit = intersectSurface(
+    origin,
+    dir,
+    (x) => agarSurface(x, agarA, agarLambda),
+    -DISH_RADIUS,
+    DISH_RADIUS,
+    T_MAX,
+  );
+
+  if (!hit) {
+    // Ray misses the dish — extend in air to the world boundary.
+    segs.push({
+      start: origin,
+      end: { x: origin.x + T_MAX * dir.x, y: origin.y + T_MAX * dir.y },
+      intensity: 1,
+      medium: 'air',
+    });
+    return segs;
+  }
+
+  segs.push({ start: origin, end: hit.point, intensity: 1, medium: 'air' });
+
+  const refracted = refract(dir, hit.normal, N_AIR, N_AGAR);
+  if (!refracted || refracted.y >= 0) return segs;
+
+  const tFloor = -hit.point.y / refracted.y;
+  const floor: Vec2 = {
+    x: hit.point.x + tFloor * refracted.x,
+    y: 0,
+  };
+  const endIntensity = Math.exp(-ABSORPTION_AGAR * tFloor);
+  const avgIntensity = 0.5 * (1 + endIntensity);
+
+  segs.push({
+    start: hit.point,
+    end: floor,
+    intensity: avgIntensity,
+    medium: 'agar',
+  });
+
+  return segs;
+}
+
 // ─── component ─────────────────────────────────────────────────────
 export default function PetriDishOpticsSimulator() {
   // Surface geometry
@@ -112,6 +263,73 @@ export default function PetriDishOpticsSimulator() {
     }
     return { xs, agarYs, liquidYs };
   }, [agarMeniscus, agarCapillary, liquidPool, liquidMeniscus]);
+
+  // ─── trace rays through the scene ────────────────────────────────
+  // Each enabled light source emits a single ray. Overhead LEDs cast
+  // straight down; directional lamps aim at (0, LAMP_AIM_Y) on the dish
+  // rim. v0 traces air → agar surface (Snell) → floor (Beer-Lambert);
+  // lid and liquid interfaces are ignored.
+  const tracedRays = useMemo(() => {
+    const rays: RaySegment[] = [];
+
+    if (overheadOn) {
+      for (const lx of OVERHEAD_XS) {
+        const segs = traceRay(
+          { x: lx, y: LIGHT_Y },
+          { x: 0, y: -1 },
+          agarMeniscus,
+          agarCapillary,
+        );
+        rays.push(...segs);
+      }
+    }
+
+    const traceLamp = (angleDeg: number) => {
+      const t = (angleDeg * Math.PI) / 180;
+      const lampPos = {
+        x: Math.sin(t) * LAMP_DISTANCE,
+        y: Math.cos(t) * LAMP_DISTANCE + LAMP_AIM_Y,
+      };
+      const aim = { x: 0, y: LAMP_AIM_Y };
+      const dx = aim.x - lampPos.x;
+      const dy = aim.y - lampPos.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const segs = traceRay(
+        lampPos,
+        { x: dx / len, y: dy / len },
+        agarMeniscus,
+        agarCapillary,
+      );
+      rays.push(...segs);
+    };
+    if (lamp1On) traceLamp(lampAngle1);
+    if (lamp2On) traceLamp(lampAngle2);
+
+    return rays;
+  }, [
+    overheadOn,
+    lamp1On,
+    lamp2On,
+    lampAngle1,
+    lampAngle2,
+    agarMeniscus,
+    agarCapillary,
+  ]);
+
+  // Derived stats for the StatCards. A "ray" is one origin-to-floor (or
+  // origin-to-boundary) walk; count by air-medium segments since each
+  // ray emits exactly one air segment.
+  const stats = useMemo(() => {
+    const raysTraced = tracedRays.filter((s) => s.medium === 'air').length;
+    const reachingFloor = tracedRays.filter(
+      (s) => s.medium === 'agar' && Math.abs(s.end.y) < 1e-3,
+    ).length;
+    const avgIntensity =
+      tracedRays.length === 0
+        ? 0
+        : tracedRays.reduce((sum, s) => sum + s.intensity, 0) / tracedRays.length;
+    return { raysTraced, reachingFloor, avgIntensity };
+  }, [tracedRays]);
 
   // ─── render scene ────────────────────────────────────────────────
   useEffect(() => {
@@ -251,33 +469,55 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillText('camera', camPx + 10, camPy + 4);
 
     // ── light source markers ─────────────────────────────────────
-    const lightY = 250;
-    const overheadXs = [-150, -75, 0, 75, 150];
     if (overheadOn) {
       ctx.fillStyle = 'rgba(220, 180, 60, 0.85)';
-      for (const lx of overheadXs) {
+      for (const lx of OVERHEAD_XS) {
         ctx.beginPath();
-        ctx.arc(wx(lx), wy(lightY), 3, 0, Math.PI * 2);
+        ctx.arc(wx(lx), wy(LIGHT_Y), 3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
     // Directional lamps: positioned by angle off-axis from above the dish
-    const lampDistance = 150;
     if (lamp1On) {
-      const lx = Math.sin((lampAngle1 * Math.PI) / 180) * lampDistance;
-      const ly = Math.cos((lampAngle1 * Math.PI) / 180) * lampDistance + 8;
+      const lx = Math.sin((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE;
+      const ly = Math.cos((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
       ctx.fillStyle = 'rgba(250, 220, 120, 0.95)';
       ctx.beginPath();
       ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
       ctx.fill();
     }
     if (lamp2On) {
-      const lx = Math.sin((lampAngle2 * Math.PI) / 180) * lampDistance;
-      const ly = Math.cos((lampAngle2 * Math.PI) / 180) * lampDistance + 8;
+      const lx = Math.sin((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE;
+      const ly = Math.cos((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
       ctx.fillStyle = 'rgba(250, 220, 120, 0.95)';
       ctx.beginPath();
       ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    // ── traced rays ──────────────────────────────────────────────
+    // Air segments render in bright yellow; agar segments shift to a
+    // warmer amber and dim with Beer-Lambert attenuation along the path.
+    ctx.lineWidth = 1.5;
+    for (const seg of tracedRays) {
+      const a = Math.max(0.1, seg.intensity);
+      ctx.strokeStyle =
+        seg.medium === 'air'
+          ? `rgba(250, 220, 100, ${0.85 * a})`
+          : `rgba(220, 145, 60, ${0.9 * a})`;
+      ctx.beginPath();
+      ctx.moveTo(wx(seg.start.x), wy(seg.start.y));
+      ctx.lineTo(wx(seg.end.x), wy(seg.end.y));
+      ctx.stroke();
+    }
+    // Floor-hit markers: small dots where rays terminate on the dish floor
+    ctx.fillStyle = 'rgba(220, 145, 60, 0.95)';
+    for (const seg of tracedRays) {
+      if (seg.medium === 'agar' && Math.abs(seg.end.y) < 1e-3) {
+        ctx.beginPath();
+        ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     // ── scale bar ────────────────────────────────────────────────
@@ -309,6 +549,7 @@ export default function PetriDishOpticsSimulator() {
   }, [
     tokens,
     surfaceSamples,
+    tracedRays,
     cameraHeight,
     lidPresent,
     liquidPresent,
@@ -325,9 +566,11 @@ export default function PetriDishOpticsSimulator() {
       description={
         <>
           Cross-section of a petri dish with adjustable agar meniscus, optional
-          liquid layer, and optional lid. Adjust the parameters below to see
-          the geometry change; ray tracing will be layered onto this scene in
-          subsequent revisions.
+          liquid layer, and optional lid. Each lit source casts a single ray
+          that refracts at the agar surface (Snell's law, n<sub>air</sub>=1,
+          n<sub>agar</sub>=1.34) and attenuates through the medium
+          (Beer-Lambert). Fresnel split, lid/liquid interfaces, and
+          camera-side ray collection will arrive in subsequent versions.
         </>
       }
       footer={
@@ -478,12 +721,21 @@ export default function PetriDishOpticsSimulator() {
         </div>
       </div>
 
-      {/* Stat cards (placeholders until ray tracing is wired up) */}
+      {/* Stat cards — v0 ray tracing */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <StatCard label="Rays traced" value="—" />
-        <StatCard label="Reaching camera" value="—" tone="accent" />
-        <StatCard label="Max bounces" value="—" />
-        <StatCard label="Avg intensity" value="—" />
+        <StatCard label="Rays traced" value={stats.raysTraced.toString()} />
+        <StatCard
+          label="Reaching floor"
+          value={stats.reachingFloor.toString()}
+          tone="accent"
+        />
+        <StatCard label="Max bounces" value="1" />
+        <StatCard
+          label="Avg intensity"
+          value={
+            stats.avgIntensity > 0 ? stats.avgIntensity.toFixed(2) : '—'
+          }
+        />
       </div>
 
       <VizSurface>

@@ -148,6 +148,21 @@ const CAMERA_HOUSING_HEIGHT = 10; // 10 mm tall body above the lens
 const POLY_FLOOR_THICKNESS = 1; // 1 mm polystyrene dish floor
 const BENCH_ALBEDO = 0.55;
 const BENCH_SCATTER_RAYS = 7;
+// The bench extends well beyond the dish footprint, since a real
+// benchtop is much larger than a 100 mm dish. We model it as three
+// horizontal segments at y = -POLY_FLOOR_THICKNESS:
+//   • bench (under dish)    x ∈ [-DISH_RADIUS, +DISH_RADIUS]:
+//     POLYSTYRENE above (in optical contact with dish floor).
+//   • bench (left of dish)  x ∈ [-BENCH_HALF_WIDTH, -DISH_RADIUS]:
+//     AIR above (open lab space beside the dish).
+//   • bench (right of dish) x ∈ [+DISH_RADIUS, +BENCH_HALF_WIDTH]:
+//     AIR above.
+// Without the side segments, lamp rays at grazing angles can pass
+// "through" the bench at x outside the dish footprint, since nothing
+// in the tracer stops them there even though the visualization shows
+// a bench. BENCH_HALF_WIDTH = 150 mm matches the visible bench in the
+// render so the geometry and the optics agree.
+const BENCH_HALF_WIDTH = 150;
 
 // ─── visualization gamma ──────────────────────────────────────────
 // Beer-Lambert attenuation plus multiple Fresnel transmissions can
@@ -506,9 +521,11 @@ export default function PetriDishOpticsSimulator() {
       ),
     );
     if (benchScattering) {
+      // Under the dish: medium above is POLYSTYRENE (in contact with
+      // the dish floor).
       surfaces.push(
         lambertianScatterer(
-          'bench',
+          'bench (under dish)',
           -POLY_FLOOR_THICKNESS,
           -DISH_RADIUS,
           DISH_RADIUS,
@@ -518,14 +535,60 @@ export default function PetriDishOpticsSimulator() {
           BENCH_SCATTER_RAYS,
         ),
       );
+      // Beside the dish: open lab space (AIR) above. Scattered
+      // children re-emit into AIR.
+      surfaces.push(
+        lambertianScatterer(
+          'bench (left of dish)',
+          -POLY_FLOOR_THICKNESS,
+          -BENCH_HALF_WIDTH,
+          -DISH_RADIUS,
+          AIR,
+          ABSORBER,
+          BENCH_ALBEDO,
+          BENCH_SCATTER_RAYS,
+        ),
+      );
+      surfaces.push(
+        lambertianScatterer(
+          'bench (right of dish)',
+          -POLY_FLOOR_THICKNESS,
+          DISH_RADIUS,
+          BENCH_HALF_WIDTH,
+          AIR,
+          ABSORBER,
+          BENCH_ALBEDO,
+          BENCH_SCATTER_RAYS,
+        ),
+      );
     } else {
       surfaces.push(
         horizontalSegment(
-          'bench',
+          'bench (under dish)',
           -POLY_FLOOR_THICKNESS,
           -DISH_RADIUS,
           DISH_RADIUS,
           POLYSTYRENE,
+          ABSORBER,
+        ),
+      );
+      surfaces.push(
+        horizontalSegment(
+          'bench (left of dish)',
+          -POLY_FLOOR_THICKNESS,
+          -BENCH_HALF_WIDTH,
+          -DISH_RADIUS,
+          AIR,
+          ABSORBER,
+        ),
+      );
+      surfaces.push(
+        horizontalSegment(
+          'bench (right of dish)',
+          -POLY_FLOOR_THICKNESS,
+          DISH_RADIUS,
+          BENCH_HALF_WIDTH,
+          AIR,
           ABSORBER,
         ),
       );
@@ -770,12 +833,26 @@ export default function PetriDishOpticsSimulator() {
   // hits are glare by construction; with it ON, the two contributions
   // are mixed, and the ratio depends strongly on lighting geometry —
   // which IS the article's point about off-axis darkfield setups.
+  //
+  // We expose TWO ratio statistics because they tell different and
+  // both-meaningful stories:
+  //   • Signal: hits — what fraction of ray ARRIVALS at the camera
+  //     are signal. This is the discrete count the eye reads off the
+  //     dots in the canvas. It's subject to MC variance (one bright
+  //     ray vs one dim ray counts the same).
+  //   • Signal: flux — what fraction of the camera's actually-collected
+  //     RADIANT FLUX is signal. This is the physically meaningful
+  //     image-vs-artifact ratio at the sensor; it can differ
+  //     substantially from the count ratio when a single bright signal
+  //     ray dominates many dim glare rays (or vice versa).
   const stats = useMemo(() => {
+    const isBench = (name: string | undefined) =>
+      name !== undefined && name.startsWith('bench');
     const primaryRays = tracedSegments.filter(
       (s) => s.bornBy === 'source',
     ).length;
     const reachingBench = tracedSegments.filter(
-      (s) => s.surfaceName === 'bench' && s.bornBy !== 'reflected',
+      (s) => isBench(s.surfaceName) && s.bornBy !== 'reflected',
     ).length;
     const imageFormingHits = tracedSegments.filter(
       (s) =>
@@ -792,17 +869,22 @@ export default function PetriDishOpticsSimulator() {
       0,
     );
     const totalEnergyAtBench = tracedSegments
-      .filter((s) => s.surfaceName === 'bench')
+      .filter((s) => isBench(s.surfaceName))
       .reduce((sum, s) => sum + s.intensityEnd, 0);
     const totalSourceEnergy = tracedSegments
       .filter((s) => s.bornBy === 'source')
       .reduce((sum, s) => sum + s.intensityStart, 0);
     const fractionToBench =
       totalSourceEnergy > 0 ? totalEnergyAtBench / totalSourceEnergy : 0;
-    // signalRatio in [0, 1]: 1.0 = pure image, 0 = pure glare, NaN if
-    // nothing reaches the camera at all (rendered as '—').
+    // Count-based ratio: matches the dots on the canvas one-for-one.
+    const totalCameraHits = signalHits.length + glareHits.length;
+    const signalHitRatio =
+      totalCameraHits > 0 ? signalHits.length / totalCameraHits : NaN;
+    // Energy-weighted ratio: the actual radiant-flux split at the
+    // sensor. Differs from the count when ray intensities vary across
+    // the population (which they always do in a real MC trace).
     const totalCameraEnergy = signalEnergy + glareEnergy;
-    const signalRatio =
+    const signalFluxRatio =
       totalCameraEnergy > 0 ? signalEnergy / totalCameraEnergy : NaN;
     return {
       primaryRays,
@@ -810,7 +892,8 @@ export default function PetriDishOpticsSimulator() {
       signalCount: signalHits.length,
       glareCount: glareHits.length,
       fractionToBench,
-      signalRatio,
+      signalHitRatio,
+      signalFluxRatio,
     };
   }, [tracedSegments]);
 
@@ -912,16 +995,14 @@ export default function PetriDishOpticsSimulator() {
     );
 
     // ── bench (the table the dish sits on) ───────────────────────
-    // Drawn as a horizontal line at y = -POLY_FLOOR_THICKNESS with
-    // 45° hatching below it, extending across the full canvas width
-    // so the dish reads as resting on an extended benchtop. The
-    // actual optical interaction with the bench in the tracer is
-    // restricted to the dish footprint (x ∈ [-DISH_RADIUS,
-    // +DISH_RADIUS]), but visually the bench extends beyond.
+    // Drawn as a horizontal line at y = -POLY_FLOOR_THICKNESS spanning
+    // x ∈ [-BENCH_HALF_WIDTH, +BENCH_HALF_WIDTH] (matching the three
+    // bench surfaces in the scene), with 45° hatching below it. The
+    // hatching indicates "solid bench beneath this surface".
     {
       const benchY = -POLY_FLOOR_THICKNESS;
-      const benchX0 = WORLD_X_MIN + 4;
-      const benchX1 = WORLD_X_MAX - 4;
+      const benchX0 = -BENCH_HALF_WIDTH;
+      const benchX1 = BENCH_HALF_WIDTH;
       // The bench surface line itself.
       ctx.strokeStyle = palette.outlineStrong;
       ctx.lineWidth = 1.5;
@@ -929,8 +1010,8 @@ export default function PetriDishOpticsSimulator() {
       ctx.moveTo(wx(benchX0), wy(benchY));
       ctx.lineTo(wx(benchX1), wy(benchY));
       ctx.stroke();
-      // 45° hatching below the bench line. Step in canvas pixels;
-      // each stroke goes from the bench line down-and-right by ~6 mm.
+      // 45° hatching below the bench line, descending 5 mm into the
+      // world (downward in canvas).
       ctx.strokeStyle = palette.outline;
       ctx.lineWidth = 0.8;
       const hatchStep = 8; // px
@@ -946,11 +1027,15 @@ export default function PetriDishOpticsSimulator() {
         );
       }
       ctx.stroke();
-      // Small label.
+      // Label, placed below the hatched region (canvas y increases
+      // downward, so we ADD pixels to push the label below). Anchored
+      // at the right edge of the bench.
       ctx.fillStyle = palette.ink;
       ctx.font = '10px ui-monospace, monospace';
       ctx.textAlign = 'right';
-      ctx.fillText('bench', wx(benchX1) - 2, wy(benchY - hatchDrop) - 2);
+      ctx.textBaseline = 'top';
+      ctx.fillText('bench', wx(benchX1), wy(benchY - hatchDrop) + 4);
+      ctx.textBaseline = 'alphabetic'; // restore canvas default
     }
 
     // ── agar fill ───────────────────────────────────────────────
@@ -1143,7 +1228,11 @@ export default function PetriDishOpticsSimulator() {
     // segments, which themselves convey where the bench was touched).
     if (!benchScattering) {
       for (const seg of tracedSegments) {
-        if (seg.surfaceName === 'bench' && seg.bornBy !== 'reflected') {
+        if (
+          seg.surfaceName &&
+          seg.surfaceName.startsWith('bench') &&
+          seg.bornBy !== 'reflected'
+        ) {
           ctx.fillStyle = `${palette.floorHit} ${Math.max(0.35, visAlpha(seg.intensityEnd))})`;
           ctx.beginPath();
           ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
@@ -1244,7 +1333,13 @@ export default function PetriDishOpticsSimulator() {
           <strong>green = signal</strong> (the ray scattered off the
           bench, so it carries an image) and{' '}
           <strong>red = glare</strong> (purely specular, an artifact of the
-          optics rather than information about the dish contents).
+          optics rather than information about the dish contents). Two
+          ratios are reported: <em>Signal: hits</em> is the fraction of
+          camera arrivals (the green/red dot count) that are signal, and{' '}
+          <em>Signal: flux</em> is the energy-weighted fraction at the
+          sensor — the actual radiometric image-vs-artifact ratio, which
+          differs from the count when ray intensities vary across the
+          population.
           Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
@@ -1403,7 +1498,7 @@ export default function PetriDishOpticsSimulator() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
         <StatCard label="Primary rays" value={stats.primaryRays.toString()} />
         <StatCard
           label="Reaching bench"
@@ -1419,10 +1514,18 @@ export default function PetriDishOpticsSimulator() {
           value={stats.glareCount.toString()}
         />
         <StatCard
-          label="Signal ratio"
+          label="Signal: hits"
           value={
-            Number.isFinite(stats.signalRatio)
-              ? `${(100 * stats.signalRatio).toFixed(0)}%`
+            Number.isFinite(stats.signalHitRatio)
+              ? `${(100 * stats.signalHitRatio).toFixed(0)}%`
+              : '—'
+          }
+        />
+        <StatCard
+          label="Signal: flux"
+          value={
+            Number.isFinite(stats.signalFluxRatio)
+              ? `${(100 * stats.signalFluxRatio).toFixed(0)}%`
               : '—'
           }
         />

@@ -133,9 +133,9 @@ export default function PetriDishOpticsSimulator() {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // ── dish exterior (outline) ──────────────────────────────────
-    // Outer wall of the dish: strong dark line forming a U opening up.
-    ctx.strokeStyle = tokens.ink;
-    ctx.lineWidth = 2;
+    // Outer wall of the dish — uniform line weight matching the rest.
+    ctx.strokeStyle = tokens.inkSoft;
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(-DISH_WALL_THICKNESS));
@@ -143,7 +143,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS + DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
 
-    // Top rims of the dish wall (strong, connecting outer to inner).
+    // Top rims of the dish wall, connecting outer to inner.
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
@@ -152,9 +152,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.stroke();
 
     // ── dish interior outline ────────────────────────────────────
-    // Inner surface where agar/liquid contacts the wall: normal line.
-    ctx.strokeStyle = tokens.inkSoft;
-    ctx.lineWidth = 1;
+    // Inner surface where agar/liquid contacts the wall.
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS), wy(0));
@@ -209,9 +207,9 @@ export default function PetriDishOpticsSimulator() {
       ctx.closePath();
       ctx.fill();
 
-      // Outer outline of the lid: strong dark line, inverted U.
-      ctx.strokeStyle = tokens.ink;
-      ctx.lineWidth = 2;
+      // Outer outline of the lid: uniform line, inverted U.
+      ctx.strokeStyle = tokens.inkSoft;
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidOuterR), wy(lidOuterTop));
@@ -219,7 +217,7 @@ export default function PetriDishOpticsSimulator() {
       ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
-      // Bottom rims of the lid wall (strong, connecting outer to inner).
+      // Bottom rims of the lid wall, connecting outer to inner.
       ctx.beginPath();
       ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidInnerR), wy(lidWallBottom));
@@ -227,9 +225,7 @@ export default function PetriDishOpticsSimulator() {
       ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
-      // Inner outline of the lid: normal line, inverted U inside.
-      ctx.strokeStyle = tokens.inkSoft;
-      ctx.lineWidth = 1;
+      // Inner outline of the lid: same line style, inverted U inside.
       ctx.beginPath();
       ctx.moveTo(wx(-lidInnerR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
@@ -295,19 +291,19 @@ export default function PetriDishOpticsSimulator() {
       const yPx = wy(barY);
       ctx.strokeStyle = tokens.inkSoft;
       ctx.fillStyle = tokens.inkSoft;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x0, yPx);
       ctx.lineTo(x1, yPx);
-      // tick marks at each end
-      ctx.moveTo(x0, yPx - 4);
+      // tick marks pointing down only
+      ctx.moveTo(x0, yPx);
       ctx.lineTo(x0, yPx + 4);
-      ctx.moveTo(x1, yPx - 4);
+      ctx.moveTo(x1, yPx);
       ctx.lineTo(x1, yPx + 4);
       ctx.stroke();
       ctx.font = '11px ui-monospace, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('50 mm (½ dish)', (x0 + x1) / 2, yPx + 14);
+      ctx.fillText('50 mm', (x0 + x1) / 2, yPx + 14);
     }
   }, [
     tokens,

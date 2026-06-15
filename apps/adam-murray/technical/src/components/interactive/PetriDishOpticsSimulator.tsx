@@ -6,34 +6,70 @@ import {
   Slider,
   StatCard,
   Legend,
+  // ── ray tracer module ────────────────────────────────────────────
+  AIR,
+  POLYSTYRENE,
+  WATER,
+  AGAR,
+  ABSORBER,
+  collimatedSource,
+  coneSource,
+  horizontalSegment,
+  verticalSegment,
+  heightField,
+  trace,
+} from './_viz';
+import type {
+  LightSource,
+  Medium,
+  RaySegment,
+  Scene,
+  Surface,
+  Vec2,
 } from './_viz';
 
-// ─── physical constants (millimetres) ──────────────────────────────
+// ────────────────────────────────────────────────────────────────────
+// Petri dish optics simulator.
+//
+// All physics is delegated to the raytracer module (./_viz/raytracer).
+// This file is responsible for:
+//   • Translating component state into a scene (a list of optical
+//     interfaces with proper media on each side) and a list of light
+//     sources.
+//   • Calling trace() to get all ray segments.
+//   • Rendering segments and geometry on a canvas.
+//   • Deriving summary statistics from the traced rays.
+//
+// No optical physics lives in this file. If a fix is needed to Snell,
+// Fresnel, or Beer-Lambert behaviour, it belongs in the raytracer module.
+// ────────────────────────────────────────────────────────────────────
+
+// ─── geometry constants (millimetres) ──────────────────────────────
 const DISH_RADIUS = 50; // 100 mm dish diameter, from Fisher MRS plates
 const DISH_WALL_HEIGHT = 15; // interior wall height
 const DISH_WALL_THICKNESS = 1; // polystyrene wall (visual)
 const AGAR_FILL_DEPTH = 2.3; // 18 mL / (π · 50²) mm³
-const LID_THICKNESS = 1; // lid wall thickness
-const LID_CLEARANCE = 0.5; // horizontal gap between dish outer wall and lid inner wall
-const LID_OVERLAP = 5; // how far the lid walls extend below the dish wall top
-const LID_HEIGHT = 7; // total vertical extent of the lid (wall + top)
+const LID_THICKNESS = 1;
+const LID_CLEARANCE = 0.5;
+const LID_OVERLAP = 5;
+const LID_HEIGHT = 7;
 
-// ─── optical constants ─────────────────────────────────────────────
-// Refractive indices, dimensionless. MRS agar approximates water with
-// ~20 g/L dissolved solids — ≈1.34 is a reasonable nominal value.
-const N_AIR = 1.0;
-const N_AGAR = 1.34;
+// ─── light source layout ───────────────────────────────────────────
+// "Overhead lighting" is modelled as a row of LEDs each emitting in a
+// downward-facing cone (a discrete approximation of a diffuse ceiling
+// source). LIGHT_Y is chosen so the cone rays from each LED still
+// interact with the 100 mm dish — at 100 mm height with a ±25° cone,
+// the lateral spread of the outermost rays is tan(25°)·100 ≈ 47 mm,
+// just inside the dish radius.
+const LIGHT_Y = 100;
+const OVERHEAD_XS = [-40, -20, 0, 20, 40] as const;
+const OVERHEAD_CONE_HALF_DEG = 25;
+const OVERHEAD_RAYS_PER_LED = 5;
 
-// Beer-Lambert linear absorption for the agar (mm⁻¹). Real MRS agar is
-// ≈0.05 mm⁻¹ in the visible band; we bump it to make the attenuation
-// through 2-3 mm of agar visible to the eye.
-const ABSORPTION_AGAR = 0.15;
-
-// ─── light source positions ────────────────────────────────────────
-const LIGHT_Y = 250; // world-mm; overhead row well above the dish
-const OVERHEAD_XS = [-150, -75, 0, 75, 150] as const;
-const LAMP_DISTANCE = 150; // mm; directional lamps on a circle of this radius
-const LAMP_AIM_Y = 8; // world-y the directional lamps point at, near dish rim
+// Directional lamps are physically collimated (fibre-optic or focused
+// spot). One ray per lamp, aimed at the dish-rim point (0, LAMP_AIM_Y).
+const LAMP_DISTANCE = 150;
+const LAMP_AIM_Y = 8;
 
 // ─── canvas geometry ───────────────────────────────────────────────
 const CANVAS_WIDTH = 720;
@@ -41,16 +77,14 @@ const CANVAS_HEIGHT = 600;
 const PX_PER_MM = 2.0;
 const WORLD_X_MIN = -180;
 const WORLD_Y_MIN = -22;
+const WORLD_X_MAX = WORLD_X_MIN + CANVAS_WIDTH / PX_PER_MM; // +180
+const WORLD_Y_MAX = WORLD_Y_MIN + CANVAS_HEIGHT / PX_PER_MM; // +278
 
-// World-to-canvas transforms. World x is horizontal, world y is vertical
-// (positive y is upward in physical space). Canvas y is inverted so that
-// world-up corresponds to canvas-up.
 const wx = (worldX: number) => (worldX - WORLD_X_MIN) * PX_PER_MM;
-const wy = (worldY: number) => CANVAS_HEIGHT - (worldY - WORLD_Y_MIN) * PX_PER_MM;
+const wy = (worldY: number) =>
+  CANVAS_HEIGHT - (worldY - WORLD_Y_MIN) * PX_PER_MM;
 
-// ─── surface equations ─────────────────────────────────────────────
-// Agar bowl: cosh meniscus, depressed in the middle and climbing to
-// AGAR_FILL_DEPTH at the walls.
+// ─── surface equations (geometry, not optics) ──────────────────────
 function agarSurface(x: number, A: number, lambda: number): number {
   return (
     AGAR_FILL_DEPTH -
@@ -59,17 +93,19 @@ function agarSurface(x: number, A: number, lambda: number): number {
   );
 }
 
-// Liquid layer (raw): the liquid's own meniscus curve, ignoring whether
-// the agar is above or below it at this x.
-function liquidRaw(x: number, yPool: number, Ap: number, lambdaP: number): number {
+function liquidRaw(
+  x: number,
+  yPool: number,
+  Ap: number,
+  lambdaP: number,
+): number {
   return (
-    yPool + Ap * (Math.cosh(x / lambdaP) / Math.cosh(DISH_RADIUS / lambdaP) - 1)
+    yPool +
+    Ap * (Math.cosh(x / lambdaP) / Math.cosh(DISH_RADIUS / lambdaP) - 1)
   );
 }
 
-// Active liquid surface: the higher of the liquid's own curve and the agar
-// surface. The liquid cannot sit below the agar that contains it.
-function liquidSurface(
+function liquidSurfaceY(
   x: number,
   yPool: number,
   Ap: number,
@@ -83,152 +119,37 @@ function liquidSurface(
   );
 }
 
-// ─── ray tracing primitives ────────────────────────────────────────
-// 2D vectors in world coordinates (mm). Right-handed: +x right, +y up.
-type Vec2 = { x: number; y: number };
-
-interface RaySegment {
-  start: Vec2;
-  end: Vec2;
-  intensity: number; // 0..1, average over the segment
-  medium: 'air' | 'agar';
-}
-
-// Snell refraction at a surface with outward unit normal `n`, going from
-// medium `n1` into medium `n2`. Returns the refracted unit direction, or
-// null on total internal reflection. `d` should be a unit vector pointing
-// INTO the surface (i.e. cos(θᵢ) = -d·n ≥ 0 for a normal hit).
-function refract(d: Vec2, n: Vec2, n1: number, n2: number): Vec2 | null {
-  const cosI = -(d.x * n.x + d.y * n.y);
-  const eta = n1 / n2;
-  const sin2T = eta * eta * (1 - cosI * cosI);
-  if (sin2T > 1) return null;
-  const cosT = Math.sqrt(1 - sin2T);
-  return {
-    x: eta * d.x + (eta * cosI - cosT) * n.x,
-    y: eta * d.y + (eta * cosI - cosT) * n.y,
-  };
-}
-
-// Find the first downward intersection of a ray with a 1D height field
-// y = surfaceY(x) over [xMin, xMax]. Walks the ray in N steps, locates
-// the first sign change of (surfaceY(x) - rayY(x)), then bisects to
-// refine. Returns the intersection point and the outward (upward) unit
-// normal, or null if the ray misses the surface within tMax.
-function intersectSurface(
-  origin: Vec2,
-  dir: Vec2,
-  surfaceY: (x: number) => number,
-  xMin: number,
-  xMax: number,
-  tMax: number,
-): { point: Vec2; t: number; normal: Vec2 } | null {
-  const N = 100;
-  const sample = (t: number) => {
-    const x = origin.x + t * dir.x;
-    if (x < xMin || x > xMax) return null;
-    return surfaceY(x) - (origin.y + t * dir.y);
-  };
-
-  let prevT = 1e-4;
-  const prevF = sample(prevT);
-  if (prevF === null || prevF >= 0) return null;
-  for (let i = 1; i <= N; i++) {
-    const t = (tMax * i) / N;
-    const f = sample(t);
-    if (f === null) return null;
-    if (f >= 0) {
-      let lo = prevT;
-      let hi = t;
-      for (let j = 0; j < 24; j++) {
-        const mid = 0.5 * (lo + hi);
-        const fm = sample(mid);
-        if (fm === null) return null;
-        if (fm < 0) lo = mid;
-        else hi = mid;
-      }
-      const tHit = 0.5 * (lo + hi);
-      const x = origin.x + tHit * dir.x;
-      const y = origin.y + tHit * dir.y;
-      const h = 0.01;
-      const dydx = (surfaceY(x + h) - surfaceY(x - h)) / (2 * h);
-      const inv = 1 / Math.sqrt(dydx * dydx + 1);
-      const normal = { x: -dydx * inv, y: inv };
-      return { point: { x, y }, t: tHit, normal };
-    }
-    prevT = t;
+// ─── colours by medium for ray rendering ───────────────────────────
+// Hard-coded RGB; alpha is applied per-segment from intensity.
+function mediumColor(m: Medium): string {
+  switch (m.name) {
+    case 'air':
+      return 'rgba(250, 220, 100,'; // warm yellow
+    case 'water':
+      return 'rgba(140, 200, 230,'; // pale blue
+    case 'polystyrene':
+      return 'rgba(190, 200, 220,'; // pale cool gray
+    case 'agar':
+      return 'rgba(210, 130, 50,'; // warm amber
+    case 'absorber':
+      return 'rgba(40, 40, 40,'; // near-black (rays inside the floor)
+    default:
+      return 'rgba(180, 180, 180,';
   }
-  return null;
-}
-
-// Trace a single ray from origin in direction `dir` through the scene.
-// v0: air → agar surface (Snell refraction) → floor with Beer-Lambert
-// attenuation through the agar. Lid and liquid layer are ignored at
-// this stage and will get interface handling in v1.
-function traceRay(
-  origin: Vec2,
-  dir: Vec2,
-  agarA: number,
-  agarLambda: number,
-): RaySegment[] {
-  const T_MAX = 350;
-  const segs: RaySegment[] = [];
-
-  const hit = intersectSurface(
-    origin,
-    dir,
-    (x) => agarSurface(x, agarA, agarLambda),
-    -DISH_RADIUS,
-    DISH_RADIUS,
-    T_MAX,
-  );
-
-  if (!hit) {
-    // Ray misses the dish — extend in air to the world boundary.
-    segs.push({
-      start: origin,
-      end: { x: origin.x + T_MAX * dir.x, y: origin.y + T_MAX * dir.y },
-      intensity: 1,
-      medium: 'air',
-    });
-    return segs;
-  }
-
-  segs.push({ start: origin, end: hit.point, intensity: 1, medium: 'air' });
-
-  const refracted = refract(dir, hit.normal, N_AIR, N_AGAR);
-  if (!refracted || refracted.y >= 0) return segs;
-
-  const tFloor = -hit.point.y / refracted.y;
-  const floor: Vec2 = {
-    x: hit.point.x + tFloor * refracted.x,
-    y: 0,
-  };
-  const endIntensity = Math.exp(-ABSORPTION_AGAR * tFloor);
-  const avgIntensity = 0.5 * (1 + endIntensity);
-
-  segs.push({
-    start: hit.point,
-    end: floor,
-    intensity: avgIntensity,
-    medium: 'agar',
-  });
-
-  return segs;
 }
 
 // ─── component ─────────────────────────────────────────────────────
 export default function PetriDishOpticsSimulator() {
-  // Surface geometry
-  const [agarMeniscus, setAgarMeniscus] = useState(1.0); // mm at wall
-  const [agarCapillary, setAgarCapillary] = useState(2.7); // mm
-  const [liquidPool, setLiquidPool] = useState(2.5); // mm
-  const [liquidMeniscus, setLiquidMeniscus] = useState(0.5); // mm at wall
+  // Geometry sliders
+  const [agarMeniscus, setAgarMeniscus] = useState(1.0);
+  const [agarCapillary, setAgarCapillary] = useState(2.7);
+  const [liquidPool, setLiquidPool] = useState(2.5);
+  const [liquidMeniscus, setLiquidMeniscus] = useState(0.5);
 
-  // Camera and lights (placeholders for next step)
-  const [cameraHeight, setCameraHeight] = useState(180); // mm above dish bottom
-  const [lampAngle1, setLampAngle1] = useState(30); // degrees from vertical
-  const [lampAngle2, setLampAngle2] = useState(-30); // degrees from vertical
+  // Camera + lamp angles
+  const [cameraHeight, setCameraHeight] = useState(180);
+  const [lampAngle1, setLampAngle1] = useState(30);
+  const [lampAngle2, setLampAngle2] = useState(-30);
 
   // Toggles
   const [lidPresent, setLidPresent] = useState(true);
@@ -240,7 +161,7 @@ export default function PetriDishOpticsSimulator() {
   const tokens = useThemeTokens();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Sampled surface points for drawing the filled regions
+  // ── visual surface samples (for filling agar/liquid regions) ────
   const surfaceSamples = useMemo(() => {
     const N = 200;
     const xs: number[] = [];
@@ -251,11 +172,11 @@ export default function PetriDishOpticsSimulator() {
       xs.push(x);
       agarYs.push(agarSurface(x, agarMeniscus, agarCapillary));
       liquidYs.push(
-        liquidSurface(
+        liquidSurfaceY(
           x,
           liquidPool,
           liquidMeniscus,
-          agarCapillary, // share capillary length with agar for simplicity
+          agarCapillary,
           agarMeniscus,
           agarCapillary,
         ),
@@ -264,81 +185,279 @@ export default function PetriDishOpticsSimulator() {
     return { xs, agarYs, liquidYs };
   }, [agarMeniscus, agarCapillary, liquidPool, liquidMeniscus]);
 
-  // ─── trace rays through the scene ────────────────────────────────
-  // Each enabled light source emits a single ray. Overhead LEDs cast
-  // straight down; directional lamps aim at (0, LAMP_AIM_Y) on the dish
-  // rim. v0 traces air → agar surface (Snell) → floor (Beer-Lambert);
-  // lid and liquid interfaces are ignored.
-  const tracedRays = useMemo(() => {
-    const rays: RaySegment[] = [];
+  // ── compose the optical scene from state ────────────────────────
+  // The scene is a list of interfaces. Each interface knows which
+  // medium is on each side at every point. The trace function walks
+  // rays through this scene.
+  const scene = useMemo<Scene>(() => {
+    const surfaces: Surface[] = [];
 
-    if (overheadOn) {
-      for (const lx of OVERHEAD_XS) {
-        const segs = traceRay(
-          { x: lx, y: LIGHT_Y },
-          { x: 0, y: -1 },
+    // — Lid (when present): two horizontal interfaces and four vertical
+    //   walls. The lid is polystyrene; air sits above it (outside) and
+    //   inside the lid cavity (between lid inner top and dish wall top).
+    if (lidPresent) {
+      const lidInnerR = DISH_RADIUS + DISH_WALL_THICKNESS + LID_CLEARANCE;
+      const lidOuterR = lidInnerR + LID_THICKNESS;
+      const lidWallBottom = DISH_WALL_HEIGHT - LID_OVERLAP;
+      const lidOuterTop = lidWallBottom + LID_HEIGHT;
+      const lidInnerTop = lidOuterTop - LID_THICKNESS;
+
+      // Top of lid: air → polystyrene as you cross downward.
+      surfaces.push(
+        horizontalSegment(
+          'lid top',
+          lidOuterTop,
+          -lidOuterR,
+          lidOuterR,
+          AIR,
+          POLYSTYRENE,
+        ),
+      );
+      // Underside of the lid's flat top: polystyrene above (the lid
+      // material), air below (the cavity between lid and dish wall).
+      surfaces.push(
+        horizontalSegment(
+          'lid inner top',
+          lidInnerTop,
+          -lidInnerR,
+          lidInnerR,
+          POLYSTYRENE,
+          AIR,
+        ),
+      );
+      // Lid outer walls. The canonical normal is +x. For the LEFT outer
+      // wall at x=-lidOuterR, the +x side (mediumPlus) is the lid
+      // material (polystyrene); the -x side is open air outside.
+      surfaces.push(
+        verticalSegment(
+          'lid wall outer (left)',
+          -lidOuterR,
+          lidWallBottom,
+          lidOuterTop,
+          POLYSTYRENE,
+          AIR,
+        ),
+      );
+      // Right outer wall at x=+lidOuterR: +x side is open air; -x side
+      // is the lid material.
+      surfaces.push(
+        verticalSegment(
+          'lid wall outer (right)',
+          lidOuterR,
+          lidWallBottom,
+          lidOuterTop,
+          AIR,
+          POLYSTYRENE,
+        ),
+      );
+      // Lid inner walls. Inside the lid cavity is air. The wall material
+      // (polystyrene) is on the OUTER side of each inner wall.
+      surfaces.push(
+        verticalSegment(
+          'lid wall inner (left)',
+          -lidInnerR,
+          lidWallBottom,
+          lidInnerTop,
+          AIR,
+          POLYSTYRENE,
+        ),
+      );
+      surfaces.push(
+        verticalSegment(
+          'lid wall inner (right)',
+          lidInnerR,
+          lidWallBottom,
+          lidInnerTop,
+          POLYSTYRENE,
+          AIR,
+        ),
+      );
+    }
+
+    // — Liquid surface (when present and the liquid actually rises
+    //   above the agar at this x). Above is AIR, below is WATER.
+    const agarFn = (x: number) =>
+      agarSurface(x, agarMeniscus, agarCapillary);
+    if (liquidPresent) {
+      const liqFn = (x: number) =>
+        liquidSurfaceY(
+          x,
+          liquidPool,
+          liquidMeniscus,
+          agarCapillary,
           agarMeniscus,
           agarCapillary,
         );
-        rays.push(...segs);
+      const liquidExists = (x: number) =>
+        liquidRaw(x, liquidPool, liquidMeniscus, agarCapillary) >
+        agarFn(x) + 1e-3;
+      surfaces.push(
+        heightField(
+          'liquid surface',
+          liqFn,
+          -DISH_RADIUS,
+          DISH_RADIUS,
+          () => AIR,
+          () => WATER,
+          liquidExists,
+        ),
+      );
+    }
+
+    // — Agar surface. The medium above depends on whether liquid is
+    //   present at this x; below is always AGAR.
+    const aboveAgarAt = liquidPresent
+      ? (x: number) =>
+          liquidRaw(x, liquidPool, liquidMeniscus, agarCapillary) >
+          agarFn(x) + 1e-3
+            ? WATER
+            : AIR
+      : () => AIR;
+    surfaces.push(
+      heightField(
+        'agar surface',
+        agarFn,
+        -DISH_RADIUS,
+        DISH_RADIUS,
+        aboveAgarAt,
+        () => AGAR,
+      ),
+    );
+
+    // — Dish floor: agar above, ABSORBER below (rays terminate inside
+    //   the floor's high-α medium within a fraction of a millimetre).
+    surfaces.push(
+      horizontalSegment(
+        'dish floor',
+        0,
+        -DISH_RADIUS,
+        DISH_RADIUS,
+        AGAR,
+        ABSORBER,
+      ),
+    );
+
+    // — Dish side walls (vertical). To the OUTSIDE of each wall is air.
+    //   To the INSIDE, the medium depends on y: below the agar surface
+    //   it's agar; above it's whatever the cavity holds at that x. We
+    //   approximate by tagging the inside as POLYSTYRENE-adjacent (the
+    //   absorbing wall itself); these walls are mostly traversed at
+    //   grazing angles by rays that have already deflected, so a
+    //   single-medium approximation here introduces minimal error.
+    //   (A future refinement could split each wall into agar/air
+    //   sub-segments.)
+    surfaces.push(
+      verticalSegment(
+        'dish wall inner (left)',
+        -DISH_RADIUS,
+        0,
+        DISH_WALL_HEIGHT,
+        AIR, // inside dish (to the +x side of x=-DISH_RADIUS)
+        POLYSTYRENE, // wall material (to the -x side)
+      ),
+    );
+    surfaces.push(
+      verticalSegment(
+        'dish wall inner (right)',
+        DISH_RADIUS,
+        0,
+        DISH_WALL_HEIGHT,
+        POLYSTYRENE,
+        AIR,
+      ),
+    );
+
+    return {
+      surfaces,
+      bounds: {
+        xMin: WORLD_X_MIN,
+        xMax: WORLD_X_MAX,
+        yMin: WORLD_Y_MIN,
+        yMax: WORLD_Y_MAX,
+      },
+    };
+  }, [
+    agarMeniscus,
+    agarCapillary,
+    liquidPool,
+    liquidMeniscus,
+    lidPresent,
+    liquidPresent,
+  ]);
+
+  // ── build the light sources list ────────────────────────────────
+  const sources = useMemo<LightSource[]>(() => {
+    const list: LightSource[] = [];
+
+    if (overheadOn) {
+      // Each overhead LED is a downward-facing cone source. The cone
+      // approximates a diffuse element of a wider area source; the row
+      // of LEDs approximates an extended diffuse ceiling fixture.
+      for (const lx of OVERHEAD_XS) {
+        list.push(
+          coneSource(
+            { x: lx, y: LIGHT_Y },
+            { x: 0, y: -1 },
+            OVERHEAD_CONE_HALF_DEG,
+            OVERHEAD_RAYS_PER_LED,
+            AIR,
+          ),
+        );
       }
     }
 
-    const traceLamp = (angleDeg: number) => {
-      const t = (angleDeg * Math.PI) / 180;
-      const lampPos = {
-        x: Math.sin(t) * LAMP_DISTANCE,
-        y: Math.cos(t) * LAMP_DISTANCE + LAMP_AIM_Y,
+    const buildLamp = (angleDeg: number): LightSource => {
+      const tRad = (angleDeg * Math.PI) / 180;
+      const lampPos: Vec2 = {
+        x: Math.sin(tRad) * LAMP_DISTANCE,
+        y: Math.cos(tRad) * LAMP_DISTANCE + LAMP_AIM_Y,
       };
-      const aim = { x: 0, y: LAMP_AIM_Y };
-      const dx = aim.x - lampPos.x;
-      const dy = aim.y - lampPos.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const segs = traceRay(
-        lampPos,
-        { x: dx / len, y: dy / len },
-        agarMeniscus,
-        agarCapillary,
-      );
-      rays.push(...segs);
+      const aim: Vec2 = { x: 0, y: LAMP_AIM_Y };
+      const dir: Vec2 = { x: aim.x - lampPos.x, y: aim.y - lampPos.y };
+      return collimatedSource(lampPos, dir, AIR);
     };
-    if (lamp1On) traceLamp(lampAngle1);
-    if (lamp2On) traceLamp(lampAngle2);
+    if (lamp1On) list.push(buildLamp(lampAngle1));
+    if (lamp2On) list.push(buildLamp(lampAngle2));
 
-    return rays;
-  }, [
-    overheadOn,
-    lamp1On,
-    lamp2On,
-    lampAngle1,
-    lampAngle2,
-    agarMeniscus,
-    agarCapillary,
-  ]);
+    return list;
+  }, [overheadOn, lamp1On, lamp2On, lampAngle1, lampAngle2]);
 
-  // Derived stats for the StatCards. A "ray" is one origin-to-floor (or
-  // origin-to-boundary) walk; count by air-medium segments since each
-  // ray emits exactly one air segment.
+  // ── trace ───────────────────────────────────────────────────────
+  const tracedSegments = useMemo<RaySegment[]>(() => {
+    const initialRays = sources.flatMap((src) => src());
+    return trace(scene, initialRays, { maxDepth: 6, minIntensity: 0.003 });
+  }, [scene, sources]);
+
+  // ── stats ───────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const raysTraced = tracedRays.filter((s) => s.medium === 'air').length;
-    const reachingFloor = tracedRays.filter(
-      (s) => s.medium === 'agar' && Math.abs(s.end.y) < 1e-3,
+    const primaryRays = tracedSegments.filter(
+      (s) => s.bornBy === 'source',
     ).length;
-    const avgIntensity =
-      tracedRays.length === 0
-        ? 0
-        : tracedRays.reduce((sum, s) => sum + s.intensity, 0) / tracedRays.length;
-    return { raysTraced, reachingFloor, avgIntensity };
-  }, [tracedRays]);
+    const reachingFloor = tracedSegments.filter(
+      (s) => s.surfaceName === 'dish floor' && s.bornBy !== 'reflected',
+    ).length;
+    const maxDepthSeen = tracedSegments.reduce(
+      (m, s) => Math.max(m, s.depth),
+      0,
+    );
+    const totalEnergyAtFloor = tracedSegments
+      .filter((s) => s.surfaceName === 'dish floor')
+      .reduce((sum, s) => sum + s.intensityEnd, 0);
+    const totalSourceEnergy = tracedSegments
+      .filter((s) => s.bornBy === 'source')
+      .reduce((sum, s) => sum + s.intensityStart, 0);
+    const fractionToFloor =
+      totalSourceEnergy > 0 ? totalEnergyAtFloor / totalSourceEnergy : 0;
+    return { primaryRays, reachingFloor, maxDepthSeen, fractionToFloor };
+  }, [tracedSegments]);
 
-  // ─── render scene ────────────────────────────────────────────────
+  // ── render ──────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Handle device pixel ratio for crisp rendering
     const dpr = window.devicePixelRatio || 1;
     canvas.width = CANVAS_WIDTH * dpr;
     canvas.height = CANVAS_HEIGHT * dpr;
@@ -346,12 +465,10 @@ export default function PetriDishOpticsSimulator() {
     canvas.style.height = `${CANVAS_HEIGHT}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Clear
     ctx.fillStyle = tokens.paper;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // ── dish exterior (outline) ──────────────────────────────────
-    // Outer wall of the dish — uniform line weight matching the rest.
+    // ── dish exterior ───────────────────────────────────────────
     ctx.strokeStyle = tokens.inkSoft;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -361,7 +478,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS + DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
 
-    // Top rims of the dish wall, connecting outer to inner.
+    // dish wall top rims
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS - DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
@@ -369,8 +486,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS + DISH_WALL_THICKNESS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
 
-    // ── dish interior outline ────────────────────────────────────
-    // Inner surface where agar/liquid contacts the wall.
+    // dish interior
     ctx.beginPath();
     ctx.moveTo(wx(-DISH_RADIUS), wy(DISH_WALL_HEIGHT));
     ctx.lineTo(wx(-DISH_RADIUS), wy(0));
@@ -378,8 +494,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.lineTo(wx(DISH_RADIUS), wy(DISH_WALL_HEIGHT));
     ctx.stroke();
 
-    // ── agar fill ─────────────────────────────────────────────────
-    // Medium amber, slightly opalescent — matches the Fisher MRS spec.
+    // ── agar fill ───────────────────────────────────────────────
     const { xs, agarYs, liquidYs } = surfaceSamples;
     ctx.fillStyle = 'rgba(195, 135, 50, 0.55)';
     ctx.beginPath();
@@ -389,22 +504,20 @@ export default function PetriDishOpticsSimulator() {
     ctx.closePath();
     ctx.fill();
 
-    // ── liquid fill (if toggled on) ──────────────────────────────
+    // ── liquid fill ─────────────────────────────────────────────
     if (liquidPresent) {
       ctx.fillStyle = 'rgba(210, 195, 110, 0.30)';
       ctx.beginPath();
       ctx.moveTo(wx(xs[0]), wy(agarYs[0]));
-      for (let i = 0; i < xs.length; i++) ctx.lineTo(wx(xs[i]), wy(liquidYs[i]));
-      for (let i = xs.length - 1; i >= 0; i--) ctx.lineTo(wx(xs[i]), wy(agarYs[i]));
+      for (let i = 0; i < xs.length; i++)
+        ctx.lineTo(wx(xs[i]), wy(liquidYs[i]));
+      for (let i = xs.length - 1; i >= 0; i--)
+        ctx.lineTo(wx(xs[i]), wy(agarYs[i]));
       ctx.closePath();
       ctx.fill();
     }
 
-    // ── lid (if toggled on) ──────────────────────────────────────
-    // The lid is an inverted U-cup that fits over the dish: its inner
-    // walls sit just outside the dish's outer walls (LID_CLEARANCE),
-    // and its walls extend down past the dish wall top by LID_OVERLAP
-    // so the lid is visibly seated on the dish.
+    // ── lid ──────────────────────────────────────────────────────
     if (lidPresent) {
       const lidInnerR = DISH_RADIUS + DISH_WALL_THICKNESS + LID_CLEARANCE;
       const lidOuterR = lidInnerR + LID_THICKNESS;
@@ -412,7 +525,6 @@ export default function PetriDishOpticsSimulator() {
       const lidOuterTop = lidWallBottom + LID_HEIGHT;
       const lidInnerTop = lidOuterTop - LID_THICKNESS;
 
-      // Translucent fill for the lid wall material only.
       ctx.fillStyle = 'rgba(160, 170, 195, 0.32)';
       ctx.beginPath();
       ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
@@ -426,7 +538,6 @@ export default function PetriDishOpticsSimulator() {
       ctx.closePath();
       ctx.fill();
 
-      // Outer outline of the lid: uniform line, inverted U.
       ctx.strokeStyle = tokens.inkSoft;
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -436,7 +547,6 @@ export default function PetriDishOpticsSimulator() {
       ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
-      // Bottom rims of the lid wall, connecting outer to inner.
       ctx.beginPath();
       ctx.moveTo(wx(-lidOuterR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidInnerR), wy(lidWallBottom));
@@ -444,7 +554,6 @@ export default function PetriDishOpticsSimulator() {
       ctx.lineTo(wx(lidOuterR), wy(lidWallBottom));
       ctx.stroke();
 
-      // Inner outline of the lid: same line style, inverted U inside.
       ctx.beginPath();
       ctx.moveTo(wx(-lidInnerR), wy(lidWallBottom));
       ctx.lineTo(wx(-lidInnerR), wy(lidInnerTop));
@@ -453,7 +562,7 @@ export default function PetriDishOpticsSimulator() {
       ctx.stroke();
     }
 
-    // ── camera marker ────────────────────────────────────────────
+    // ── camera marker ───────────────────────────────────────────
     ctx.fillStyle = tokens.accent;
     ctx.beginPath();
     const camPx = wx(0);
@@ -468,7 +577,7 @@ export default function PetriDishOpticsSimulator() {
     ctx.textAlign = 'left';
     ctx.fillText('camera', camPx + 10, camPy + 4);
 
-    // ── light source markers ─────────────────────────────────────
+    // ── light source markers ────────────────────────────────────
     if (overheadOn) {
       ctx.fillStyle = 'rgba(220, 180, 60, 0.85)';
       for (const lx of OVERHEAD_XS) {
@@ -477,10 +586,10 @@ export default function PetriDishOpticsSimulator() {
         ctx.fill();
       }
     }
-    // Directional lamps: positioned by angle off-axis from above the dish
     if (lamp1On) {
       const lx = Math.sin((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE;
-      const ly = Math.cos((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
+      const ly =
+        Math.cos((lampAngle1 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
       ctx.fillStyle = 'rgba(250, 220, 120, 0.95)';
       ctx.beginPath();
       ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
@@ -488,45 +597,53 @@ export default function PetriDishOpticsSimulator() {
     }
     if (lamp2On) {
       const lx = Math.sin((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE;
-      const ly = Math.cos((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
+      const ly =
+        Math.cos((lampAngle2 * Math.PI) / 180) * LAMP_DISTANCE + LAMP_AIM_Y;
       ctx.fillStyle = 'rgba(250, 220, 120, 0.95)';
       ctx.beginPath();
       ctx.arc(wx(lx), wy(ly), 4, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // ── traced rays ──────────────────────────────────────────────
-    // Air segments render in bright yellow; agar segments shift to a
-    // warmer amber and dim with Beer-Lambert attenuation along the path.
-    ctx.lineWidth = 1.5;
-    for (const seg of tracedRays) {
-      const a = Math.max(0.1, seg.intensity);
-      ctx.strokeStyle =
-        seg.medium === 'air'
-          ? `rgba(250, 220, 100, ${0.85 * a})`
-          : `rgba(220, 145, 60, ${0.9 * a})`;
+    // ── traced ray segments ─────────────────────────────────────
+    // Reflected segments use a dashed stroke. Color comes from the
+    // medium the segment is traversing. Alpha tracks intensity along
+    // the segment via a per-segment linear gradient.
+    for (const seg of tracedSegments) {
+      const colorPrefix = mediumColor(seg.medium);
+      const aStart = Math.max(0.08, Math.min(1, seg.intensityStart));
+      const aEnd = Math.max(0.08, Math.min(1, seg.intensityEnd));
+      const grad = ctx.createLinearGradient(
+        wx(seg.start.x),
+        wy(seg.start.y),
+        wx(seg.end.x),
+        wy(seg.end.y),
+      );
+      grad.addColorStop(0, `${colorPrefix} ${aStart})`);
+      grad.addColorStop(1, `${colorPrefix} ${aEnd})`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = seg.bornBy === 'reflected' ? 1.2 : 1.5;
+      ctx.setLineDash(seg.bornBy === 'reflected' ? [4, 3] : []);
       ctx.beginPath();
       ctx.moveTo(wx(seg.start.x), wy(seg.start.y));
       ctx.lineTo(wx(seg.end.x), wy(seg.end.y));
       ctx.stroke();
     }
-    // Floor-hit markers: small dots where rays terminate on the dish floor
-    ctx.fillStyle = 'rgba(220, 145, 60, 0.95)';
-    for (const seg of tracedRays) {
-      if (seg.medium === 'agar' && Math.abs(seg.end.y) < 1e-3) {
+    ctx.setLineDash([]);
+
+    // Floor-hit markers
+    ctx.fillStyle = 'rgba(210, 130, 50, 0.95)';
+    for (const seg of tracedSegments) {
+      if (seg.surfaceName === 'dish floor' && seg.bornBy !== 'reflected') {
         ctx.beginPath();
         ctx.arc(wx(seg.end.x), wy(seg.end.y), 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    // ── scale bar ────────────────────────────────────────────────
-    // Placed in world coordinates immediately below the dish, spanning
-    // from x=0 to x=DISH_RADIUS so the bar directly corresponds to half
-    // the dish width. Label sits below the bar in the standard
-    // scientific-illustration position.
+    // ── scale bar ───────────────────────────────────────────────
     {
-      const barY = -13; // world mm, below the dish outer floor at y=-1
+      const barY = -13;
       const x0 = wx(0);
       const x1 = wx(DISH_RADIUS);
       const yPx = wy(barY);
@@ -536,7 +653,6 @@ export default function PetriDishOpticsSimulator() {
       ctx.beginPath();
       ctx.moveTo(x0, yPx);
       ctx.lineTo(x1, yPx);
-      // tick marks pointing down only
       ctx.moveTo(x0, yPx);
       ctx.lineTo(x0, yPx + 4);
       ctx.moveTo(x1, yPx);
@@ -549,7 +665,7 @@ export default function PetriDishOpticsSimulator() {
   }, [
     tokens,
     surfaceSamples,
-    tracedRays,
+    tracedSegments,
     cameraHeight,
     lidPresent,
     liquidPresent,
@@ -566,17 +682,20 @@ export default function PetriDishOpticsSimulator() {
       description={
         <>
           Cross-section of a petri dish with adjustable agar meniscus, optional
-          liquid layer, and optional lid. Each lit source casts a single ray
-          that refracts at the agar surface (Snell's law, n<sub>air</sub>=1,
-          n<sub>agar</sub>=1.34) and attenuates through the medium
-          (Beer-Lambert). Fresnel split, lid/liquid interfaces, and
-          camera-side ray collection will arrive in subsequent versions.
+          liquid layer, and optional lid. Overhead lighting is modelled as a
+          row of cone-emitting LEDs (an approximation of a diffuse ceiling
+          source); directional lamps are collimated single rays. Rays refract
+          (Snell), Fresnel-split into reflected (dashed) and transmitted
+          (solid) branches at every interface, attenuate via Beer-Lambert
+          inside absorbing media, and undergo total internal reflection at
+          grazing angles past the critical angle. Floor hits are absorbed.
+          Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
       footer={
         <Legend
           items={[
-            { color: 'rgba(180, 140, 60, 0.7)', label: 'Agar (MRS)' },
+            { color: 'rgba(195, 135, 50, 0.7)', label: 'Agar (MRS)' },
             { color: 'rgba(210, 195, 110, 0.7)', label: 'Liquid layer' },
             { color: 'rgba(160, 170, 195, 0.6)', label: 'Lid (polystyrene)' },
             { color: 'rgba(250, 220, 120, 0.95)', label: 'Light source' },
@@ -597,11 +716,11 @@ export default function PetriDishOpticsSimulator() {
         <ul className="space-y-1 ml-2">
           <li>
             <strong>Agar meniscus</strong>: height the agar climbs at the dish
-            wall (the bowl is depressed in the middle and rises at the edges)
+            wall
           </li>
           <li>
-            <strong>Liquid pool</strong>: base level of any aqueous layer
-            poured on top of the agar
+            <strong>Liquid pool</strong>: base level of an aqueous layer above
+            the agar
           </li>
           <li>
             <strong>Camera height</strong>: distance above the dish bottom; the
@@ -614,7 +733,6 @@ export default function PetriDishOpticsSimulator() {
         </ul>
       </div>
 
-      {/* Geometry sliders */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Slider
           label="Agar meniscus (mm)"
@@ -640,7 +758,6 @@ export default function PetriDishOpticsSimulator() {
         />
       </div>
 
-      {/* Camera + lamp sliders */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <Slider
           label="Camera height (mm)"
@@ -675,7 +792,6 @@ export default function PetriDishOpticsSimulator() {
         />
       </div>
 
-      {/* Toggles */}
       <div className="viz-panel mb-4">
         <div className="flex flex-wrap gap-1">
           <label className="viz-check">
@@ -721,19 +837,20 @@ export default function PetriDishOpticsSimulator() {
         </div>
       </div>
 
-      {/* Stat cards — v0 ray tracing */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <StatCard label="Rays traced" value={stats.raysTraced.toString()} />
+        <StatCard label="Primary rays" value={stats.primaryRays.toString()} />
         <StatCard
           label="Reaching floor"
           value={stats.reachingFloor.toString()}
           tone="accent"
         />
-        <StatCard label="Max bounces" value="1" />
+        <StatCard label="Max bounce depth" value={stats.maxDepthSeen.toString()} />
         <StatCard
-          label="Avg intensity"
+          label="Fraction to floor"
           value={
-            stats.avgIntensity > 0 ? stats.avgIntensity.toFixed(2) : '—'
+            stats.primaryRays > 0
+              ? `${(100 * stats.fractionToFloor).toFixed(1)}%`
+              : '—'
           }
         />
       </div>

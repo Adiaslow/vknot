@@ -12,3 +12,6 @@ export {
   StatCard,
   Legend,
 } from './Controls';
+
+// Pure-physics 2D ray tracer used by optics simulations.
+export * from './raytracer';

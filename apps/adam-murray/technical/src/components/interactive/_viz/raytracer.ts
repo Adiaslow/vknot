@@ -323,6 +323,33 @@ export function heightField(
   return {
     name,
     intersect(origin, dir, tMin, tMax) {
+      // Clip the scan window to the t range where origin + t·dir has
+      // x ∈ [xMin, xMax]. Outside that window the ray is by definition
+      // not crossing this surface, and clipping is essential because
+      // callers (e.g. the tracer) pass tMax = +Infinity — without
+      // clipping, (tMax − tMin) · i / N would evaluate to Infinity for
+      // every i ≥ 1, so every sample would land at t = Infinity (where
+      // x is out of domain), the for-loop would never observe a sign
+      // change in f(x) − y, and this intersect would always return null.
+      let tLo = tMin;
+      let tHi = tMax;
+      if (Math.abs(dir.x) > 1e-12) {
+        const t1 = (xMin - origin.x) / dir.x;
+        const t2 = (xMax - origin.x) / dir.x;
+        const tEnter = Math.min(t1, t2);
+        const tExit = Math.max(t1, t2);
+        tLo = Math.max(tLo, tEnter);
+        tHi = Math.min(tHi, tExit);
+      } else {
+        // Ray is vertical (dir.x ≈ 0). The ray's x is constant; if
+        // it's outside the surface's x-domain there's no possible hit.
+        if (origin.x < xMin || origin.x > xMax) return null;
+        // Otherwise cap tHi to a large but finite value so the scan
+        // step size is well-defined.
+        if (!isFinite(tHi)) tHi = 1e5;
+      }
+      if (tHi <= tLo) return null;
+
       const N = 200;
       const sample = (t: number): number | null => {
         const x = origin.x + t * dir.x;
@@ -330,11 +357,11 @@ export function heightField(
         return f(x) - (origin.y + t * dir.y);
       };
 
-      let prevT = tMin;
+      let prevT = tLo;
       let prevF: number | null = sample(prevT);
 
       for (let i = 1; i <= N; i++) {
-        const t = tMin + ((tMax - tMin) * i) / N;
+        const t = tLo + ((tHi - tLo) * i) / N;
         const fT = sample(t);
 
         if (fT === null) {

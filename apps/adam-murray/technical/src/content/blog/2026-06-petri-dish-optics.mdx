@@ -44,15 +44,100 @@ _TODO — Enumerates the article's contributions: (1) a closed-form treatment of
 
 ### 2.1 Geometry of the Petri Dish, Agar, and Optional Liquid Layer
 
-_TODO — Establishes the cross-sectional geometry. Standard 100 mm × 15 mm polystyrene petri dish with 18 mL of MRS agar (depth ≈ 2.3 mm). Optional aqueous liquid layer on top of the agar (e.g., poured bacterial suspension). Optional lid with small air gap. Defines coordinate system and notation. Justifies the rotationally-symmetric cross-section as fully capturing the relevant geometry._
+We work with the geometry of a standard 100 mm × 15 mm polystyrene petri dish, the workhorse of microbiological practice. The dish is a shallow cylinder of inner radius $R = 50\,\text{mm}$ and inner wall height $15\,\text{mm}$, manufactured with a polystyrene shell approximately $1\,\text{mm}$ thick on the floor and the side walls. A typical fill of MRS (de Man, Rogosa, and Sharpe) agar — the medium used for cultivating _Lactobacillus_ species, and the one to which the simulator at the top of the page is calibrated — uses $18\,\text{mL}$ of medium, poured at $\sim 55°\text{C}$ and allowed to gel as it cools. The resulting agar layer fills the dish to a depth of approximately
 
-### 2.2 Meniscus Formation and the Young-Laplace Equation
+$$\Delta_{\text{agar}} = \frac{18\,\text{mL}}{\pi R^2} \approx 2.3\,\text{mm}$$
 
-_TODO — Derives the meniscus profile from the Young-Laplace equation balancing surface tension against gravity. Introduces the capillary length λ_c = √(γ/ρg) and shows that for water, λ_c ≈ 2.7 mm. Presents the exact wall-meniscus solution and justifies the cosh-based approximation used in the simulator. Treats both the agar surface (set in place when the agar solidified) and any liquid layer poured on top._
+above the dish floor.
+
+The dish may carry an optional aqueous liquid layer above the agar — a bacterial suspension, a soaking solution, or simply water — poured to a thickness on the order of $2$–$5\,\text{mm}$. This liquid layer has its own free surface and its own meniscus at the dish wall, separate from the (frozen) meniscus of the agar surface beneath it.
+
+The dish lid (when present) is a separate polystyrene disc, $\sim 1\,\text{mm}$ thick, that rests on the rim of the dish with a small clearance between its underside and the agar (or liquid) surface. The lid is offset slightly outward from the rim to allow gas exchange while still preventing dust ingress; in our model we treat the lid as a parallel-faced slab held at a fixed height above the dish floor.
+
+For the geometric optics treatment, we work in the rotationally symmetric vertical cross-section through the dish centre. Because the dish, the agar layer, the liquid layer, and the lid all share rotational symmetry about the vertical axis through the dish centre, a 2D treatment captures all of the relevant geometric structure; skew rays through the volume can be reconstructed by rotation, and the simulator at the top of the page traces rays in exactly this 2D plane.
+
+We adopt the coordinate system in which $x$ denotes the horizontal coordinate (across the dish) and $y$ denotes the vertical (upward) coordinate. The dish floor sits at $y = 0$, the dish rim at $y = 15\,\text{mm}$, the dish centre at $x = 0$, and the dish walls at $x = \pm R = \pm 50\,\text{mm}$.
+
+### 2.2 Meniscus Formation and the Young–Laplace Equation
+
+Liquids in containers form curved free surfaces — _menisci_ — wherever surface tension and gravity compete. The petri dish carries two such surfaces:
+
+- The **agar meniscus**, set in place at the moment the agar solidified at $\sim 35°\text{C}$ and frozen in that geometry ever after by the gel's elastic strength. Its shape was determined by the surface tension of liquid agar at the time of solidification — broadly similar to water, $\gamma \approx 0.06$–$0.07\,\text{N/m}$ — and the contact angle of the molten agar against the dish material.
+- The **liquid-pool meniscus** (when a liquid layer is present), set continuously by the balance between the layer's surface tension and its own weight.
+
+The shape of a static meniscus near a vertical wall is given by the Young–Laplace equation, which states that the pressure jump across a curved interface is proportional to the local mean curvature:
+
+$$\Delta P = \gamma \,\kappa = \gamma \left( \frac{1}{R_1} + \frac{1}{R_2} \right),$$
+
+where $\gamma$ is the surface tension and $R_1, R_2$ are the two principal radii of curvature of the interface. In our rotationally symmetric geometry, the relevant local cross-section is that of a curve in a vertical plane: one principal radius is along the meniscus profile in that plane, and the other tends to infinity in the planar-wall limit, since the dish radius $R$ is much larger than the capillary length introduced below.
+
+For a 2D profile $y(x)$, with $y$ the height of the interface above the bulk level and $x$ a horizontal coordinate, the curvature is $\kappa = y'' / (1 + y'^2)^{3/2}$ and the pressure jump across the interface arises from the hydrostatic head difference, $\Delta P = \rho g y$, where $\rho$ is the liquid density and $g$ is the gravitational acceleration. Substituting:
+
+### Theorem 2.1 (Young–Laplace equation, planar 2D meniscus)
+
+_The shape $y(x)$ of a static liquid meniscus in 2D against a vertical wall, with surface tension $\gamma$, density $\rho$, in a gravitational field of strength $g$, satisfies_
+
+$$\gamma \,\frac{y''}{(1 + y'^2)^{3/2}} = \rho g y.$$
+
+The equation contains a natural length scale.
+
+### Definition 2.1 (Capillary length)
+
+_The **capillary length** $\lambda_c$ associated with a liquid of surface tension $\gamma$ and density $\rho$ in a gravitational field of strength $g$ is_
+
+$$\lambda_c = \sqrt{\gamma / (\rho g)}.$$
+
+_It is the length scale below which surface tension dominates the meniscus shape and above which gravity does. For water at room temperature, $\lambda_c \approx 2.71\,\text{mm}$._
+
+The meniscus is essentially confined to a band of width $\sim \lambda_c$ adjacent to the wall.
+
+### Lemma 2.1 (Linearised meniscus profile)
+
+_In the small-slope limit $|y'| \ll 1$, the Young–Laplace equation linearises to $y'' = y/\lambda_c^2$. For a dish of inner radius $R \gg \lambda_c$ with walls at $x = \pm R$ and a meniscus magnitude $m$ at each wall, the linearised solution is_
+
+$$y(x) \approx m \cdot \exp\!\left(-\frac{R - |x|}{\lambda_c}\right),$$
+
+_accurate to corrections of order $\exp(-2R/\lambda_c)$._
+
+### Proof
+
+In the small-slope limit, $(1 + y'^2)^{3/2} \approx 1$ and Theorem 2.1 reduces to $\gamma\,y'' = \rho g y$, i.e. $y'' = y/\lambda_c^2$ by Definition 2.1. The general solution on the half-line is a linear combination of $\exp(\pm x/\lambda_c)$; selecting the branch that decays away from the wall and matching the boundary value $y(\text{wall}) = m$ gives the stated form for each wall. Since $R / \lambda_c \approx 18$ for a 100 mm dish containing water, the contribution of one wall's meniscus to the other is of order $\exp(-2R/\lambda_c) \approx 10^{-16}$, and the two wall contributions can be superposed without correction. $\quad \square$
+
+The meniscus magnitude $m$ depends on the **contact angle** $\theta_c$ between the liquid and the dish material at the triple line — the line of contact between liquid, air, and solid. An integration of the linearised equation under the contact-angle boundary condition (see, e.g., de Gennes, Brochard-Wyart, and Quéré §2.4) yields
+
+$$m \approx \lambda_c\,\sqrt{2(1 - \sin \theta_c)}.$$
+
+For water against clean polystyrene, $\theta_c \approx 87°$, giving a meniscus magnitude of only $m \approx 0.14\,\text{mm}$ — a barely-perceptible curvature at the wall. For surfactant-loaded liquids — bacterial suspensions in MRS broth typically contain biological surfactants from the cells themselves, and ingredients such as Tween 80 are often added explicitly to the medium — the effective contact angle drops substantially. At $\theta_c = 60°$, $m$ rises to $\approx 1.4\,\text{mm}$; at $\theta_c = 30°$, to $\approx 2.7\,\text{mm}$. The representative value $m \approx 0.5\,\text{mm}$ used in §3.3 and §5.1 corresponds to a contact angle near $80°$, intermediate between a clean dry polystyrene surface and a heavily surfactant-loaded liquid. The simulator allows the user to vary $m$ via the agar-meniscus and liquid-pool-meniscus sliders to explore the dependence directly.
+
+For the agar surface, the same equation applies _at the moment of solidification_. Once the gel sets, the meniscus shape is locked in by the gel's elastic strength and is essentially constant on experimental timescales. For poured molten MRS agar in a polystyrene dish, the contact angle at gel-point is approximately that of dilute aqueous solutions on warm polystyrene — roughly $80°$–$85°$ — giving an agar meniscus magnitude of $\sim 0.3$–$0.5\,\text{mm}$.
 
 ### 2.3 Material Properties at the Wavelengths of Interest
 
-_TODO — Tabulates the refractive indices and absorption coefficients of each material in the system across the visible spectrum: air (n=1), polystyrene dish/lid (n≈1.59), agar gel (n≈1.33, mildly absorbing in the blue producing the amber color), aqueous mixtures (n≈1.33, nearly transparent). Notes the partially-specular nature of the agar surface (the gel is slightly opalescent) versus the strongly-specular nature of clear liquid interfaces. These material parameters are what the simulator uses._
+The geometric optics framework of §3–§5 requires three material properties at every interface or volume:
+
+- The **refractive index** $n$, which sets refraction angles via Snell's law (Theorem 4.1) and Fresnel reflectances via the Fresnel equations (Definition 4.2).
+- The **absorption coefficient** $\alpha$, which sets the attenuation rate of light passing through a transmitting medium via the Beer–Lambert law (Theorem 4.2).
+- The **specular-versus-diffuse character** of any reflecting surface, which sets whether reflected light carries directional information about the source (§3.1).
+
+The values used by the simulator are summarised below.
+
+| Medium / surface | $n$ | $\alpha$ (mm⁻¹) | Reflection character |
+|---|---|---|---|
+| Air | $1.0003 \approx 1.00$ | $\sim 0$ | (transparent) |
+| Water | $1.333$ | $\sim 10^{-3}$ | smooth-specular at free surface |
+| MRS agar | $1.34$ | $\sim 0.35$ | bulk-scattering (opalescent); smooth-specular at gel surface |
+| Polystyrene | $1.59$ | $\sim 10^{-3}$ | smooth-specular at both faces |
+| Benchtop (laminate) | (opaque) | (opaque) | Lambertian, albedo $\sim 0.55$ |
+
+The refractive indices are nearly constant across the visible spectrum for these materials, with variations of order $0.005$–$0.01$ between blue and red. For our purposes this is small enough that we treat each medium as having a single representative index across the visible range.
+
+The absorption coefficients show stronger wavelength dependence. MRS agar absorbs preferentially in the blue end of the visible spectrum, giving the gel its characteristic warm amber colour: white light passing through has its blue component preferentially attenuated, leaving the transmitted light yellow-amber. The absorption arises from a mixture of pigmented organic compounds in the medium (peptone, beef extract, yeast extract, and products of Maillard reactions during medium preparation). The Beer–Lambert formula of §4.4 applies separately to each spectral component, and the perceived colour of light emerging from the agar is the wavelength-weighted result. For the simulator we use a single representative value $\alpha = 0.35\,\text{mm}^{-1}$ averaged across the visible range; this captures the dominant absorption budget while treating colour as a secondary effect.
+
+Polystyrene and water are essentially transparent across the visible spectrum, with absorption coefficients of order $10^{-3}\,\text{mm}^{-1}$ that yield negligible attenuation over the $1$–$5\,\text{mm}$ path lengths encountered in the dish.
+
+The specular-versus-diffuse character of each surface determines the kind of information it carries to the camera (§3.1). The smooth dielectric interfaces — air-water, water-agar (small Fresnel coefficient because the indices are close, but still Fresnel-character), air-polystyrene, and agar-polystyrene — are essentially pure specular, with reflectance governed by the Fresnel equations of §4.3. The agar bulk, in contrast, exhibits significant volume scattering: light entering the gel scatters off small density inhomogeneities and refractive-index variations in the gel matrix, and the scattered light eventually exits the gel diffusely. This volume scattering is what gives the gel its slightly opalescent appearance and what allows a camera to see colonies and surface features embedded in or on the agar. The simulator approximates the agar's combined transmission and volume scattering with the absorption coefficient above; a fully physically faithful treatment would require Monte Carlo volume scattering and is beyond the scope of this work.
+
+The benchtop beneath the dish — typically a painted or laminate countertop in a working lab — is opaque and Lambertian, with an albedo of order $0.5$–$0.6$. This is the surface that the simulator models as its "bench" (§5.1), and the diffuse light it scatters back up through the dish is the dominant source of image-forming light in a benchtop imaging setup (§5.5).
 
 ## 3. Reflection at Smooth and Curved Surfaces
 

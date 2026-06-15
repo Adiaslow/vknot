@@ -1311,47 +1311,17 @@ export default function PetriDishOpticsSimulator() {
       title="Petri Dish Optics"
       description={
         <>
-          Cross-section of a petri dish with adjustable agar meniscus, optional
-          liquid layer, and optional lid. Overhead lighting is modelled as a
-          uniform-radiance upper hemisphere (a distant, extended diffuse
-          emitter — the physical situation of a ceiling fixture or overcast
-          sky illuminating a benchtop), sampled by stratified-jittered Monte
-          Carlo: each ray draws a random direction from the cos-weighted
-          hemisphere and a random aim position across the dish, so every
-          specular geometry has its proper capture probability — including
-          the narrow paths that reflect into the camera aperture. Directional
-          lamps are finite emitters (10 mm face, ±8° cone) with random
-          per-ray sampling of both origin and direction, modelling a real
-          focused-spot illuminator rather than a point source. Re-render
-          (move any slider) draws a fresh sample; the visual shimmers
-          between samples, which is the honest depiction of a continuous
-          light field. The camera is a finite-aperture lens (16 mm diameter)
-          that absorbs any ray crossing it. Rays refract (Snell),
-          Fresnel-split into reflected (dashed) and transmitted (solid)
-          branches at every interface, attenuate via Beer-Lambert inside
-          absorbing media, and undergo total internal reflection past the
-          critical angle. The dish floor is modelled as a 1 mm polystyrene
-          slab (Fresnel interfaces at top and bottom) resting directly on
-          the bench surface — a Lambertian scatterer with albedo 0.55.
-          The bench is the actual physical source of the image-forming
-          light: incident rays cross both Fresnel interfaces, scatter
-          diffusely off the bench, and return up through the polystyrene,
-          agar, and any surface layers to reach the camera. Toggle the
-          bench scatter off to see the purely-specular regime, where the
-          camera sees only direct Fresnel reflections from smooth
-          interfaces and no image-forming light at all. Camera arrivals
-          are colour-coded by ancestry:{' '}
-          <strong>green = signal</strong> (the ray scattered off the
-          bench, so it carries an image) and{' '}
-          <strong>red = glare</strong> (purely specular, an artifact of the
-          optics rather than information about the dish contents). Two
-          ratios are reported: <em>Signal: by count</em> is the fraction of
-          camera arrivals (the green/red dot count) that are signal, and{' '}
-          <em>Signal: by energy</em> is the energy-weighted fraction at
-          the sensor — the actual radiometric image-vs-artifact ratio,
-          which differs from the count when ray intensities vary across
-          the population.
-          Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
+          Cross-section of a petri dish with adjustable meniscus, optional
+          liquid layer, optional lid, and adjustable lighting. Rays refract
+          at every interface, Fresnel-split into reflected (dashed) and
+          transmitted (solid) branches, and attenuate via Beer-Lambert
+          through absorbing media. Camera arrivals are color-coded:{' '}
+          <strong>green = signal</strong> (the ray scattered diffusely off
+          the bench and carries an image of the dish) and{' '}
+          <strong>red = glare</strong> (purely specular, no information
+          about the dish contents). Toggle and slide to explore the
+          configurations; the physics and the imaging-configuration
+          catalogue are developed in detail in sections 2 through 5.
         </>
       }
       footer={
@@ -1368,35 +1338,6 @@ export default function PetriDishOpticsSimulator() {
         />
       }
     >
-      <div
-        className="mb-6 rounded-lg p-3 text-xs"
-        style={{
-          background: 'var(--accent-soft)',
-          border: '1px solid var(--rule)',
-          color: 'var(--ink-soft)',
-        }}
-      >
-        <p className="font-semibold mb-2">Parameter guide</p>
-        <ul className="space-y-1 ml-2">
-          <li>
-            <strong>Agar meniscus</strong>: height the agar climbs at the dish
-            wall
-          </li>
-          <li>
-            <strong>Liquid pool</strong>: base level of an aqueous layer above
-            the agar
-          </li>
-          <li>
-            <strong>Camera height</strong>: distance above the dish bottom; the
-            camera looks straight down
-          </li>
-          <li>
-            <strong>Lamp angle</strong>: angular position of each directional
-            lamp, measured from vertical (positive = right of the dish)
-          </li>
-        </ul>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Slider
           label="Agar meniscus (mm)"
@@ -1430,6 +1371,7 @@ export default function PetriDishOpticsSimulator() {
           max={260}
           step={1}
           display={cameraHeight.toString()}
+          hint="Height above the dish floor; camera looks straight down"
           scale={['100', '260']}
           onChange={setCameraHeight}
         />

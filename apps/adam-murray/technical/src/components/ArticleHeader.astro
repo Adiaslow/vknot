@@ -1,12 +1,17 @@
 ---
 /**
- * ArticleHeader — title block for a post (and the index cards).
+ * ArticleHeader — metadata block for a post (and the index cards).
+ *
+ * The title itself is NOT rendered here. The body `# Title` H1 in each
+ * .mdx file is the single source of truth and renders inside the prose
+ * content. This component renders the byline, summary, and tag chips
+ * that accompany the title.
+ *
  * Token-driven; the mono "by-line" and tag style match the identity.
  */
 import { ReadingTime } from "./ReadingTime.tsx";
 
 export interface Props {
-  readonly title: string;
   readonly summary: string;
   readonly publishDate: string;
   readonly showTags?: boolean;
@@ -17,7 +22,6 @@ export interface Props {
 }
 
 const {
-  title,
   summary,
   publishDate,
   showTags = false,
@@ -32,7 +36,6 @@ const dateLabel = new Date(publishDate).toLocaleDateString("en-US", {
 ---
 
 <header class:list={["article-header", variant]}>
-  <h1>{title}</h1>
   <div class="byline">
     <span>Adam Murray</span>
     <span class="sep">/</span>
@@ -54,13 +57,6 @@ const dateLabel = new Date(publishDate).toLocaleDateString("en-US", {
 
 <style>
   .article-header { display: flex; flex-direction: column; gap: 0.9rem; }
-  .article-header h1 {
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    max-width: 22ch;
-  }
-  .article-header.page h1 { font-size: 2.5rem; }
-  .article-header.card h1 { font-size: 1.35rem; max-width: none; }
 
   .byline {
     display: flex;

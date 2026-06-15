@@ -1345,12 +1345,12 @@ export default function PetriDishOpticsSimulator() {
           bench, so it carries an image) and{' '}
           <strong>red = glare</strong> (purely specular, an artifact of the
           optics rather than information about the dish contents). Two
-          ratios are reported: <em>Signal: hits</em> is the fraction of
+          ratios are reported: <em>Signal: by count</em> is the fraction of
           camera arrivals (the green/red dot count) that are signal, and{' '}
-          <em>Signal: flux</em> is the energy-weighted fraction at the
-          sensor — the actual radiometric image-vs-artifact ratio, which
-          differs from the count when ray intensities vary across the
-          population.
+          <em>Signal: by energy</em> is the energy-weighted fraction at
+          the sensor — the actual radiometric image-vs-artifact ratio,
+          which differs from the count when ray intensities vary across
+          the population.
           Refractive indices: air 1.00, polystyrene 1.59, water 1.33, agar 1.34.
         </>
       }
@@ -1525,7 +1525,7 @@ export default function PetriDishOpticsSimulator() {
           value={stats.glareCount.toString()}
         />
         <StatCard
-          label="Signal: hits"
+          label="Signal: by count"
           value={
             Number.isFinite(stats.signalHitRatio)
               ? `${(100 * stats.signalHitRatio).toFixed(0)}%`
@@ -1533,7 +1533,7 @@ export default function PetriDishOpticsSimulator() {
           }
         />
         <StatCard
-          label="Signal: flux"
+          label="Signal: by energy"
           value={
             Number.isFinite(stats.signalFluxRatio)
               ? `${(100 * stats.signalFluxRatio).toFixed(0)}%`

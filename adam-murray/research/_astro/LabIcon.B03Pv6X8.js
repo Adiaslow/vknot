@@ -1,1 +1,0 @@
-import{j as s}from"./createLucideIcon.BZJSyQTP.js";import{B as n,R as e,V as c}from"./vector-square.BACGlgrC.js";function p({icon:t,rotation:o,color:a}){const r={VectorSquare:c,Route:e,BrainCircuit:n}[t];return s.jsx(r,{className:`w-8 h-8 text-${a}-600`,style:{transform:`rotate(${o})`}})}export{p as default};

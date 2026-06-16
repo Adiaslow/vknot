@@ -69,7 +69,7 @@ a { color: inherit; }
   text-transform: uppercase;
   color: var(--ink-soft);
   border: 1px solid var(--rule-strong);
-  padding: 0.25rem 0.55rem;
+  padding: 0.2rem 0.5rem;
 }
 .tag::before { content: "·"; color: var(--accent-ink); margin-right: 0.4rem; }
 

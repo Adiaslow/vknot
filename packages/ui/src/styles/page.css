@@ -1,0 +1,32 @@
+/* ============================================================
+   PAGE — shared page-composition primitives: the page intro
+   (title + lead) and section headings. Single source of truth for
+   both technical and research so their headings stay in lockstep.
+   ============================================================ */
+
+/* Page intro — a plain title + lead (technical's index, every research
+   page via ResearchHero). No kicker, no rule: restrained typeset. */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.intro h1 {
+  font-size: 2.1rem;
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+}
+.intro p {
+  color: var(--ink-soft);
+  max-width: 58ch;
+  line-height: 1.55;
+}
+
+/* Section heading inside a page (e.g. research "Recent Publications",
+   "Labs"). Matches the prose h2 scale. */
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}

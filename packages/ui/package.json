@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "sync:taxonomy": "node scripts/sync-taxonomy.mjs"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./uno.preset": "./uno.preset.ts",

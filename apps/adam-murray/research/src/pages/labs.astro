@@ -1,13 +1,13 @@
 ---
 import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
-import LabIcon from "../components/LabIcon";
 
 const labs = [
   {
     id: "lokey-lab",
     name: "Lokey Lab",
     institution: "UC Santa Cruz",
+    dates: "June 2022 – June 2026",
     icon: "VectorSquare",
     iconRotation: "-45deg",
     iconColor: "blue",
@@ -21,6 +21,7 @@ const labs = [
     id: "kim-lab",
     name: "Kim Lab",
     institution: "UC Santa Cruz",
+    dates: "November 2024 – June 2026",
     icon: "BrainCircuit",
     iconRotation: "0deg",
     iconColor: "emerald",
@@ -34,6 +35,7 @@ const labs = [
     id: "yarov-yarovoy-lab",
     name: "Yarov-Yarovoy Lab",
     institution: "UC Davis",
+    dates: "June 2023 – February 2025",
     icon: "Route",
     iconRotation: "-45deg",
     iconColor: "purple",
@@ -57,71 +59,102 @@ const labs = [
     accent="Labs"
   />
 
-  <section class="flex flex-col gap-16">
+  <section class="labs">
     {
       labs.map((lab) => (
-        <article id={lab.id} class="flex flex-col gap-6 scroll-mt-20">
-          <div class="flex items-start justify-between gap-4 flex-wrap">
-            <div class="flex items-center gap-4">
-              <div
-                class={`w-16 h-16 rounded-full bg-${lab.iconColor}-100 flex items-center justify-center flex-shrink-0`}
-              >
-                <LabIcon
-                  icon={lab.icon}
-                  rotation={lab.iconRotation}
-                  color={lab.iconColor}
-                  client:load
-                />
-              </div>
-              <div>
-                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
-                  {lab.name}
-                </h2>
-                <p class="text-slate-600 mt-1">{lab.institution}</p>
-              </div>
+        <article id={lab.id} class="lab">
+          <header class="lab-head">
+            <div class="lab-id">
+              <h2>{lab.name}</h2>
+              <span class="label">{lab.institution}</span>
+              <span class="lab-dates">{lab.dates}</span>
             </div>
             <a
+              class="lab-link"
               href={lab.website}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors duration-200 text-sm font-medium"
             >
-              Visit Lab Website
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
+              Visit lab ↗
             </a>
+          </header>
+
+          <div class="lab-section">
+            <span class="label">Lab Focus</span>
+            <p>{lab.labFocus || "Lab focus description to be added."}</p>
           </div>
 
-          <div class="grid gap-6 md:grid-cols-2">
-            <div class="rounded-lg border border-slate-200 bg-white p-6">
-              <h3 class="text-xl font-bold text-slate-900 mb-3">Lab Focus</h3>
-              <p class="text-slate-600 leading-relaxed">
-                {lab.labFocus || "Lab focus description to be added."}
-              </p>
-            </div>
-
-            <div class="rounded-lg border border-slate-200 bg-white p-6">
-              <h3 class="text-xl font-bold text-slate-900 mb-3">My Work</h3>
-              <p class="text-slate-600 leading-relaxed">{lab.myWork}</p>
-            </div>
+          <div class="lab-section">
+            <span class="label">My Work</span>
+            <p>{lab.myWork}</p>
           </div>
-
-          {lab.id !== labs[labs.length - 1].id && (
-            <hr class="border-slate-200 mt-10" />
-          )}
         </article>
       ))
     }
   </section>
 </ResearchLayout>
+
+<style>
+  .labs {
+    display: flex;
+    flex-direction: column;
+  }
+  .lab {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: 2.6rem 0;
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: 5rem;
+  }
+  .lab:first-child {
+    border-top: 0;
+    padding-top: 0.5rem;
+  }
+  .lab-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .lab-id {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .lab-dates {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .lab-id h2 {
+    font-size: 1.6rem;
+    letter-spacing: -0.015em;
+  }
+  .lab-link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .lab-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .lab-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .lab-section p {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    max-width: 72ch;
+  }
+</style>

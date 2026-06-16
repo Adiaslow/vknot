@@ -15,6 +15,7 @@
  * spreading the whole frontmatter object is the cleanest call site.
  */
 import { ReadingTime } from "./ReadingTime.tsx";
+import { CategoryTag } from "@vknot/ui";
 
 export interface Props {
   readonly description: string;
@@ -57,7 +58,7 @@ const dateLabel = dateObj.toLocaleDateString("en-US", {
   {description && <p class="summary">{description}</p>}
   {tags.length > 0 && (
     <div class="tags">
-      {tags.map((tag) => <span class="tag" data-tag={tag}>{tag}</span>)}
+      {tags.map((tag) => <CategoryTag id={tag} />)}
     </div>
   )}
 </aside>

@@ -1,0 +1,177 @@
+---
+/**
+ * PublicationRow — one publication as a typeset contents-list row, using the
+ * SAME shared `.entry-*` and `.tags/.tag` classes technical's post list uses.
+ * Pure Astro (data is fetched server-side) so the rows nest cleanly in an
+ * <ol class="entry-list"> with no client JS.
+ *
+ * Anatomy (mirrors a technical post row):
+ *   [ date ]  [ title (link) · venue line · abstract · chips ]
+ * Every metric is a mono `.tag` chip — technical's chip vocabulary — rather
+ * than a bespoke apparatus line, so research reads like the post list.
+ */
+interface PublicationMetrics {
+  citations?: number;
+  influentialCitations?: number;
+  recentCitations?: number;
+  relativeCitationRatio?: number;
+  fieldCitationRatio?: number;
+  views?: number;
+  isOpenAccess?: boolean;
+  oaStatus?: "gold" | "green" | "hybrid" | "bronze" | "closed";
+  oaUrl?: string;
+  fieldsOfStudy?: string[];
+  references?: number;
+  venue?: string;
+}
+
+export interface Props {
+  readonly title: string;
+  readonly abstract: string;
+  readonly venue?: string;
+  readonly year?: number;
+  readonly date?: string;
+  readonly doi?: string;
+  readonly url?: string;
+  readonly type?: string;
+  readonly showAbstract?: boolean;
+  readonly metrics?: PublicationMetrics;
+  readonly publicationId?: string;
+}
+
+const {
+  title,
+  abstract,
+  venue,
+  year,
+  date,
+  doi,
+  url,
+  type,
+  showAbstract = true,
+  metrics,
+  publicationId,
+} = Astro.props;
+
+// Titles/abstracts from CrossRef/ORCID carry inline markup (e.g. Na<sub>V</sub>,
+// <i>in vitro</i>). Keep only a whitelist of safe inline formatting tags — strip
+// every other tag and ALL attributes — so it can render as HTML without XSS.
+const ALLOWED_INLINE = new Set(["sub", "sup", "i", "em", "b", "strong"]);
+const sanitizeInline = (s?: string): string =>
+  (s ?? "").replace(/<(\/?)([a-zA-Z0-9]+)[^>]*>/g, (_, slash, tag) =>
+    ALLOWED_INLINE.has(tag.toLowerCase()) ? `<${slash}${tag.toLowerCase()}>` : "",
+  );
+
+const m = metrics ?? {};
+const titleHtml = sanitizeInline(title);
+const abstractHtml = sanitizeInline(abstract);
+const dateLabel = date || (year != null ? String(year) : "");
+const doiUrl = doi ? `https://doi.org/${doi}` : undefined;
+
+// The title links out to the paper (url, falling back to DOI).
+const titleHref = url || doiUrl;
+const titleExternal = !!titleHref && /^https?:/.test(titleHref);
+
+const oaHref = m.oaUrl || doiUrl;
+const isOA = m.isOpenAccess && m.oaStatus && m.oaStatus !== "closed";
+const fields = (m.fieldsOfStudy ?? []).slice(0, 3);
+---
+
+<li class="entry" id={publicationId}>
+  <span class="entry-date">{dateLabel}</span>
+
+  <span class="entry-body">
+    {
+      titleHref ? (
+        <a
+          class="entry-title"
+          href={titleHref}
+          set:html={titleHtml}
+          {...(titleExternal
+            ? { target: "_blank", rel: "noopener noreferrer" }
+            : {})}
+        />
+      ) : (
+        <span class="entry-title" set:html={titleHtml} />
+      )
+    }
+
+    <span class="entry-venue">
+      {venue ?? "In Review"}
+      {
+        doi && (
+          <>
+            {" · "}
+            <a href={doiUrl} target="_blank" rel="noopener noreferrer">
+              {doi}
+            </a>
+          </>
+        )
+      }
+    </span>
+
+    {showAbstract && abstract && (
+      <span class="entry-summary" set:html={abstractHtml} />
+    )}
+
+    <span class="tags">
+      {type && <span class="tag">{type.replace(/-/g, " ")}</span>}
+      {
+        isOA && (
+          <a class="tag" href={oaHref} target="_blank" rel="noopener noreferrer">
+            open access
+          </a>
+        )
+      }
+      {fields.map((f) => <span class="tag">{f}</span>)}
+    </span>
+  </span>
+
+  <span class="entry-stat">
+    {
+      m.citations !== undefined && m.citations > 0 && (
+        <span>{m.citations} cited</span>
+      )
+    }
+    {
+      m.influentialCitations !== undefined && m.influentialCitations > 0 && (
+        <span title="Highly influential citations (Semantic Scholar)">
+          {m.influentialCitations} infl.
+        </span>
+      )
+    }
+    {
+      m.recentCitations !== undefined &&
+        m.recentCitations > 0 &&
+        m.recentCitations !== m.citations && (
+          <span title="Citations in the last 2 years (Dimensions)">
+            {m.recentCitations} recent
+          </span>
+        )
+    }
+    {
+      m.relativeCitationRatio != null && (
+        <span title="Relative Citation Ratio vs NIH-funded papers">
+          RCR {m.relativeCitationRatio.toFixed(2)}
+        </span>
+      )
+    }
+    {
+      m.fieldCitationRatio != null && (
+        <span title="Field Citation Ratio vs same field/year">
+          FCR {m.fieldCitationRatio.toFixed(2)}
+        </span>
+      )
+    }
+    {
+      m.views !== undefined && m.views > 0 && (
+        <span>{m.views.toLocaleString()} views</span>
+      )
+    }
+    {
+      m.references !== undefined && m.references > 0 && (
+        <span>{m.references} refs</span>
+      )
+    }
+  </span>
+</li>

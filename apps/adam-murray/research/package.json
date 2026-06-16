@@ -20,6 +20,7 @@
     "react-dom": "^18.3.1",
     "rehype-katex": "^7.0.0",
     "remark-math": "^6.0.0",
-    "unocss": "^66.6.8"
+    "unocss": "^66.6.8",
+    "@vknot/ui": "workspace:*"
   }
 }

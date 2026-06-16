@@ -1,0 +1,162 @@
+/* ============================================================
+   ENTRY LIST — the single source of truth for the typeset
+   "contents" list used by BOTH the technical post index and the
+   research publication index. There is ONE definition here; each
+   site consumes it and adds only its own variant rows.
+
+   A row carries `.entry`. It may be a whole-row link
+   (`<li><a class="entry" href>` — technical posts) OR a container
+   with its own inner links (`<li class="entry">` — research
+   publications, whose DOI / open-access links can't nest in a row
+   anchor). Both render identically.
+
+   Prose-robust: technical's list lives inside `<article class="prose">`,
+   so every rule is scoped under `.entry-list` (out-specifying prose's
+   generic `ol`/`li`/`a` rules) and prose's element-level list rules are
+   explicitly neutralised. The list therefore renders the same in and
+   out of `.prose`.
+
+   Columns: [ mono date ] [ title (+ venue + summary + chips) ] [ stat ]
+   ============================================================ */
+
+.entry-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.prose .entry-list {
+  margin: 0;
+  padding: 0;
+} /* beat .prose ol { padding-left } */
+
+/* clear prose's blanket `.prose li { margin-top }`, then re-assert the same
+   0.4em inter-row gap the live technical list has, in both contexts. */
+.entry-list > li,
+.prose .entry-list > li {
+  margin: 0;
+}
+.entry-list > li + li,
+.prose .entry-list > li + li {
+  margin-top: 0.4em;
+}
+
+.entry-list .entry {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  gap: 1.5rem;
+  align-items: baseline;
+  padding: 1.4rem 0.75rem;
+  border-top: 1px solid var(--rule);
+  /* the accent underline the live technical rows have (from .prose a),
+     made explicit so research — which is not inside .prose — gets it too. */
+  border-bottom: 1px solid color-mix(in oklch, var(--accent) 35%, transparent);
+  background: none;
+  text-decoration: none;
+  color: inherit; /* beat prose's `.prose a { color: accent }` */
+  transition: background 0.2s, border-color 0.2s;
+  scroll-margin-top: 5rem;
+}
+.entry-list > li:last-child > .entry,
+.entry-list > li:last-child.entry {
+  border-bottom: 1px solid var(--rule);
+}
+.entry-list .entry:hover {
+  background: color-mix(in oklch, var(--accent) 5%, transparent);
+  border-bottom-color: var(--accent);
+}
+
+.entry-list .entry-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.entry-list .entry-title {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.entry-list a.entry-title {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 0;
+  background: none;
+  transition: color 0.2s;
+}
+.entry-list a.entry-title:hover {
+  color: var(--accent-ink);
+  background: none;
+}
+
+.entry-list .entry-summary {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-top: 0.35rem;
+  line-height: 1.45;
+  max-width: 60ch;
+}
+
+.entry-list .entry .tags {
+  margin-top: 0.7rem;
+}
+
+.entry-list .entry-stat {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+  white-space: nowrap;
+  /* stacks right-aligned: a single value (technical's reading time) or a
+     small column of metrics (research citations/refs/…). */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+/* ---- variant: research publication row ---------------------------------
+   adds a venue/journal line (carrying the DOI verbatim) and renders every
+   metric as a shared `.tag` chip (see base.css). Everything above is the
+   shared base; only the pieces below are research-specific. */
+.entry-list .entry-venue {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.entry-list .entry-venue a {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--accent-ink);
+  text-decoration: none;
+  border-bottom: 0;
+  background: none;
+}
+.entry-list .entry-venue a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.entry-list a.tag {
+  text-decoration: none;
+  border-bottom: 0;
+  background: none;
+}
+.entry-list a.tag:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .entry-list .entry {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .entry-list .entry-stat {
+    display: none;
+  }
+}

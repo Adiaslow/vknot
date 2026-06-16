@@ -1,6 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import BlogLayout from "../layouts/BlogLayout.astro";
+import { CategoryTag } from "@vknot/ui";
+import CategoryGraph from "../components/interactive/CategoryGraph.tsx";
+import {
+  buildCategoryGraph,
+  settleCategoryGraph,
+} from "../lib/category-graph";
 
 const allPosts = await getCollection("blog");
 const posts = allPosts
@@ -17,12 +23,52 @@ const posts = allPosts
 
 const fmtDate = (d: Date) =>
   `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, "0")}·${String(d.getDate()).padStart(2, "0")}`;
+
+// Shared-category graph: settled server-side so it renders with JS off and
+// never jumps on hydration, then the island keeps it live (see CategoryGraph).
+const GRAPH_W = 760;
+const GRAPH_H = 420;
+const graph = settleCategoryGraph(
+  buildCategoryGraph(
+    posts.map((p) => ({
+      id: p.href,
+      title: p.title,
+      href: p.href,
+      date: p.date,
+      tags: p.tags,
+    })),
+  ),
+  { width: GRAPH_W, height: GRAPH_H },
+);
+
+// Crop the view tight to the settled nodes (+room for date labels below and
+// the hover title above), so the figure has no dead bands around it.
+const xs = graph.nodes.map((n) => n.x ?? 0);
+const ys = graph.nodes.map((n) => n.y ?? 0);
+const PAD_X = 46;
+const PAD_TOP = 38;
+const PAD_BOTTOM = 42;
+const view = {
+  x: Math.min(...xs) - PAD_X,
+  y: Math.min(...ys) - PAD_TOP,
+  w: Math.max(...xs) - Math.min(...xs) + PAD_X * 2,
+  h: Math.max(...ys) - Math.min(...ys) + PAD_TOP + PAD_BOTTOM,
+};
 ---
 
 <BlogLayout
   title="Adam Murray — Research Notes"
   description="Computational cyclic peptide researcher exploring geometric deep learning, graph theory, complex systems, and mathematical frameworks."
 >
+  <CategoryGraph
+    client:load
+    nodes={graph.nodes}
+    links={graph.links}
+    width={GRAPH_W}
+    height={GRAPH_H}
+    view={view}
+  />
+
   <section class="intro">
     <h1>Recent Posts</h1>
     <p>
@@ -32,83 +78,23 @@ const fmtDate = (d: Date) =>
     </p>
   </section>
 
-  <ol class="contents">
+  <ol class="entry-list">
     {posts.map((post) => (
       <li>
-        <a class="row" href={post.href}>
-          <span class="date">{fmtDate(post.date)}</span>
-          <span class="body">
-            <span class="t">{post.title}</span>
-            <span class="d">{post.summary}</span>
+        <a class="entry" href={post.href}>
+          <span class="entry-date">{fmtDate(post.date)}</span>
+          <span class="entry-body">
+            <span class="entry-title">{post.title}</span>
+            <span class="entry-summary">{post.summary}</span>
             <span class="tags">
-              {post.tags.map((tag) => <span class="tag">{tag}</span>)}
+              {post.tags.map((tag) => <CategoryTag id={tag} focusable={false} />)}
             </span>
           </span>
           {post.readingTimeMinutes ? (
-            <span class="rt">{post.readingTimeMinutes} min</span>
-          ) : <span class="rt" />}
+            <span class="entry-stat">{post.readingTimeMinutes} min</span>
+          ) : <span class="entry-stat" />}
         </a>
       </li>
     ))}
   </ol>
 </BlogLayout>
-
-<style>
-  .intro { display: flex; flex-direction: column; gap: 0.75rem; }
-  .intro h1 {
-    font-size: 2.1rem;
-    letter-spacing: -0.02em;
-    max-width: 24ch;
-  }
-  .intro p {
-    color: var(--ink-soft);
-    max-width: 58ch;
-    line-height: 1.55;
-  }
-
-  .contents { list-style: none; margin: 0; padding: 0; }
-  .contents .row {
-    display: grid;
-    grid-template-columns: 6rem 1fr auto;
-    gap: 1.5rem;
-    align-items: baseline;
-    padding: 1.4rem 0.75rem;
-    border-top: 1px solid var(--rule);
-    text-decoration: none;
-    color: inherit;
-    transition: background .2s;
-  }
-  .contents li:last-child .row { border-bottom: 1px solid var(--rule); }
-  .contents .row:hover {
-    background: color-mix(in oklch, var(--accent) 5%, transparent);
-  }
-  .date {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    letter-spacing: 0.02em;
-  }
-  .t { display: block; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
-  .d {
-    display: block;
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-    margin-top: 0.35rem;
-    line-height: 1.45;
-    max-width: 60ch;
-  }
-  /* .tags / .tag chip styling is shared — see styles/base.css; only the
-     contents-row spacing is local. */
-  .tags { margin-top: 0.7rem; }
-  .rt {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--faint);
-    white-space: nowrap;
-  }
-
-  @media (max-width: 640px) {
-    .contents .row { grid-template-columns: 1fr; gap: 0.4rem; }
-    .rt { display: none; }
-  }
-</style>

@@ -1,8 +1,7 @@
 ---
 import ResearchHero from "../components/ResearchHero.astro";
 import ResearchLayout from "../layouts/ResearchLayout.astro";
-import PublicationCard from "../components/PublicationCard";
-import LabIconSmall from "../components/LabIconSmall";
+import PublicationRow from "../components/PublicationRow.astro";
 import { fetchAbstractFromCrossRef } from "../utils/fetchAbstract";
 import { fetchPublicationMetrics } from "../utils/fetchMetrics";
 
@@ -147,150 +146,25 @@ try {
   <ResearchHero
     title="Computational Peptide Drug Design & Neuroscience"
     lead="Research in computational peptide drug design and developmental neuroscience using machine learning, evolutionary and stochastic optimization, and statistical and graph-based methods research at UC Santa Cruz and UC Davis."
-    accent="Research Focus Areas"
   />
 
-  <section class="flex flex-col gap-8">
-    <div class="flex flex-col gap-3">
-      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">
-        {
-          publications.length > 0 &&
-          publications[0].title?.startsWith("Research Focus")
-            ? "Research Focus Areas"
-            : publications.length > 0 &&
-                publications[0].title?.startsWith("Building Research")
-              ? "Research Portfolio"
-              : "Recent Publications"
-        }
-      </h2>
-      <div class="flex flex-col gap-4">
-        <p class="text-slate-600 leading-relaxed">
-          {
-            publications.length > 0 &&
-            publications[0].title?.startsWith("Research Focus")
-              ? "Current research initiatives across computational biology, neuroscience, and drug discovery."
-              : publications.length > 0 &&
-                  publications[0].title?.startsWith("Building Research")
-                ? "Publications and research outputs will appear here as they become available."
-                : "Recent peer-reviewed publications from ongoing research collaborations."
-          }
-        </p>
-        {
-          publications.length > 6 &&
-            !publications[0].title?.startsWith("Research Focus") &&
-            !publications[0].title?.startsWith("Building Research") && (
-              <p class="text-sm text-slate-500">
-                Showing recent publications.
-                <a
-                  href="/adam-murray/research/publications"
-                  class="text-blue-600 hover:text-blue-700 font-medium ml-1"
-                >
-                  View all {publications.length} publications →
-                </a>
-              </p>
-            )
-        }
-      </div>
-    </div>
-    <div class="flex flex-col gap-8">
-      {
-        publications
-          .slice(0, 6)
-          .map((pub, index) => (
-            <PublicationCard
-              key={index}
-              title={pub.title}
-              abstract={pub.abstract}
-              venue={pub.venue}
-              year={pub.year}
-              date={pub.date}
-              doi={pub.doi}
-              url={pub.url}
-              type={pub.type}
-              metrics={pub.metrics}
-              showAbstract={false}
-              isIndexPage={true}
-              publicationId={`publication-${index}`}
-              client:load
-            />
-          ))
-      }
-    </div>
-  </section>
-
-  <section class="flex flex-col gap-8">
-    <div class="flex flex-col gap-3">
-      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Labs</h2>
-    </div>
-    <div class="grid gap-6 md:grid-cols-3">
-      <a
-        href="/adam-murray/research/labs#lokey-lab"
-        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5 block"
-      >
-        <div class="flex flex-col gap-3">
-          <div
-            class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"
-          >
-            <LabIconSmall
-              icon="VectorSquare"
-              rotation="-45deg"
-              color="blue"
-              client:load
-            />
-          </div>
-          <h3 class="font-bold text-slate-900">Lokey Lab</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Transformer models for molecular property prediction, optimization
-            pipelines for peptide library design, and analysis of high-throughput
-            DNA-encoded library data at UC Santa Cruz.
-          </p>
-        </div>
-      </a>
-      <a
-        href="/adam-murray/research/labs#kim-lab"
-        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5 block"
-      >
-        <div class="flex flex-col gap-3">
-          <div
-            class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center"
-          >
-            <LabIconSmall
-              icon="BrainCircuit"
-              color="emerald"
-              client:load
-            />
-          </div>
-          <h3 class="font-bold text-slate-900">Kim Lab</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Intrinsic signal imaging macroscope development, viral axon tracing
-            quantification, and information-theoretic analysis of cortical
-            connectivity at UC Santa Cruz.
-          </p>
-        </div>
-      </a>
-      <a
-        href="/adam-murray/research/labs#yarov-yarovoy-lab"
-        class="group rounded-lg border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/80 hover:-translate-y-0.5 block"
-      >
-        <div class="flex flex-col gap-3">
-          <div
-            class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center"
-          >
-            <LabIconSmall
-              icon="Route"
-              rotation="-45deg"
-              color="purple"
-              client:load
-            />
-          </div>
-          <h3 class="font-bold text-slate-900">Yarov-Yarovoy Labs</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Ion channel structural modeling and computational protein design
-            using AlphaFold2, RoseTTAFold2, ProteinMPNN, and RFDiffusion
-            at UC Davis.
-          </p>
-        </div>
-      </a>
-    </div>
-  </section>
+  <ol class="entry-list">
+    {
+      publications.map((pub, index) => (
+        <PublicationRow
+          title={pub.title}
+          abstract={pub.abstract}
+          venue={pub.venue}
+          year={pub.year}
+          date={pub.date}
+          doi={pub.doi}
+          url={pub.url}
+          type={pub.type}
+          metrics={pub.metrics}
+          showAbstract={true}
+          publicationId={`publication-${index}`}
+        />
+      ))
+    }
+  </ol>
 </ResearchLayout>

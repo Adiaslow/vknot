@@ -18,5 +18,15 @@ export { default as NodeRing } from './components/NodeRing.astro';
 export { default as ThemeToggle } from './components/ThemeToggle.astro';
 export { default as Colophon } from './components/Colophon.astro';
 export { default as HeadEssentials } from './components/HeadEssentials.astro';
+export { default as CategoryTag } from './components/CategoryTag.astro';
 
 export type { SiteHeaderLink } from './components/SiteHeader.astro';
+
+// arXiv category taxonomy (cached; see scripts/sync-taxonomy.mjs).
+export {
+  getCategory,
+  isValidCategory,
+  allCategories,
+  categoryIds,
+} from './lib/arxiv-taxonomy';
+export type { ArxivCategory } from './lib/arxiv-taxonomy';

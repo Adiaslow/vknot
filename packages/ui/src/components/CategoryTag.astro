@@ -1,0 +1,145 @@
+---
+/**
+ * CategoryTag — a tag chip backed by the arXiv category taxonomy.
+ *
+ * The chip shows the category's human NAME (e.g. "Biomolecules"); on
+ * hover or keyboard focus it reveals a token-styled tooltip with the
+ * Name, the category ID (e.g. q-bio.BM), and the full description. The
+ * tooltip is pure CSS — no client JS, matching the SSR-only ethos of
+ * the rest of the design system.
+ *
+ * Graceful degradation: if `id` is not a known arXiv category (e.g. a
+ * legacy free-form tag that hasn't been migrated yet), it renders as a
+ * plain `.tag` chip with no tooltip, so nothing breaks mid-migration.
+ *
+ * The `data-tag` attribute carries the raw id for downstream consumers
+ * (e.g. the shared-category graph planned for the technical index).
+ */
+import { getCategory } from "../lib/arxiv-taxonomy";
+
+export interface Props {
+  /** arXiv category id, e.g. "q-bio.BM" (or a legacy tag string). */
+  readonly id: string;
+  /**
+   * Whether the chip is keyboard-focusable (tabindex=0) so the tooltip
+   * can be revealed without a pointer. Defaults to true. Set false when
+   * the chip is rendered INSIDE a link (e.g. the index contents rows),
+   * where focusable content would be invalid — there the tooltip stays
+   * hover-only.
+   */
+  readonly focusable?: boolean;
+}
+
+const { id, focusable = true } = Astro.props;
+const cat = getCategory(id);
+---
+
+{
+  cat ? (
+    <span
+      class="cat-tag"
+      tabindex={focusable ? 0 : undefined}
+      data-tag={id}
+      aria-label={`${cat.name} (${cat.id}) — ${cat.description}`}
+    >
+      <span class="tag">{cat.name}</span>
+      <span class="cat-tip" role="tooltip">
+        <span class="cat-tip-head">
+          <span class="cat-tip-name">{cat.name}</span>
+          <span class="cat-tip-id">{cat.id}</span>
+        </span>
+        <span class="cat-tip-desc">{cat.description}</span>
+      </span>
+    </span>
+  ) : (
+    <span class="tag" data-tag={id}>
+      {id}
+    </span>
+  )
+}
+
+<style>
+  .cat-tag {
+    position: relative;
+    display: inline-flex;
+    outline: none;
+  }
+  /* the inner .tag chip carries the shared chip styling from base.css;
+     make it read as interactive when the wrapper is hovered/focused. */
+  .cat-tag:hover .tag,
+  .cat-tag:focus-visible .tag {
+    color: var(--ink);
+    border-color: var(--accent);
+    cursor: help;
+  }
+
+  .cat-tip {
+    position: absolute;
+    bottom: calc(100% + 0.55rem);
+    left: 0;
+    z-index: 50;
+    width: max-content;
+    max-width: min(22rem, 78vw);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.7rem 0.8rem;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    box-shadow: 0 6px 24px -8px color-mix(in oklch, var(--ink) 30%, transparent);
+    color: var(--ink);
+    /* hidden until hover / focus */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0.2rem);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+  }
+  .cat-tag:hover .cat-tip,
+  .cat-tag:focus-within .cat-tip,
+  .cat-tag:focus-visible .cat-tip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .cat-tip-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.35rem;
+  }
+  .cat-tip-name {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .cat-tip-id {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--accent-ink);
+    white-space: nowrap;
+  }
+  .cat-tip-desc {
+    font-family: var(--font-serif);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cat-tip {
+      transition: opacity 0.16s ease, visibility 0.16s;
+      transform: none;
+    }
+    .cat-tag:hover .cat-tip,
+    .cat-tag:focus-within .cat-tip,
+    .cat-tag:focus-visible .cat-tip {
+      transform: none;
+    }
+  }
+</style>
